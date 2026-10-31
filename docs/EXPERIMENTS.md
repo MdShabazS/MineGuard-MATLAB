@@ -1,5 +1,7 @@
 # Experiment Protocol and Evaluation
 
+**MG-008 authoritative fusion, split, metric-unit and acceptance contract:** [MG008_FUSION_DATASET_AND_METRICS.md](MG008_FUSION_DATASET_AND_METRICS.md). **Do not mix cell-unit confusion counts with object-event matching counts** in one result; real MATLAB fusion test execution belongs to MG-009.
+
 ## Experiments
 E1: baseline predefined grid-path coverage, repeatability and navigation metrics.
 E2: sensor physics sweeps of standoff, burial depth, soil, temperature, noise, occlusion and clutter; include negative controls.
@@ -9,7 +11,7 @@ E5: PPO policy vs fixed grid under same simulation budgets; include multiple see
 E6: cross-platform MATLAB release/toolbox compatibility (only if verified on both systems).
 
 ## Ground-truth and metrics
-Synthetic truth is for evaluation only. Report TP, FP, TN, FN, precision, recall (TPR), specificity, FPR, F1, time/distance/coverage and location error; undefined denominators represented explicitly. When discussing detection rates, say **on synthetic scenarios** and state distributions.
+Synthetic truth is for evaluation only. **Primary `ExperimentResult.tp/fp/tn/fn` uses one evaluable legal survey cell as its unit**, so true negatives are meaningful. Report cell-unit precision, recall, FPR and F1 with explicit zero-denominator NaN values, denominators, and excluded/unassessed cells. Separately report one-to-one event-to-hidden-target localization matching, object-event misses and unmatched alarms; **never combine event-level TP/FP/FN with cell-level TN**. Details and edge-case tests are fixed in the MG-008 contract. When discussing detection rates, say **on synthetic scenarios** and state distributions.
 
 ## Reproducibility
 Log: Git SHA, MATLAB release, installed toolboxes, scenario ID and seed, trained checkpoint fingerprint, data source/licence, hyperparameters, duration, export names, actual tester and logs. Do not select a test scenario after viewing results or tune on the held-out test set.
