@@ -152,6 +152,14 @@
       "summary": "GitHub-hosted Chromium real deployed-site QA passed 15/15, with desktop and touch-emulated mobile/tablet screenshots, filters, refresh, error handling and actual MG-021 main branch TODO→IN_PROGRESS transition observed by a post-merge browser run.",
       "next": "Review and merge separate MG-021 completion PR; once DONE is on main, optional physical-device Safari/iPhone testing may be done independently without claiming already executed.",
       "evidence": "tasks/evidence/MG-021.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-011",
+      "summary": "MATLAB mission-replay dashboard (openMissionApp) implemented as a source-backed uifigure app with a redacted allowlist runBundle adapter, replaying a real MG-004/005/007/009 run with the frozen MG-009 detector; UI-01..UI-20 pass on the Windows desktop (72/72 with regressions), screenshots and verified exports recorded.",
+      "next": "Shabaz review of MG-011 implementation PR; separate DONE PR after merge",
+      "evidence": "tasks/evidence/MG-011.md"
     }
   ]
 }
