@@ -2,6 +2,7 @@ import {REPO, BASE, buildTaskRows, summarize, fileUrl, githubLink, safeDate, fin
 const RAW="https://raw.githubusercontent.com/"+REPO+"/main/";
 const API="https://api.github.com/repos/"+REPO;
 let latestRows=[],filter="ALL",loading=false;
+let v2Rows=[],v2Filter="ALL";
 const el=id=>document.getElementById(id);
 function make(tag,cls,text) {
   const node=document.createElement(tag);
@@ -121,6 +122,74 @@ function showCommits(items){
     return item;
   }):[make("p","muted","No recent commits found.")]);
 }
+
+/** V2 has independent task records on main; no draft branch can claim accepted work. */
+function showV2Tasks(rows) {
+  const filtered=v2Filter==="ALL"?rows:rows.filter(t=>t.displayState===v2Filter);
+  const entries=filtered.map(task=>{
+    const tr=make("tr"),info=make("td"),state=make("td"),detail=make("td");
+    info.append(make("div","task-name",task.id+" · "+task.title),make("div","task-kind",task.kind));
+    state.append(statusNode(task.displayState));
+    if(task.displayState==="BLOCKED")detail.append(make("span","warning","Waiting: "+task.unfinished.join(", ")));
+    else if(task.displayState==="DONE" && task.evidence){
+      const url=fileUrl(task.evidence);
+      detail.append(url?nodeLink("View evidence ↗",url):make("span","muted","Invalid evidence link"));
+    }else if(task.displayState==="IN_PROGRESS")detail.append(make("span","muted","Active · "+(task.startedOn||"date not recorded")));
+    else detail.append(make("span","muted",task.dependencies.length?"Prerequisites complete":"No prerequisites"));
+    tr.append(info,make("td","owner-cell",task.owner),state,detail);return tr;
+  });
+  if(!entries.length){
+    const tr=make("tr"),td=make("td","muted","No V2 tasks match this filter");
+    td.colSpan=4;tr.append(td);entries.push(tr);
+  }
+  replace("v2TaskRows",entries);
+}
+function showV2Data(rows) {
+  const s=summarize(rows);
+  v2Rows=rows;
+  el("v2Percent").textContent=s.percentage+"%";
+  el("v2Done").textContent=s.counts.DONE+" / "+s.total+" tasks DONE";
+  el("v2TaskTotal").textContent="("+s.total+")";
+  for(const [id,value] of [["v2DoneCount",s.counts.DONE],["v2ActiveCount",s.counts.IN_PROGRESS],["v2ReadyCount",s.counts.READY],["v2BlockedCount",s.counts.BLOCKED]])el(id).textContent=value;
+  el("v2SourceStatus").textContent="GitHub main · Published tasks · "+s.counts.DONE+" DONE, "+s.counts.IN_PROGRESS+" IN PROGRESS";
+  const active=rows.filter(t=>t.displayState==="IN_PROGRESS");
+  const ready=rows.filter(t=>t.displayState==="READY");
+  const now=[];
+  if(active.length)now.push(...active.map(taskSnippet));
+  else now.push(make("p","muted","No V2 task is currently IN_PROGRESS on GitHub main."));
+  if(ready.length){now.push(make("div","below-heading","Ready to start"));now.push(...ready.slice(0,4).map(taskSnippet));}
+  replace("v2Current",now);
+  replace("v2Owners",s.owners.map(o=>{
+    const item=make("div","owner-card"),top=make("div","owner-top");
+    top.append(make("strong","",o.name),make("span","owner-meta",o.done+" / "+o.total+" done"));
+    const bar=make("div","owner-bar"),fill=make("div","owner-fill");
+    fill.style.width=o.percentage+"%";bar.append(fill);
+    item.append(top,bar,make("div","owner-foot",(o.active?o.active+" active · ":"")+o.percentage+"% of assigned V2 tasks complete"));
+    return item;
+  }));
+  showV2Tasks(rows);
+}
+async function refreshV2() {
+  try {
+    const [manifest,status]=await Promise.all([
+      getJson(RAW+"v2/tasks/manifest.json"),
+      getJson(RAW+"v2/tasks/status.json")
+    ]);
+    const rows=buildTaskRows(manifest,status);
+    if(rows.some(t=>!t.id.startsWith("V2-")))throw Error("Unexpected V2 task identifier");
+    showV2Data(rows);
+  }catch(error){
+    // Main branch is authoritative. Never silently copy draft statuses or show stale values as current.
+    v2Rows=[];
+    el("v2SourceStatus").textContent="V2 status unavailable on GitHub main: "+error.message;
+    for(const id of ["v2Percent","v2Done","v2TaskTotal","v2DoneCount","v2ActiveCount","v2ReadyCount","v2BlockedCount"])el(id).textContent="—";
+    replace("v2Current",[make("p","muted","V2 records are unavailable. No task completion is assumed; inspect the published GitHub files.")]);
+    replace("v2Owners",[make("p","muted","Owner progress unavailable.")]);
+    const tr=make("tr"),td=make("td","muted","V2 task records unavailable from GitHub main.");
+    td.colSpan=4;tr.append(td);replace("v2TaskRows",[tr]);
+  }
+}
+
 async function refresh() {
   if(loading)return;
   loading=true;el("refresh").disabled=true;el("refresh").textContent="Refreshing…";
@@ -131,6 +200,7 @@ async function refresh() {
     latestRows=rows;showSummary(summary,rows);showCurrent(rows);showOwners(summary.owners);showTasks(rows);
     el("lastChecked").textContent=new Date().toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"});
     alert("");
+    await refreshV2();
     const extras=await Promise.allSettled([
       getJson(API+"/pulls?state=all&per_page=10"),
       getJson(API+"/actions/runs?per_page=10"),
@@ -167,6 +237,15 @@ el("filters").addEventListener("click",event=>{
     const selected=b===button;b.classList.toggle("selected",selected);b.setAttribute("aria-pressed",String(selected));
   }
   if(latestRows.length)showTasks(latestRows);
+});
+el("v2Filters").addEventListener("click",event=>{
+  const button=event.target.closest("button[data-filter]");
+  if(!button)return;
+  v2Filter=button.dataset.filter;
+  for(const b of el("v2Filters").querySelectorAll("button[data-filter]")){
+    const selected=b===button;b.classList.toggle("selected",selected);b.setAttribute("aria-pressed",String(selected));
+  }
+  if(v2Rows.length)showV2Tasks(v2Rows);
 });
 const deadline=new Date("2026-11-02T23:59:59+05:30"),days=Math.ceil((deadline-new Date())/(24*60*60*1000));
 el("deadlineState").textContent=days>0?"· "+days+" days remaining":days===0?"· Due today":"· Deadline passed";
