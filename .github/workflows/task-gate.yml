@@ -1,0 +1,25 @@
+name: Task Gate
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  task-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: node --check scripts/task-gate.mjs
+      - name: Validate task DAG and evidence
+        run: node scripts/task-gate.mjs validate
+      - name: List unblocked work
+        run: node scripts/task-gate.mjs ready
+      - name: Scope note
+        run: echo 'These checks do NOT execute MATLAB; licensed local MATLAB verification is tracked separately.'

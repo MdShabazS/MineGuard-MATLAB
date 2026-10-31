@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "project": "MineGuard MATLAB Simulation",
+  "deadline": "2026-11-02",
+  "enforcement": "dependency-dag",
+  "tasks": {
+    "MG-000": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [],
+      "title": "Foundation docs, DAG checker, workflow and public repo baseline",
+      "evidence": "docs/FOUNDATION.md"
+    },
+    "MG-001": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "MG-000"
+      ],
+      "title": "Verify original Phase-1 requirements, literature and research plan",
+      "evidence": "tasks/evidence/MG-001.md"
+    },
+    "MG-002": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "MG-000"
+      ],
+      "title": "Verify MATLAB release/licence/toolboxes and Claude Code MCP execution",
+      "evidence": "tasks/evidence/MG-002.md"
+    },
+    "MG-003": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "MG-001",
+        "MG-002"
+      ],
+      "title": "Freeze modules, data interfaces, units and traceability",
+      "evidence": "tasks/evidence/MG-003.md"
+    },
+    "MG-004": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "MG-003"
+      ],
+      "title": "Seeded scenario and ground-truth generator with sanity tests",
+      "evidence": "tasks/evidence/MG-004.md"
+    },
+    "MG-005": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "MG-004"
+      ],
+      "title": "Fixed grid navigation, virtual telemetry, UAV simulation baseline",
+      "evidence": "tasks/evidence/MG-005.md"
+    },
+    "MG-006": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "MG-003"
+      ],
+      "title": "Document verified physical assumptions and sensor validation criteria",
+      "evidence": "tasks/evidence/MG-006.md"
+    },
+    "MG-007": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "MG-004",
+        "MG-006"
+      ],
+      "title": "Implement thermal and electromagnetic synthetic sensor models",
+      "evidence": "tasks/evidence/MG-007.md"
+    },
+    "MG-008": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "MG-006"
+      ],
+      "title": "Specify fusion thresholds, dataset protocol and metrics",
+      "evidence": "tasks/evidence/MG-008.md"
+    },
+    "MG-009": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "MG-007",
+        "MG-008"
+      ],
+      "title": "Build detection baseline, sensor fusion and reproducible test metrics",
+      "evidence": "tasks/evidence/MG-009.md"
+    },
+    "MG-010": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "MG-003"
+      ],
+      "title": "Define MATLAB mission control dashboard requirements and tests",
+      "evidence": "tasks/evidence/MG-010.md"
+    },
+    "MG-011": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "MG-005",
+        "MG-009",
+        "MG-010"
+      ],
+      "title": "Implement App Designer dashboard and synthetic map replay",
+      "evidence": "tasks/evidence/MG-011.md"
+    },
+    "MG-012": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "MG-005"
+      ],
+      "title": "Specify PPO observations/actions/rewards and fair comparison",
+      "evidence": "tasks/evidence/MG-012.md"
+    },
+    "MG-013": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "MG-005",
+        "MG-012"
+      ],
+      "title": "Train and evaluate PPO survey policy against fixed grid",
+      "evidence": "tasks/evidence/MG-013.md"
+    },
+    "MG-014": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "MG-008",
+        "MG-012"
+      ],
+      "title": "Write locked test matrix, held-out scenarios and demo plan",
+      "evidence": "tasks/evidence/MG-014.md"
+    },
+    "MG-015": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "MG-011",
+        "MG-013",
+        "MG-014"
+      ],
+      "title": "End-to-end integration and quantitative MATLAB validation",
+      "evidence": "tasks/evidence/MG-015.md"
+    },
+    "MG-016": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "MG-015"
+      ],
+      "title": "Independently review evidence and grade original objective coverage",
+      "evidence": "tasks/evidence/MG-016.md"
+    },
+    "MG-017": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "MG-016"
+      ],
+      "title": "Fix verified defects and produce reproducible tagged release candidate",
+      "evidence": "tasks/evidence/MG-017.md"
+    },
+    "MG-018": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "MG-017"
+      ],
+      "title": "Prepare final engineering report, demo script and open limitations",
+      "evidence": "tasks/evidence/MG-018.md"
+    }
+  }
+}
