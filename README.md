@@ -6,6 +6,11 @@
 
 The academic **problem statement and four objectives are preserved verbatim** from the Phase-1 review in [docs/PHASE1_BASELINE.md](docs/PHASE1_BASELINE.md). Only the implementation shifts from costly physical UAV hardware to reproducible simulation.
 
+## Final academic report and demonstration (MG-018)
+- [Engineering report](docs/FINAL_ENGINEERING_REPORT.md): original Phase-1 objectives, source-backed methodology, held-out **negative** results, PPO comparisons and limitations.
+- [Guide presentation/demo script](docs/FINAL_DEMO_SCRIPT.md): 10–12-minute speaking script, MATLAB commands, screenshot fallbacks and viva questions.
+- [MG-018 evidence and open issues](tasks/evidence/MG-018.md): review traceability and scope. **Not** operational mine detection or an authorized release tag.
+
 ## Release candidate v1.0.0-rc.1 (MG-017) — advanced MATLAB research simulation, not a mine detector
 - **Release notes, install, demos, limitations:** [docs/RELEASE_NOTES_v1.0.0-rc.1.md](docs/RELEASE_NOTES_v1.0.0-rc.1.md). The tag is proposed, not yet created; it needs Shabaz's authorization.
 - **Fixed-grid demo (default):** from the repo root in MATLAB R2026b: `addpath('matlab'); mineguardDemo`
