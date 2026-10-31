@@ -24,6 +24,7 @@ jobs:
           node --check scripts/pr-gate-core.mjs
           node --check portal/core.mjs
           node --check portal/app.mjs
+          node --check scripts/verify-render-portal.mjs
       - name: Validate task DAG and evidence
         run: node scripts/task-gate.mjs validate
       - name: Confirm task changes respect target branch dependencies

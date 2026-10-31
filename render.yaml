@@ -1,7 +1,23 @@
+# MineGuard guide portal: public, read-only, no server or credentials.
+# Render Blueprint: Static Site (do not specify a compute plan for static).
 services:
   - type: web
     name: mineguard-guide-portal
     runtime: static
     branch: main
-    buildCommand: echo "No build required"
+    autoDeployTrigger: checksPass
+    buildCommand: echo "Static portal: no build required; Task Gate checks source and tests"
     staticPublishPath: portal
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate

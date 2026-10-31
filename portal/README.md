@@ -10,6 +10,12 @@ A guide-facing status portal sourced from the **authoritative GitHub `main` bran
 - GitHub CI status proves workflow checks only; local MATLAB execution requires separate evidence committed to GitHub.
 - **Security:** no GitHub token stored in browser. Public data only; no private student/lab information.
 
+## MG-020 exact deployment and verification guide
+
+The authoritative deployment/first-HTTPS-proof procedure is [docs/MG020_RENDER_DEPLOYMENT_CHECKLIST.md](../docs/MG020_RENDER_DEPLOYMENT_CHECKLIST.md). A reproducible post-deployment verifier is `scripts/verify-render-portal.mjs`. A successful GitHub Task Gate does **not** mean the site is live. Record the actual Render-supplied URL and smoke-test output in `tasks/evidence/MG-020.md` before marking MG-020 DONE.
+
+**One-click deployment setup:** [Open the MineGuard Blueprint on Render](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2FMdShabazS%2FMineGuard-MATLAB) (account holder confirms any service creation; this is not a verified live-site URL).
+
 ## Deploy on Render — FREE Static Site
 1. Ensure foundation PR and portal code are merged into `main` through review.
 2. Open https://dashboard.render.com/ → New → Static Site. Connect `MdShabazS/MineGuard-MATLAB`.

@@ -120,6 +120,14 @@
       "summary": "PR #24 review changes: merged latest main (MG-012/MG-014 preserved); TEST/stress trials now generated only after the frozen model is written; optional second outputs documented as additive with a compatibility test; predeclared weights/radii recorded as reviewer-approved exception. MATLAB R2026b 52/52 pass, checkcode clean, experiment outputs unchanged.",
       "next": "Shabaz final review of PR #24",
       "evidence": "tasks/evidence/MG-009.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Shabaz",
+      "task": "MG-020",
+      "summary": "Prepared CI-gated Render static-site Blueprint, post-deployment real HTTPS/GitHub-main verifier, deployment checklist, and evidence; not deployed or verified at a real Render URL yet.",
+      "next": "After reviewer merges readiness PR, account owner creates/confirms Render Static Site, returns actual HTTPS URL and first smoke output; only then propose MG-020 DONE and unblock MG-021.",
+      "evidence": "tasks/evidence/MG-020.md"
     }
   ]
 }
