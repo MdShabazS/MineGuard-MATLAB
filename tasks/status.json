@@ -3,10 +3,12 @@
   "tasks": {
     "MG-000": {
       "owner": "Shabaz",
-      "state": "IN_PROGRESS",
-      "evidence": null,
+      "state": "DONE",
+      "evidence": "docs/FOUNDATION.md",
       "startedBy": "Shabaz",
-      "startedOn": "2026-10-31"
+      "startedOn": "2026-10-31",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-10-31"
     },
     "MG-001": {
       "owner": "Shabaz",
