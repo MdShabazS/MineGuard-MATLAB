@@ -38,6 +38,10 @@ MG-010 canonical dashboard contract: [MG010_MISSION_DASHBOARD_SPEC.md](MG010_MIS
 
 The formal observation/action/reward specification, paired grid comparison and executable checks **P-01…P-20** are defined in [MG012_PPO_POLICY_AND_FAIR_BENCHMARK.md](MG012_PPO_POLICY_AND_FAIR_BENCHMARK.md). MG-012 documents requirements only: it has **not** executed RL training or reported an achieved reward/coverage improvement. MG-013 owns PPO MATLAB implementation and testing; MG-014 owns locked test-scenario planning; MG-019 is optional integrated comparison. O1/FR-07 are supported by same-budget measured synthetic coverage/time/distance, not a presumed PPO win. No detection accuracy, field deployment, human-safety or physical flight claim follows from policy reward.
 
+## MG-014 locked integrated evaluation and demonstration acceptance
+
+The authoritative predeclared **L-01…L-24** integration/negative-control matrix and **D-01…D-10** guide demonstration gates are in [MG014_LOCKED_TEST_MATRIX_AND_DEMO.md](MG014_LOCKED_TEST_MATRIX_AND_DEMO.md), using the [30-family 18/6/6 scenario manifest](../experiments/locked/mg014_scenario_manifest.json). MG-014 is a DOCUMENTATION task and does **not** execute or pass any L-test. Rahil's MG-015 must run and document core L-01…L-22, while PPO and cross-platform/3-D/portal L-23/L-24 are conditional; Shabaz's MG-016 checks evidence independently. The original O1…O4 wording, cell-unit confusion versus object matching, undefined NaN metrics and absence of validated landmine detection are preserved.
+
 ## Metrics and interpretation
 ```text
 precision = TP / (TP + FP)
