@@ -1,0 +1,24 @@
+{
+  "n_test": 10,
+  "n_grid_feasible": 4,
+  "n_grid_infeasible": 6,
+  "feasible_mean_delta_coverage": -0.070000000000000034,
+  "feasible_median_delta_coverage": -0.040000000000000036,
+  "feasible_delta_coverage_ci95": [
+    -0.13000000000000003,
+    -0.040000000000000036
+  ],
+  "feasible_mean_delta_distance_m": 3.7857247418517233,
+  "feasible_delta_distance_ci95": [
+    2.1347550712336414,
+    7.087664083087887
+  ],
+  "feasible_mean_ppo_coverage": 0.92999999999999994,
+  "feasible_mean_grid_coverage": 1,
+  "infeasible_mean_ppo_coverage": 0.75104303908651726,
+  "all_mean_ppo_coverage": 0.82262582345191038,
+  "all_mean_random_legal_coverage": 0.68269222661396567,
+  "ppo_total_invalid_actions": 43,
+  "grid_wins_or_ties": 4,
+  "ppo_wins": 0
+}

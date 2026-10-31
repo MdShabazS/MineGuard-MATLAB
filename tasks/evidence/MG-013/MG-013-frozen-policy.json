@@ -1,0 +1,43 @@
+{
+  "policy_version": "mg013-ppo-1.0",
+  "checkpoint_file": "mg013_ppo_checkpoint.mat",
+  "checkpoint_sha256": "5a0da1715a1c2f7044a3b954d8cdf5e6d234731a2f4619d82cb3ea87e875b8ad",
+  "selected_chunk": 12,
+  "selected_episodes": 6000,
+  "val_mean_coverage": 0.90094202898550724,
+  "env": {
+    "env_version": "mg013-env-1.0",
+    "layout_id": "cov-2N+5-v1",
+    "D_max_m": 60,
+    "T_max_s": 30,
+    "max_decisions": 50,
+    "start_cell": 1,
+    "w": {
+      "cov": 1,
+      "dist": 0.1,
+      "time": 0.1,
+      "visit": 0.02,
+      "bad": 0.1,
+      "step": 0.001,
+      "end": 0.05
+    }
+  },
+  "hyperparameters": {
+    "ExperienceHorizon": 512,
+    "MiniBatchSize": 128,
+    "ClipFactor": 0.2,
+    "EntropyLossWeight": 0.01,
+    "DiscountFactor": 0.99,
+    "NumEpoch": 4,
+    "ActorLearnRate": 0.001,
+    "CriticLearnRate": 0.001,
+    "NumHiddenUnit": 64
+  },
+  "train_seed": 13013,
+  "sampler_seed": 13014,
+  "manifest_sha256": "3d6e2b2c43d80ae16a1c39fd951badfd54c926cf38aff7717b75bd1e6f5be107",
+  "train_wallclock_s": 2934.3835484,
+  "matlab_release": "2026b",
+  "git_sha": "e785b27",
+  "selection_rule": "max mean VALIDATION coverage (deterministic policy); ties -> lower mean distance"
+}
