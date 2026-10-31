@@ -56,6 +56,14 @@
       "summary": "Fixed serpentine grid route, kinematic pose telemetry, coverage metric and uavScenario replay implemented; MATLAB R2026b regression 16/16 pass incl. C-05 truth firewall and C-10 ENU/NED (simulation only).",
       "next": "Shabaz review; MG-007 sensor models once its prerequisites are DONE",
       "evidence": "tasks/evidence/MG-005.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-005",
+      "summary": "PR #14 review fixes: exact segment-polygon exclusion checks in route planning and pose simulation, nested-truth geometry rejection; 3 regression tests (failed on the old code); MATLAB R2026b 19/19 pass, checkcode clean.",
+      "next": "Shabaz re-review of PR #14",
+      "evidence": "tasks/evidence/MG-005.md"
     }
   ]
 }
