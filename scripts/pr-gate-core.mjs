@@ -2,7 +2,7 @@
 // Base branch status is authoritative: a PR cannot satisfy its own prerequisites.
 const allowedStates = new Set(["TODO","IN_PROGRESS","DONE"]);
 function demand(ok, message){if(!ok)throw Error(message);}
-export function auditProposedTaskChanges(base, next, manifest, branch){
+export function auditProposedTaskChanges(base, next, manifest, branch, baseManifest=manifest){
  demand(next?.schemaVersion===1 && next?.tasks && manifest?.tasks,"Task manifest/status missing or invalid");
  const ids=Object.keys(manifest.tasks);
  demand(ids.length && ids.every(id=>next.tasks[id]),"Proposed task status missing task entries");
@@ -15,13 +15,15 @@ export function auditProposedTaskChanges(base, next, manifest, branch){
    return {bootstrap:true,changes:["MG-000"],detail:"bootstrap pending review"};
  }
  demand(base.schemaVersion===1 && base.tasks,"Target branch task status invalid");
+ demand(baseManifest?.schemaVersion===1 && baseManifest?.tasks,"Target branch manifest unavailable");
  demand(ids.every(id=>base.tasks[id]),"Proposed manifest changes need separate approved governance review");
  const changed=ids.filter(id=>JSON.stringify(base.tasks[id])!==JSON.stringify(next.tasks[id]));
  demand(changed.length<=1,"One PR may change status of only one task");
  const taskId=changed[0]||null;
  if(!taskId)return {bootstrap:false,changes:[],detail:"no task state transitions"};
+ demand(JSON.stringify(manifest.tasks)===JSON.stringify(baseManifest.tasks),"Cannot change task manifest and task state in same PR");
  demand(new RegExp("^task/"+taskId+"(?:-|$)").test(branch),"Task status changes require task/ID-name branch; found "+branch);
- const b=base.tasks[taskId],n=next.tasks[taskId],task=manifest.tasks[taskId];
+ const b=base.tasks[taskId],n=next.tasks[taskId],task=baseManifest.tasks[taskId];
  demand(n.owner===task.owner && b.owner===task.owner,"Task owner mismatch");
  demand(allowedStates.has(b.state) && allowedStates.has(n.state),"Invalid state");
  const allowed=(b.state==="TODO" && n.state==="IN_PROGRESS") || (b.state==="IN_PROGRESS" && n.state==="DONE");

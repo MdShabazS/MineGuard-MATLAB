@@ -37,6 +37,7 @@
 | Topic | Document |
 |---|---|
 | GitHub task workflow | [WORKFLOW.md](WORKFLOW.md) |
+| Protected main configuration | [BRANCH_PROTECTION_SETUP.md](BRANCH_PROTECTION_SETUP.md) |
 | Two-person role policy and AI autonomy boundaries | [TEAM_EXECUTION_PROTOCOL.md](TEAM_EXECUTION_PROTOCOL.md) |
 | Task ownership and dependencies | [TASK_DEPENDENCY_EXPLANATION.md](TASK_DEPENDENCY_EXPLANATION.md) |
 | Environment verification | [ENVIRONMENT.md](ENVIRONMENT.md) |

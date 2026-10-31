@@ -48,3 +48,11 @@ test("completion has to retain owner and evidence path",()=>{
  assert.equal(audit(initial,next,manifest,"task/MG-001-test").detail,"IN_PROGRESS -> DONE");
  next.tasks["MG-001"].evidence="wrong.md";assert.throws(()=>audit(initial,next,manifest,"task/MG-001-test"),/Evidence path/);
 });
+
+test("changing prerequisites and task status together cannot bypass main",()=>{
+ const proposedManifest=clone(manifest);
+ proposedManifest.tasks["MG-002"].dependsOn=[];
+ const next=clone(base);
+ next.tasks["MG-002"]={state:"IN_PROGRESS",owner:"Shabaz",evidence:null,startedBy:"Shabaz",startedOn:"2026-10-31"};
+ assert.throws(()=>audit(base,next,proposedManifest,"task/MG-002-bypass",manifest),/Cannot change task manifest/);
+});

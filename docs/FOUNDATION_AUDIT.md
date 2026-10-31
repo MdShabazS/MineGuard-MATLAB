@@ -25,3 +25,6 @@
 
 ## No-go conditions
 Do not mark any MATLAB task DONE for code syntax only, or claim detector field accuracy for synthetic data. Do not merge without the agreed peer review.
+
+## Second integrity pass
+A manifest-edit bypass was identified while strengthening PR checks. The updated PR gate now compares the proposed task manifest to the **actual target-branch manifest**, rejecting simultaneous manifest and task-status changes. Added negative test to lock this behaviour.

@@ -44,3 +44,5 @@ CLI mutations change only the checkout until committed; GitHub main stays source
 
 ## Security
 Public repo: no MATLAB licence data, service tokens, student identity documents, private flight coordinates or unwittingly copied copyrighted materials.
+
+**Guard against manifest edits:** a PR cannot both alter `tasks/manifest.json` and modify any task's status. Any governance DAG change must be a separately reviewed, no-status-transition PR. The PR gate audits the authoritative target-branch task manifest and status.
