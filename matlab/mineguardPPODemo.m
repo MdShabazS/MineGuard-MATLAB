@@ -1,7 +1,8 @@
 function [cmpApp, gridBundle, ppoBundle, T] = mineguardPPODemo(seed, varargin)
 %MINEGUARDPPODEMO One-command fixed-grid vs PPO demonstration (MG-019). SIMULATION ONLY.
-%   mineguardPPODemo                 seed 7301 (first preregistered MG019-SPLIT-1 scenario)
-%   mineguardPPODemo(7305)           another preregistered scenario
+%   mineguardPPODemo                 seed 7307 (first preregistered MG019-SPLIT-1 scenario where the fixed grid is
+%                                    feasible, so both planners can be shown; display choice only, all 20 are reported)
+%   mineguardPPODemo(7301)           any other preregistered seed (7301 makes the grid infeasible: PPO runs alone)
 %   mineguardPPODemo(..., 'ExportTo', folder)   also export the verified comparison (CSV/TXT/PNG)
 %   mineguardPPODemo(..., 'OpenReplay', true)   also open the full MG-011 replay of the PPO mission
 %   [cmpApp, gridBundle, ppoBundle, T] = mineguardPPODemo(...)
@@ -14,7 +15,7 @@ function [cmpApp, gridBundle, ppoBundle, T] = mineguardPPODemo(seed, varargin)
 %     4. run sensors, the frozen detector and the separate evaluation for each route
 %     5. print the measured comparison and open the side-by-side window
 %   The fixed-grid demo mineguardDemo is unchanged.
-if nargin < 1 || isempty(seed), seed = 7301; end
+if nargin < 1 || isempty(seed), seed = 7307; end
 p = inputParser; p.addParameter('ExportTo', ""); p.addParameter('OpenReplay', false); p.parse(varargin{:});
 here = fileparts(mfilename('fullpath')); addpath(here, fullfile(here, 'experiments'));
 fprintf('\n=== MineGuard PPO vs fixed-grid demo — SIMULATION ONLY (synthetic; not validated for real landmine detection or clearance) ===\n');
@@ -27,9 +28,9 @@ fprintf('[2/5] Scenario %s | seed %d | 10x10 m, 2 m cells (25) | %d no-fly zone(
 [ppoBundle, pr] = mineguard.integration.runSurveyMission(c, "ppo", struct('policy', policy));
 T = mineguard.integration.comparisonTable({gr, pr});
 fprintf('[3/5] Missions executed:\n');
-fprintf('      %-5s %-26s cov %5s  cells %5s  dist %6s m  time %5s s  invalid %3s  revisits %3s  events %3s\n', 'plan', 'termination', '', '', '', '', '', '', '');
+fprintf('      %-5s %-26s %5s  %8s  %8s  %7s  %7s  %8s  %6s\n', 'plan', 'termination', 'cov', 'cells', 'dist[m]', 'time[s]', 'invalid', 'revisits', 'events');
 for k = 1:height(T)
-    fprintf('      %-5s %-26s %5.3f  %5g/%-2d  %6.1f    %5.1f      %3g         %3g        %3g\n', T.planner(k), T.reason(k), ...
+    fprintf('      %-5s %-26s %5.3f  %5g/%-2d  %8.1f  %7.1f  %7g  %8g  %6g\n', T.planner(k), T.reason(k), ...
         T.coverage_fraction(k), T.unique_cells(k), T.n_legal(k), T.distance_m(k), T.mission_time_s(k), T.invalid_actions(k), T.revisits(k), T.events(k));
 end
 if gr.executed
