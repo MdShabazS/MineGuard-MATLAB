@@ -376,12 +376,16 @@ classdef MissionApp < handle
             else
                 ev(end+1) = "Evaluation: NOT RUN / NOT RECORDED for this replay.";
             end
-            if isfield(rb, 'comparison')
+            if isfield(rb, 'comparison') && ~ismember('planner', rb.comparison.Properties.VariableNames)
                 ev(end+1) = "Method comparison: " + height(rb.comparison) + " rows supplied with run metadata (held-out, same conditions).";
             else
                 ev(end+1) = "Method comparison: NOT RUN.";
             end
-            ev(end+1) = "PPO comparison: NOT RUN (MG-013/MG-019 not integrated into this replay).";
+            if isfield(rb, 'comparison') && ismember('planner', rb.comparison.Properties.VariableNames) && any(string(rb.comparison.planner) == "ppo")
+                ev(end+1) = "PPO vs fixed-grid comparison: supplied (MG-019; " + height(rb.comparison) + " planner rows; see openComparisonApp).";
+            else
+                ev(end+1) = "PPO comparison: NOT RUN (MG-013/MG-019 not integrated into this replay).";
+            end
             ev(end+1) = "Not evidence of real mine detection, clearance or field safety.";
             app.H.eval.Value = ev;
         end
