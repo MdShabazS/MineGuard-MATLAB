@@ -8,6 +8,8 @@ E2: sensor physics sweeps of standoff, burial depth, soil, temperature, noise, o
 E3: thermal-only vs EM-only vs fusion on identical held-out scenarios; fixed thresholds selected from validation set.
 E4: optional supervised classifier versus mathematical threshold baseline, no train/test leakage.
 E5: PPO policy vs fixed grid under same simulation budgets; include multiple seeds, variability and failure cases.
+
+**MG-012 E5 authoritative definition:** [MG012_PPO_POLICY_AND_FAIR_BENCHMARK.md](MG012_PPO_POLICY_AND_FAIR_BENCHMARK.md). PPO is an optional MG-013 training task; MG-005 is the compulsory fixed-grid benchmark. Use same actual pose-level legal cell/coverage metric, initial conditions, max time/distance, sensor limits and scenario-group held-out seeds. Lock checkpoint/hyperparameters on VALIDATION only; report paired per-scenario coverage/time/distance deltas, variation, violations, budget exhaustion and PPO underperformance. P-01…P-20 are specified tests, **not executed by MG-012**.
 E6: cross-platform MATLAB release/toolbox compatibility (only if verified on both systems).
 
 ## Ground-truth and metrics

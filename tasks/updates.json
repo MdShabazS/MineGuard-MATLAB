@@ -91,6 +91,14 @@
     },
     {
       "date": "2026-10-31",
+      "owner": "Shabaz",
+      "task": "MG-012",
+      "summary": "Specified truth-safe PPO next-cell observations/actions, legal-motion budget, coverage-only reward and scenario-group held-out matched-grid benchmark; 20 P-01…P-20 downstream MATLAB acceptance cases. Documentation only, no agent training claimed.",
+      "next": "Review and merge MG-012 documentation/start PR, then separate MG-012 DONE PR. Rahil may start MG-013 only after MG-012 DONE on main.",
+      "evidence": "tasks/evidence/MG-012.md"
+    },
+    {
+      "date": "2026-10-31",
       "owner": "Rahil",
       "task": "MG-009",
       "summary": "Observation-only detection/fusion (thermal, EM, OR, AND, weighted; missing_modality_rule abstain/single_valid/require_both), cell-level evaluator with separate one-to-one localization, split validation and provenance checks. MATLAB R2026b: F-01..F-18 pass, 51/51 with regressions; frozen-split synthetic experiment recorded (small test set, no method shown superior).",
