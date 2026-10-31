@@ -34,6 +34,10 @@ No subjective '90% done' without per-task deliverable status. For each O1–O4, 
 
 MG-010 canonical dashboard contract: [MG010_MISSION_DASHBOARD_SPEC.md](MG010_MISSION_DASHBOARD_SPEC.md). Its **UI-01…UI-20** tests are required *later* for Rahil's MG-011 MATLAB App Designer implementation, not passes claimed by MG-010 documentation. In particular, AT-12 "no completed run" means disabled replay/no invented metrics; AT-13 export provenance must be read back from actual saved files; FR-05 virtual geotags must never be described as physical GPS. A synthetic alarm is always **SUSPECTED**, never proof of a cleared area. An evaluator-only aggregate cell confusion matrix can be displayed without sharing private truth with app callbacks.
 
+## MG-012 optional PPO survey policy acceptance
+
+The formal observation/action/reward specification, paired grid comparison and executable checks **P-01…P-20** are defined in [MG012_PPO_POLICY_AND_FAIR_BENCHMARK.md](MG012_PPO_POLICY_AND_FAIR_BENCHMARK.md). MG-012 documents requirements only: it has **not** executed RL training or reported an achieved reward/coverage improvement. MG-013 owns PPO MATLAB implementation and testing; MG-014 owns locked test-scenario planning; MG-019 is optional integrated comparison. O1/FR-07 are supported by same-budget measured synthetic coverage/time/distance, not a presumed PPO win. No detection accuracy, field deployment, human-safety or physical flight claim follows from policy reward.
+
 ## Metrics and interpretation
 ```text
 precision = TP / (TP + FP)
