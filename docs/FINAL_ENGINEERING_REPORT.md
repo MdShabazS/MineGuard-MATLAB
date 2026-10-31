@@ -189,6 +189,14 @@ mineguardPPODemo(7307)             % experimental comparison; frozen checkpoint
 
 ### 6.2 Guide-ready recorded figures
 
+![Figure 1: MineGuard MATLAB 2-D mission replay after completion (archived MG-017 S0 display fixture)](../tasks/evidence/MG-017/MG-017-03-demo-S0-complete.png)
+
+*Figure 1. Archival MATLAB R2026b screenshot of the completed **S0 display fixture**. The route/map and sensor graphs are synthetic. This is not the held-out TEST and not a real mine-detection result.*
+
+![Figure 2: Recorded PPO versus fixed-grid MATLAB comparison window (MG-017, scenario 7307)](../tasks/evidence/MG-017/MG-017-04-ppo-comparison-7307.png)
+
+*Figure 2. Archival R2026b comparison from PPO scenario 7307, which shows grid coverage 1.000 versus PPO 0.960. PPO's scientifically valid summary is the full preregistered feasible-pair evaluation, not just this selected display case.*
+
 - [S0 ready dashboard](../tasks/evidence/MG-017/MG-017-01-demo-S0-ready.png)
 - [S0 seek to 50 seconds](../tasks/evidence/MG-017/MG-017-02-demo-S0-seek-50s.png)
 - [S0 complete replay](../tasks/evidence/MG-017/MG-017-03-demo-S0-complete.png)
@@ -238,5 +246,14 @@ The presentation must not claim that a high coverage percentage is detection acc
 ## 10. Evidence and bibliographic boundary
 
 **Primary project artifacts:** [PHASE1_BASELINE](PHASE1_BASELINE.md), [SOURCE_VERIFICATION](SOURCE_VERIFICATION.md), [frozen interfaces](MG003_INTERFACE_FREEZE.md), [MG-014 preregistration](MG014_LOCKED_TEST_MATRIX_AND_DEMO.md), [MG-015 experiment](../tasks/evidence/MG-015.md), [MG-016 audit](../tasks/evidence/MG-016.md), [MG-017 release validation](../tasks/evidence/MG-017.md), [MG-019 PPO evaluation](../tasks/evidence/MG-019.md), [RELEASE_NOTES](RELEASE_NOTES_v1.0.0-rc.1.md), and [LITERATURE_REVIEW](LITERATURE_REVIEW.md) for externally sourced scientific background. Method/results above are **internal synthetic-study findings**, not independently published empirical detection evidence.
+
+### Selected external scientific context
+
+These references are carried forward from the repository's [verified literature review](LITERATURE_REVIEW.md) for physical-feasibility context. Their results **are not MineGuard experiment results**; bibliographic author names are omitted where not independently established in the internal record.
+
+1. “Detection of anti-personnel mines of the ‘leg breakers’ type by analyzing thermographic images captured from a drone at different heights,” *Infrared Physics & Technology*, vol. 142, article 105567 (2024). DOI: https://doi.org/10.1016/j.infrared.2024.105567.
+2. “Study on the temperature field and infrared characteristics of unsaturated soils with shallow buried objects at different depths,” *International Journal of Thermal Sciences*, article 109282 (2024). DOI: https://doi.org/10.1016/j.ijthermalsci.2024.109282.
+3. “Detection of ‘Legbreaker’ Antipersonnel Landmines by Analysis of Aerial Thermographic Images of the Soil,” *Engineering Proceedings*, 8(1), article 25 (2021). Publisher: https://www.mdpi.com/2673-4591/8/1/25.
+4. “A Comparative Evaluation of UAV-Based Remote Sensing and Geophysical Techniques for Landmine Detection on a Seeded Minefield,” *Remote Sensing*, 18(13), article 2182 (2026). Publisher: https://www.mdpi.com/2072-4292/18/13/2182.
 
 **Presentation companion:** [FINAL_DEMO_SCRIPT.md](FINAL_DEMO_SCRIPT.md). **Reviewer acceptance and open limitations:** [MG-018 evidence](../tasks/evidence/MG-018.md).
