@@ -184,6 +184,14 @@
       "summary": "MG014-RUNLOCK-1 approved by Shabaz; 8/8 pre-TEST integrity checks passed; sealed TEST GF-025..030 executed exactly once. Held-out result is negative: primary weighted fusion TP 0 / FP 26 / TN 470 / FN 4; no method useful at the locked 2 m configuration with assumed sensors. Post-TEST non-TEST regression 115/115.",
       "next": "Shabaz review of PR #36 final evidence; separate MG-015 DONE PR after merge",
       "evidence": "tasks/evidence/MG-015.md"
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Shabaz",
+      "task": "MG-016",
+      "summary": "Began independent review after MG-015 was DONE on main. Reconciled 15 held-out method/rule summaries against 90 per-group CSV rows and checked derived metrics; documented candid O1–O4 grades, negative weighted detector results, GF-030 exclusion, TEST-use limits and release risks. Source/evidence review only; no independent MATLAB rerun.",
+      "next": "Review MG-016 evidence/start PR and merge after Task Gate. Then obtain Shabaz's final reviewer sign-off and issue disposition before separate MG-016 DONE PR; keep sealed TEST unchanged.",
+      "evidence": "tasks/evidence/MG-016.md"
     }
   ]
 }
