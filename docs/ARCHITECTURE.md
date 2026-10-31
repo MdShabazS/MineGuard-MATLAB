@@ -30,7 +30,7 @@ Optional PPO waypoint-selection policy                     +--> Thermal forward 
 6. **App**: mission configuration, play/pause, visualization, experiments and export.
 
 ## Integration contract
-Use documented schema in [DATA_CONTRACTS.md](DATA_CONTRACTS.md). No module may directly import hidden ground-truth labels into inference. Batch pipeline first; live animation only after data contract passes. App uses event replay or callbacks with rate limiting to avoid UI blocking.
+Use the v1.0 frozen module signatures and typed records in [MG003_INTERFACE_FREEZE.md](MG003_INTERFACE_FREEZE.md), indexed by [DATA_CONTRACTS.md](DATA_CONTRACTS.md). The scenario generator returns a restricted ground-truth record; the orchestrator creates narrow navigation/detection config views, and only the forward physics and evaluator may receive truth. No module may directly import hidden ground-truth labels into inference. Batch pipeline first; live animation only after data contract passes. App uses event replay or callbacks with rate limiting to avoid UI blocking.
 
 ## MATLAB selection
 - Standard MATLAB scripts/functions as first executable baseline; use Simulink/Stateflow/UAV Toolbox features only if installed.
