@@ -176,7 +176,12 @@ s = string(datetime('now', 'TimeZone', 'UTC', 'Format', 'yyyy-MM-dd''T''HH:mm:ss
 end
 
 function h = sha256(f)
-[st, out] = system(sprintf('certutil -hashfile "%s" SHA256', f));
+% SHA-256 of the LF-normalised text (CR bytes removed), so the hash does not depend on git
+% autocrlf / OS line endings at checkout. Same value on Windows, macOS and Linux.
+raw = fileread(f); tmp = [tempname '.lf'];
+fid = fopen(tmp, 'w'); fwrite(fid, unicode2native(strrep(raw, char(13), ''), 'UTF-8')); fclose(fid);
+c = onCleanup(@() delete(tmp));
+[st, out] = system(sprintf('certutil -hashfile "%s" SHA256', tmp));
 lines = splitlines(string(out));
 if st ~= 0 || numel(lines) < 2, h = "NOT_RECORDED"; return; end
 h = lower(erase(strtrim(lines(2)), " "));

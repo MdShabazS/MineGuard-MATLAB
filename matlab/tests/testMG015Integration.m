@@ -54,8 +54,10 @@ classdef testMG015Integration < matlab.uitest.TestCase
                 'VariableNames', {'group_key','scenario_id','seed','noise_seed','split_id'}));
             tc.verifyEqual(string(M.plan_status), "PREDECLARED_NOT_GENERATED");
             L = jsondecode(fileread(fullfile(tc.Ev, 'MG014-RUNLOCK-1.json')));
-            [~, o] = system(sprintf('certutil -hashfile "%s" SHA256', fullfile(tc.Root, 'experiments', 'locked', 'mg014_scenario_manifest.json')));
-            l = splitlines(string(o)); tc.verifyEqual(lower(erase(strtrim(l(2)), " ")), string(L.manifest_sha256), 'sealed manifest unchanged');
+            raw = fileread(fullfile(tc.Root, 'experiments', 'locked', 'mg014_scenario_manifest.json'));
+            tmp = [tempname '.lf']; fid = fopen(tmp, 'w'); fwrite(fid, unicode2native(strrep(raw, char(13), ''), 'UTF-8')); fclose(fid);
+            [~, o] = system(sprintf('certutil -hashfile "%s" SHA256', tmp)); delete(tmp);
+            l = splitlines(string(o)); tc.verifyEqual(lower(erase(strtrim(l(2)), " ")), string(L.manifest_sha256), 'sealed manifest unchanged (LF-normalised SHA-256)');
         end
 
         function L02_sceneReproducible(tc)
