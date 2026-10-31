@@ -1,5 +1,5 @@
 # Physics, Modelling Assumptions and Realism Gates
-**Status:** research synthesis; any numerical parameter chosen later is an assumption until independently calibrated.
+**Status:** research synthesis; any numerical parameter chosen later is an assumption until independently calibrated. **Implementation-facing, testable MG-006 contract:** [MG006_SENSOR_PHYSICS_AND_TESTS.md](MG006_SENSOR_PHYSICS_AND_TESTS.md).
 
 ## 1. Scope separation
 - **Visible surface objects:** RGB can image objects if spatial resolution, lighting, contrast and occlusion allow. Not the primary promised subsurface sensing method.
@@ -26,7 +26,7 @@ where T is temperature (K), rho density (kg/m³), c_p heat capacity (J/kg/K), k 
 ## 3. Electromagnetic channel — mandatory standoff test
 A coil transmits/detects a field; the secondary response from a conducting or magnetic object depends on excitation frequency, object properties/orientation, coil geometry, background soil response and **separation**. At low frequencies/near field, a simple field component can scale approximately with inverse cubic distance for an idealized dipole; actual transmit–receive coupling and output signal may decay more steeply. **Do not choose an arbitrary 1/r^3 signal law as a validated mine-detector forward model without specifying which physical quantity and regime it represents.**
 
-**Illustrative model only:** calibrated monotone falloff `A(d,material,soil,orientation)` + background clutter + zero-mean sensor noise. Use units marked 'normalized response' until a real calibration exists. Set physically invalid long-range responses to below detection threshold rather than secretly increasing gain.
+**Illustrative model only:** assumed, uncalibrated monotone falloff `A(d,material,soil,orientation)` + background clutter + zero-mean sensor noise. Use units marked 'normalized response' until a real calibration exists. Treat readings beyond a declared model domain as invalid (NaN with an explicit reason), not as calibrated zero readings; do not increase gain secretly to imply detection. In-domain weak normalized signals may be indistinguishable from noise. Detection thresholds are reserved for later model-fusion tasks.
 
 **Required parameter sweep:** 0.05, 0.2, 0.5, 1, 2, 5 m standoff *as experimental design points, not performance predictions*. Document whether the long-range model is below noise. Explicitly evaluate absence of metal and conductive clutter.
 
@@ -52,7 +52,7 @@ Actual GPS is replaced by simulated position observations. A 'GPS' widget in App
 ## 7. Literature supporting limits
 - 2024 aerial thermal study: *Detection of anti-personnel mines of the “leg breakers” type by analyzing thermographic images captured from a drone at different heights*, Infrared Physics & Technology **142**, 105567. DOI https://doi.org/10.1016/j.infrared.2024.105567. Tests at 1–5 m; reported best detectability for shallower mines and 1–2 m flights in that study.
 - 2024 heat/moisture modelling study: *Study on the temperature field and infrared characteristics of unsaturated soils with shallow buried objects at different depths*, International Journal of Thermal Sciences, article 109282, DOI https://doi.org/10.1016/j.ijthermalsci.2024.109282. Highlights coupled heat/moisture modelling limitations.
-- 2026 comparative field study: *A Comparative Evaluation of UAV-Based Remote Sensing and Geophysical Techniques for Landmine Detection on a Seeded Minefield*, Remote Sensing **18**(13), 2182, https://www.mdpi.com/2072-4292/18/13/2182. Reports handheld metal detectors as superior for subsurface targets in its studied conditions; UAV airborne sensors required low sensor altitude and underperformed. **These are study-specific findings, not universal guarantee.**
+- 2026 comparative field study: *A Comparative Evaluation of UAV-Based Remote Sensing and Geophysical Techniques for Landmine Detection on a Seeded Minefield*, Remote Sensing **18**(13), 2182, https://www.mdpi.com/2072-4292/18/13/2182. Reports handheld metal detectors as most effective for buried targets in the main comparison; airborne magnetometry/GPR depended strongly on low clearance. A particular pseudo-UAV EMI configuration was also studied, so do not generalise universal airborne-coil impossibility or success. **These are study-specific findings, not a universal guarantee.**
 - 2021 thermal paper: https://www.mdpi.com/2673-4591/8/1/25 (dataset link in publication). Experimental accuracy depends on settings, altitude and dataset; not a MineGuard result.
 
 ## 8. Claims allowed in the final review
