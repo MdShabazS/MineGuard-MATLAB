@@ -112,6 +112,14 @@
       "summary": "Observation-only detection/fusion (thermal, EM, OR, AND, weighted; missing_modality_rule abstain/single_valid/require_both), cell-level evaluator with separate one-to-one localization, split validation and provenance checks. MATLAB R2026b: F-01..F-18 pass, 51/51 with regressions; frozen-split synthetic experiment recorded (small test set, no method shown superior).",
       "next": "Shabaz independent review of MG-009 PR",
       "evidence": "tasks/evidence/MG-009.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-009",
+      "summary": "PR #24 review changes: merged latest main (MG-012/MG-014 preserved); TEST/stress trials now generated only after the frozen model is written; optional second outputs documented as additive with a compatibility test; predeclared weights/radii recorded as reviewer-approved exception. MATLAB R2026b 52/52 pass, checkcode clean, experiment outputs unchanged.",
+      "next": "Shabaz final review of PR #24",
+      "evidence": "tasks/evidence/MG-009.md"
     }
   ]
 }
