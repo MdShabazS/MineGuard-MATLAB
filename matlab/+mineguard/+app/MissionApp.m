@@ -305,14 +305,15 @@ classdef MissionApp < handle
             H.axT = uiaxes(right); title(H.axT, 'Thermal (synthetic)'); ylabel(H.axT, 'temperature [K]', 'Interpreter', 'none'); xlabel(H.axT, 't_s [s]'); hold(H.axT, 'on'); grid(H.axT, 'on');
             H.axE = uiaxes(right); title(H.axE, 'EM coil (synthetic)'); ylabel(H.axE, 'normalized response [-]', 'Interpreter', 'none'); xlabel(H.axE, 't_s [s]'); hold(H.axE, 'on'); grid(H.axE, 'on');
             H.eventsNote = uilabel(right, 'Text', '', 'FontWeight', 'bold');
-            H.events = uitable(right, 'ColumnName', {'event_id','t_s [s]','x_est [m]','y_est [m]','status','confidence','method'}, ...
-                'RowName', {}, 'FontSize', 11, 'ColumnWidth', {68, 50, 58, 58, 82, 150, 64});
+            H.events = uitable(right, 'ColumnName', {'event_id','t_s [s]','x_est [m]','y_est [m]','status','confidence'}, ...
+                'RowName', {}, 'FontSize', 11, 'ColumnWidth', {64, 46, 52, 52, 78, '1x'});   % method shown in metadata panel
 
             % Bottom: provenance / evaluation / warnings
             bottom = uigridlayout(app.Grid, [1 2], 'ColumnWidth', {'1x', '1x'}, 'Padding', [0 0 0 0]);
             bottom.Layout.Row = 4; bottom.Layout.Column = [1 3];
             H.meta = uitextarea(bottom, 'Editable', 'off', 'FontName', 'Consolas', 'FontSize', 11);
             H.eval = uitextarea(bottom, 'Editable', 'off', 'FontName', 'Consolas', 'FontSize', 11);
+            H.axT.Subtitle.Interpreter = 'none'; H.axE.Subtitle.Interpreter = 'none';   % show reason codes literally
             app.H = H;
             app.drawStatic();
             app.fillMetadata();
@@ -428,7 +429,7 @@ classdef MissionApp < handle
                 conf = repmat("Uncalibrated / unavailable", height(E), 1);
                 hasC = ~isnan(E.confidence_0_1);
                 conf(hasC) = "Model score " + compose("%.3f", E.confidence_0_1(hasC));
-                H.events.Data = table(E.event_id, round(E.t_s, 2), round(E.x_est_m, 2), round(E.y_est_m, 2), E.status, conf, E.method_name);
+                H.events.Data = table(E.event_id, round(E.t_s, 2), round(E.x_est_m, 2), round(E.y_est_m, 2), E.status, conf);
                 app.LastEventKey = key;
             end
             if height(rb.events) == 0
