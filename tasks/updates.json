@@ -144,6 +144,14 @@
       "summary": "Prepared independent GitHub Actions hosted Chromium desktop/mobile-emulated testing of deployed guide site, including live GitHub-main parity, filters, refresh, error cases, screenshots and evidence capture; tests to be executed and reviewed.",
       "next": "Run hosted browser QA, fix observed failures, document actual logs/screenshots and verify live main transition before MG-021 DONE approval.",
       "evidence": "tasks/evidence/MG-021.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Shabaz",
+      "task": "MG-021",
+      "summary": "GitHub-hosted Chromium real deployed-site QA passed 15/15, with desktop and touch-emulated mobile/tablet screenshots, filters, refresh, error handling and actual MG-021 main branch TODO→IN_PROGRESS transition observed by a post-merge browser run.",
+      "next": "Review and merge separate MG-021 completion PR; once DONE is on main, optional physical-device Safari/iPhone testing may be done independently without claiming already executed.",
+      "evidence": "tasks/evidence/MG-021.md"
     }
   ]
 }
