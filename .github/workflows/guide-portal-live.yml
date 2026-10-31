@@ -1,0 +1,24 @@
+name: Guide Portal Live HTTPS Verification
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/guide-portal-live.yml'
+      - 'tasks/evidence/MG-020.md'
+      - 'scripts/verify-render-portal.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-live-portal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify the actual Render HTTPS site and public GitHub main data
+        run: node scripts/verify-render-portal.mjs https://mineguard-guide-portal.onrender.com/
+      - name: Scope
+        run: echo "This HTTP check does not replace MG-021 desktop/mobile browser and live-sync testing."

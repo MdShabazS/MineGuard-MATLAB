@@ -157,13 +157,21 @@
     },
     "MG-020": {
       "owner": "Shabaz",
-      "state": "TODO",
-      "evidence": null
+      "state": "DONE",
+      "evidence": "tasks/evidence/MG-020.md",
+      "startedBy": "Shabaz",
+      "startedOn": "2026-10-31",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-10-31"
     },
     "MG-021": {
       "owner": "Shabaz",
-      "state": "TODO",
-      "evidence": null
+      "state": "DONE",
+      "evidence": "tasks/evidence/MG-021.md",
+      "startedBy": "Shabaz",
+      "startedOn": "2026-10-31",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-10-31"
     }
   }
 }
