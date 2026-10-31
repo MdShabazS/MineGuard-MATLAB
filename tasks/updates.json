@@ -120,6 +120,14 @@
       "summary": "PR #24 review changes: merged latest main (MG-012/MG-014 preserved); TEST/stress trials now generated only after the frozen model is written; optional second outputs documented as additive with a compatibility test; predeclared weights/radii recorded as reviewer-approved exception. MATLAB R2026b 52/52 pass, checkcode clean, experiment outputs unchanged.",
       "next": "Shabaz final review of PR #24",
       "evidence": "tasks/evidence/MG-009.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-013",
+      "summary": "Real PPO coverage policy trained (6,000 episodes, validation-selected checkpoint, SHA-256 recorded) in a custom rlFunctionEnv; paired held-out comparison: PPO does not beat the MG-005 fixed grid where feasible (mean delta coverage -0.07); P-01..P-20 pass, 72/72 with regressions.",
+      "next": "Shabaz review of MG-013 implementation PR; separate DONE PR after merge",
+      "evidence": "tasks/evidence/MG-013.md"
     }
   ]
 }

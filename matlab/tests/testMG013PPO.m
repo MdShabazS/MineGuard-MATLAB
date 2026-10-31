@@ -207,10 +207,11 @@ classdef testMG013PPO < matlab.unittest.TestCase
             G = testMG013PPO.grid(); cfg = mineguard.rl.defaultEnvConfig();
             env = mineguard.rl.makeSurveyEnv({G}, cfg, 4);
             rng(77, 'twister');
-            ag = rlPPOAgent(getObservationInfo(env), getActionInfo(env), rlAgentInitializationOptions('NumHiddenUnit', 16));
+            ag = rlPPOAgent(getObservationInfo(env), getActionInfo(env), rlAgentInitializationOptions('NumHiddenUnit', 16), ...
+                rlPPOAgentOptions('ExperienceHorizon', 64, 'MiniBatchSize', 32, 'LearningFrequency', 64));   % explicit update cadence for a short run
             p0 = getLearnableParameters(getActor(ag));
-            st = train(ag, env, rlTrainingOptions('MaxEpisodes', 15, 'MaxStepsPerEpisode', 50, 'Plots', 'none', 'Verbose', false, 'StopTrainingCriteria', 'none'));
-            tc.verifyEqual(numel(st.EpisodeReward), 15);
+            st = train(ag, env, rlTrainingOptions('MaxEpisodes', 40, 'MaxStepsPerEpisode', 50, 'Plots', 'none', 'Verbose', false, 'StopTrainingCriteria', 'none'));
+            tc.verifyEqual(numel(st.EpisodeReward), 40);
             p1 = getLearnableParameters(getActor(ag));
             tc.verifyFalse(isequal(p0, p1), 'actor parameters must change: agent genuinely trained');
             f = fullfile(tempdir, 'p14_agent.mat'); saveAgent = ag; save(f, 'saveAgent'); L = load(f);
