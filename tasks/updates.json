@@ -120,6 +120,14 @@
       "summary": "PR #24 review changes: merged latest main (MG-012/MG-014 preserved); TEST/stress trials now generated only after the frozen model is written; optional second outputs documented as additive with a compatibility test; predeclared weights/radii recorded as reviewer-approved exception. MATLAB R2026b 52/52 pass, checkcode clean, experiment outputs unchanged.",
       "next": "Shabaz final review of PR #24",
       "evidence": "tasks/evidence/MG-009.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-011",
+      "summary": "MATLAB mission-replay dashboard (openMissionApp) implemented as a source-backed uifigure app with a redacted allowlist runBundle adapter, replaying a real MG-004/005/007/009 run with the frozen MG-009 detector; UI-01..UI-20 pass on the Windows desktop (72/72 with regressions), screenshots and verified exports recorded.",
+      "next": "Shabaz review of MG-011 implementation PR; separate DONE PR after merge",
+      "evidence": "tasks/evidence/MG-011.md"
     }
   ]
 }
