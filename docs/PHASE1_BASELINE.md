@@ -1,17 +1,17 @@
 # Immutable Phase-1 Problem Statement and Objectives
 
-**Source provenance:** Transcribed during prior project planning from a described Phase-1 review (`Review1Phase1.pptx`, reportedly slides 3–4). **The original presentation file is not present in this new repository and could not be independently accessed in the 2026-10-31 re-audit.** The team must compare the text below against its authoritative original and attach a source hash or approved copy. Treat 'verbatim' as **team transcription pending primary-source verification**, not as a completed external audit. The wording here is frozen to protect the user's original scope; do not silently change the four objectives. See [SOURCE_VERIFICATION.md](SOURCE_VERIFICATION.md).
+**Primary-source verification (2026-10-31): PASSED.** The project owner's original nine-slide `Review1Phase1.pptx` was recovered from earlier project files and its text layer checked against this frozen transcription: title MATCH; original objectives 4/4 MATCH (slide 3); problem-statement bullets 5/5 MATCH (slide 4), allowing only slide line-wrap/whitespace normalization. SHA-256: `620eed853f5b7e807e3290d69b5c92485368a0e48d6985a9061b4b3648ddf236`. The PPTX binary is intentionally not stored in this public repo. This verification authenticates the agreed working baseline, **not** the separate original literature-slide bibliography or real-world detection feasibility. See [SOURCE_VERIFICATION.md](SOURCE_VERIFICATION.md).
 
 ## Title
 MineGuard — Autonomous Aerial Landmine Detection System
 
-## Objectives — original wording as previously transcribed (primary-source verification PENDING)
+## Objectives — original wording verified against Phase-1 slide 3
 1. To design and develop an autonomous drone system that scans suspected landmine fields by following a pre-programmed flight path without manual intervention.
 2. To detect subsurface landmines accurately by integrating a metal detector coil and thermal camera with a sensor fusion algorithm that minimizes false detections.
 3. To geo-tag and map every detected threat using a GPS module and display real-time detection data on a ground control station dashboard accessible from a safe distance.
 4. To eliminate human exposure during landmine survey operations by replacing dangerous manual ground sweeping with a fully autonomous aerial detection system.
 
-## Problem Statement — original wording as previously transcribed (primary-source verification PENDING)
+## Problem Statement — original wording verified against Phase-1 slide 4
 - Landmines in post-conflict areas pose a serious threat to human life and restrict land usage.
 - Manual detection methods are slow, costly, and highly dangerous for personnel.
 - Existing systems still require human presence in hazardous zones.
