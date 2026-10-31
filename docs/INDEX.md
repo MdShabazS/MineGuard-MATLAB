@@ -1,6 +1,7 @@
 # MineGuard MATLAB — A-to-Z Documentation Library
 
 **Release candidate:** [RELEASE_NOTES_v1.0.0-rc.1.md](RELEASE_NOTES_v1.0.0-rc.1.md): install, demos, headline (negative) results, limitations.
+**Final academic handover (MG-018):** [Final engineering report](FINAL_ENGINEERING_REPORT.md) · [Timed MATLAB demonstration and viva](FINAL_DEMO_SCRIPT.md) · [Evidence and open limitations](../tasks/evidence/MG-018.md). These describe the reproducible simulation and candid negative detection outcome; no guide approval is claimed.
 **Read first:** [PROJECT_MASTER_BRIEF.md](PROJECT_MASTER_BRIEF.md) and the [A–Z checklist](A_TO_Z_CHECKLIST.md).
 **Non-negotiable:** [PHASE1_BASELINE.md](PHASE1_BASELINE.md) preserves the original title, problem statement and four objectives. Verified against the recovered Phase-1 PPTX on 2026-10-31 (see [SOURCE_VERIFICATION.md](SOURCE_VERIFICATION.md)). All MATLAB implementations are simulated and unverified until real execution evidence is committed.
 
