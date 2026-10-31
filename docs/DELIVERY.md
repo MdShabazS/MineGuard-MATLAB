@@ -15,6 +15,8 @@
 - PPO is **trained and benchmarked** only if genuine logs/checkpoints exist; otherwise present as incomplete experiment, never simulated as completed AI learning.
 - Cross-platform test on Shabaz Mac only if actual MATLAB execution succeeds; otherwise record NOT RUN.
 
+**MG-014 test and demo prelock:** [MG014_LOCKED_TEST_MATRIX_AND_DEMO.md](MG014_LOCKED_TEST_MATRIX_AND_DEMO.md) and [30-family scenario manifest](../experiments/locked/mg014_scenario_manifest.json). The plan establishes test IDs, specific held-out groups, negative controls, metrics and fallbacks; only real subsequent MATLAB runs prove an executable gate. Freeze sensor/model/threshold hashes before testing. MG-015 remains a core grid pipeline and must not be blocked by optional PPO.
+
 ## Gate C — evaluation
 - Replicable seed + version + configs, held-out scenario results, failures and limitations.
 - No real-world mine safety/clearance assertion.

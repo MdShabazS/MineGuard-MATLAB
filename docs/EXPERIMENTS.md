@@ -15,6 +15,10 @@ E6: cross-platform MATLAB release/toolbox compatibility (only if verified on bot
 ## Ground-truth and metrics
 Synthetic truth is for evaluation only. **Primary `ExperimentResult.tp/fp/tn/fn` uses one evaluable legal survey cell as its unit**, so true negatives are meaningful. Report cell-unit precision, recall, FPR and F1 with explicit zero-denominator NaN values, denominators, and excluded/unassessed cells. Separately report one-to-one event-to-hidden-target localization matching, object-event misses and unmatched alarms; **never combine event-level TP/FP/FN with cell-level TN**. Details and edge-case tests are fixed in the MG-008 contract. When discussing detection rates, say **on synthetic scenarios** and state distributions.
 
+## MG-014 predeclared held-out evaluation plan
+
+[MG014_LOCKED_TEST_MATRIX_AND_DEMO.md](MG014_LOCKED_TEST_MATRIX_AND_DEMO.md) is the canonical pre-run **L-01…L-24** matrix and demo gate. The machine-readable [30-family scenario lock](../experiments/locked/mg014_scenario_manifest.json) preregisters 18 TRAIN / 6 VALIDATION / 6 SEALED TEST whole-world families, six balanced synthetic profiles, unique scenario/noise seeds, and a distinct reserved TEST set. It is marked **PREDECLARED_NOT_GENERATED**: no MATLAB simulation, fusion metric or PPO benchmark has been run by MG-014. Complete model, threshold, sensor settings and provenance/hashes must be independently frozen before held-out TEST.
+
 ## Reproducibility
 Log: Git SHA, MATLAB release, installed toolboxes, scenario ID and seed, trained checkpoint fingerprint, data source/licence, hyperparameters, duration, export names, actual tester and logs. Do not select a test scenario after viewing results or tune on the held-out test set.
 
