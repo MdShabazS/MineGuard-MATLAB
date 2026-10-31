@@ -35,6 +35,7 @@
 | PPO and AI agents | [AI_AGENTS.md](AI_AGENTS.md) |
 | MATLAB App Designer mission control | [DASHBOARD.md](DASHBOARD.md) |
 | Experiments and performance metrics | [EXPERIMENTS.md](EXPERIMENTS.md) |
+| **MG-008 fusion policy, synthetic split firewall, cell-unit confusion metrics and F-01…F-18 acceptance tests** | [MG008_FUSION_DATASET_AND_METRICS.md](MG008_FUSION_DATASET_AND_METRICS.md) |
 
 ## 3. Engineering execution and evidence
 | Topic | Document |
