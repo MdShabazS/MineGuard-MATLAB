@@ -162,9 +162,8 @@ classdef testMG004Scenario < matlab.unittest.TestCase
             tc.verifyError(@() mineguard.scenario.validateScenario(c, g2, t), 'mineguard:InvalidScenario');
             g3 = g; g3.terrain_model.label = "target";
             tc.verifyError(@() mineguard.scenario.validateScenario(c, g3, t), 'mineguard:InvalidScenario');
-            % Navigation APIs (MG-005) are not built yet, so the signature part of C-05
-            % is checked when they are introduced. Confirm here that they do not exist yet.
-            tc.verifyEmpty(which('mineguard.navigation.makeGridRoute'));
+            % The navigation signature and truth-independence part of C-05 is tested in
+            % matlab/tests/testMG005Navigation.m (c05_navigationTruthFirewall), added in MG-005.
         end
 
         % ---------------- C-07: impossible placement ----------------
