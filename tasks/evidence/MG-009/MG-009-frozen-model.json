@@ -1,0 +1,120 @@
+{
+  "model": {
+    "version": "mg009-baseline-1.0",
+    "thermal_background_K": 293.14890650630412,
+    "thermal_scale_K": 0.098555265586147883,
+    "em_background_norm": 0.0517830345692417,
+    "em_scale_norm": 0.020713248889900213,
+    "thermal_z_threshold": 3,
+    "em_z_threshold": 7.5,
+    "w_thermal": 0.5,
+    "w_em": 0.5,
+    "cluster_time_window_s": 1,
+    "cluster_radius_m": 0.75,
+    "provenance": {
+      "normaliser_split": "train",
+      "threshold_split": "validation",
+      "train_scenario_ids": [
+        "MG009-1001",
+        "MG009-1002",
+        "MG009-1003",
+        "MG009-1004",
+        "MG009-1005",
+        "MG009-1006",
+        "MG009-1007",
+        "MG009-1008",
+        "MG009-1009",
+        "MG009-1010",
+        "MG009-1011",
+        "MG009-1012"
+      ],
+      "n_train_thermal": 11988,
+      "n_train_em": 11988,
+      "normaliser_method": "median / 1.4826*MAD over valid TRAIN samples",
+      "validation_scenario_ids": [
+        "MG009-2001",
+        "MG009-2002",
+        "MG009-2003",
+        "MG009-2004"
+      ],
+      "selection_rule": "single_valid",
+      "selection_criterion": "max pooled validation cell F1; ties -> lowest threshold"
+    },
+    "weighted_fallback": {
+      "thermal_z_threshold": 3,
+      "em_z_threshold": 7.5
+    }
+  },
+  "method_thresholds": {
+    "thermal_only": 3,
+    "em_only": 7.5,
+    "or": 1,
+    "and": 0.9,
+    "weighted": 2.5
+  },
+  "declared": {
+    "bounds_m": 10,
+    "grid_spacing_m": 0.5,
+    "altitude_m": 0.3,
+    "speed_mps": 2,
+    "dt_s": 0.1,
+    "association_tolerance_s": 0.05,
+    "cluster_time_window_s": 1,
+    "cluster_radius_m": 0.75,
+    "localization_match_radius_m": 0.75,
+    "w_thermal": 0.5,
+    "w_em": 0.5,
+    "selection_rule": "single_valid",
+    "z_grid": [
+      2,
+      2.5,
+      3,
+      3.5,
+      4,
+      4.5,
+      5,
+      5.5,
+      6,
+      6.5,
+      7,
+      7.5,
+      8,
+      8.5,
+      9,
+      9.5,
+      10,
+      10.5,
+      11,
+      11.5,
+      12
+    ],
+    "ratio_grid": [
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1,
+      1.1,
+      1.2000000000000002,
+      1.2999999999999998,
+      1.4,
+      1.5,
+      1.6,
+      1.7,
+      1.8,
+      1.9,
+      2
+    ],
+    "target_materials": [
+      "synthetic_metal_cased_surrogate",
+      "synthetic_cased_surrogate",
+      "synthetic_plastic_surrogate"
+    ],
+    "clutter_materials": [
+      "synthetic_metal_debris",
+      "synthetic_rock",
+      "synthetic_root"
+    ]
+  }
+}

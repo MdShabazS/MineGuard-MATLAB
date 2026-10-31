@@ -88,6 +88,14 @@
       "summary": "Specified redacted MATLAB mission-control replay UI with 20 acceptance cases, exact time/state behavior, ENU/sensor/event displays, evidence export and unvalidated-feature gates; documentation only.",
       "next": "Merge MG-010 specification/start PR; then submit separate completion status PR. Rahil implements MG-011 after MG-009 DONE.",
       "evidence": "tasks/evidence/MG-010.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-009",
+      "summary": "Observation-only detection/fusion (thermal, EM, OR, AND, weighted; missing_modality_rule abstain/single_valid/require_both), cell-level evaluator with separate one-to-one localization, split validation and provenance checks. MATLAB R2026b: F-01..F-18 pass, 51/51 with regressions; frozen-split synthetic experiment recorded (small test set, no method shown superior).",
+      "next": "Shabaz independent review of MG-009 PR",
+      "evidence": "tasks/evidence/MG-009.md"
     }
   ]
 }
