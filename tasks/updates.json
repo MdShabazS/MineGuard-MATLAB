@@ -40,6 +40,14 @@
       "summary": "Seeded scenario/ground-truth generator and validator implemented; MATLAB R2026b tests C-01..C-05 and C-07 pass 6/6 (synthetic only).",
       "next": "Shabaz review; then MG-005 grid navigation once MG-004 is DONE on main",
       "evidence": "tasks/evidence/MG-004.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Shabaz",
+      "task": "MG-006",
+      "summary": "Verified thermal/EM physics limits against publisher sources and documented exact MATLAB sensor records, units, noise validity rules, ground-truth separation, assumed model parameters and 14 downstream acceptance tests.",
+      "next": "Review and merge MG-006 specification start PR; then submit separate DONE status PR. Rahil can implement MG-007 after authoritative MG-006 DONE on main.",
+      "evidence": "tasks/evidence/MG-006.md"
     }
   ]
 }
