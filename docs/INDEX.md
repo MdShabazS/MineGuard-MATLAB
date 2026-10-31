@@ -33,6 +33,7 @@
 | Data format, units and label separation | [DATA_CONTRACTS.md](DATA_CONTRACTS.md) |
 | **MG-003 frozen v1.0 MATLAB module APIs, records, tests and truth isolation** | [MG003_INTERFACE_FREEZE.md](MG003_INTERFACE_FREEZE.md) |
 | PPO and AI agents | [AI_AGENTS.md](AI_AGENTS.md) |
+| **MG-012 frozen-safe PPO observation/action/reward, held-out fair grid comparison and P-01…P-20 tests** | [MG012_PPO_POLICY_AND_FAIR_BENCHMARK.md](MG012_PPO_POLICY_AND_FAIR_BENCHMARK.md) |
 | MATLAB App Designer mission control | [DASHBOARD.md](DASHBOARD.md) |
 | **MG-010 dashboard redaction, replay state machine, exports and UI-01…UI-20 tests** | [MG010_MISSION_DASHBOARD_SPEC.md](MG010_MISSION_DASHBOARD_SPEC.md) |
 | Experiments and performance metrics | [EXPERIMENTS.md](EXPERIMENTS.md) |
