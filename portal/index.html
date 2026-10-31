@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="description" content="MineGuard MATLAB project: live academic guide overview sourced from GitHub task records.">
+  <title>MineGuard · Guide's Project Observatory</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to project status</a>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand"><div class="mark" aria-hidden="true">M<span>G</span></div><div><div class="brand-name">MineGuard <span class="light">/ MATLAB</span></div><div class="brand-sub">PROJECT OBSERVATORY</div></div></div>
+    <div class="top-actions"><span class="pill soft">READ-ONLY GUIDE VIEW</span><a class="external" href="https://github.com/MdShabazS/MineGuard-MATLAB" target="_blank" rel="noopener noreferrer">GitHub repository <span aria-hidden="true">↗</span></a></div>
+  </header>
+  <main id="main">
+    <div class="page-heading">
+      <div><div class="eyebrow"><span class="live-dot" aria-hidden="true"></span> SOURCE: GITHUB MAIN BRANCH <span class="separator">/</span> REFRESHES EVERY 5 MINUTES</div>
+        <h1>Project overview</h1>
+        <p class="lede">Real progress, current work and technical evidence — no manual status reports needed.</p>
+      </div>
+      <div class="sync-box"><div class="sync-label">LAST CHECKED</div><div id="lastChecked" class="sync-time" aria-live="polite">Checking…</div><button id="refresh" class="refresh" type="button">↻ Refresh now</button></div>
+    </div>
+    <div id="alert" role="status" class="alert" hidden></div>
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-left">
+        <div class="tagline">PROJECT STATUS / 2026</div><h2 id="heroTitle">MineGuard — Autonomous Aerial Landmine Detection System</h2>
+        <p>MATLAB/Simulink research simulation · Original problem statement and four objectives unchanged</p>
+        <div class="hero-links"><a href="https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/docs/PHASE1_BASELINE.md" target="_blank" rel="noopener noreferrer">Original objectives ↗</a><a href="https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/docs/INDEX.md" target="_blank" rel="noopener noreferrer">A–Z documentation ↗</a></div>
+        <div class="deadline">COLLEGE DEADLINE <strong>02 NOV 2026</strong> <span id="deadlineState"></span></div>
+      </div>
+      <div class="progress-ring" id="progressRing" style="--progress: 0"><div><span id="percent">—</span><small>TASKS COMPLETE</small></div></div>
+    </section>
+    <section class="metrics" aria-label="Task overview">
+      <div class="metric"><span>Completed</span><strong id="doneCount">—</strong><small>Evidence-linked tasks</small></div>
+      <div class="metric"><span>In progress</span><strong id="activeCount">—</strong><small>Currently being worked on</small></div>
+      <div class="metric"><span>Ready</span><strong id="readyCount">—</strong><small>No outstanding dependencies</small></div>
+      <div class="metric"><span>Blocked</span><strong id="blockedCount">—</strong><small>Waiting for other work</small></div>
+    </section>
+    <div class="two-col">
+      <section class="panel" aria-labelledby="currentTitle"><div class="panel-head"><div><div class="section-kicker">NOW</div><h2 id="currentTitle">What the team is doing</h2></div></div><div id="currentTasks" class="stack"><p class="muted">Loading GitHub task data…</p></div></section>
+      <section class="panel" aria-labelledby="ownersTitle"><div class="panel-head"><div><div class="section-kicker">ACCOUNTABILITY</div><h2 id="ownersTitle">Member progress</h2></div></div><div id="owners" class="stack"><p class="muted">Awaiting task data…</p></div></section>
+    </div>
+    <section class="panel" aria-labelledby="taskTitle">
+      <div class="panel-head split"><div><div class="section-kicker">COMPLETE WORK PLAN</div><h2 id="taskTitle">Task tracker <span id="taskTotal" class="count-hint"></span></h2></div><div class="filters" id="filters" aria-label="Filter tasks">
+        <button class="filter selected" type="button" data-filter="ALL" aria-pressed="true">All</button>
+        <button class="filter" type="button" data-filter="IN_PROGRESS" aria-pressed="false">In progress</button>
+        <button class="filter" type="button" data-filter="READY" aria-pressed="false">Ready</button>
+        <button class="filter" type="button" data-filter="BLOCKED" aria-pressed="false">Blocked</button>
+        <button class="filter" type="button" data-filter="DONE" aria-pressed="false">Done</button>
+      </div></div>
+      <div class="table-scroller"><table><thead><tr><th>Task / Deliverable</th><th>Owner</th><th>Status</th><th>Dependency / Evidence</th></tr></thead><tbody id="taskRows"><tr><td colspan="4" class="muted">Loading task records…</td></tr></tbody></table></div>
+    </section>
+    <div class="two-col">
+      <section class="panel" aria-labelledby="prsTitle"><div class="panel-head"><div><div class="section-kicker">REVIEW QUEUE</div><h2 id="prsTitle">Pull requests</h2></div><a class="tiny-link" href="https://github.com/MdShabazS/MineGuard-MATLAB/pulls" target="_blank" rel="noopener noreferrer">View all ↗</a></div><div id="pullRequests" class="stack"><p class="muted">Loading PR history…</p></div></section>
+      <section class="panel" aria-labelledby="checksTitle"><div class="panel-head"><div><div class="section-kicker">ENGINEERING EVIDENCE</div><h2 id="checksTitle">Verification status</h2></div><a class="tiny-link" href="https://github.com/MdShabazS/MineGuard-MATLAB/actions" target="_blank" rel="noopener noreferrer">CI history ↗</a></div>
+      <div class="verification"><div class="verify-row"><span>GitHub task-gate CI</span><strong id="ciStatus">Not checked</strong></div><div class="verify-row"><span>MATLAB build tasks marked DONE</span><strong id="buildEvidence">—</strong></div><div class="verify-row"><span>Local MATLAB runtime</span><strong>Requires actual device evidence</strong></div></div>
+      <p class="note">GitHub CI validates repository workflow and any configured tests. It does <strong>not</strong> prove MATLAB simulation results unless a licensed MATLAB test run has been recorded.</p></section>
+    </div>
+    <section class="panel" aria-labelledby="journalTitle"><div class="panel-head"><div><div class="section-kicker">TEAM JOURNAL</div><h2 id="journalTitle">What happened & what's next</h2></div><a class="tiny-link" href="https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/tasks/updates.json" target="_blank" rel="noopener noreferrer">Source log ↗</a></div><div id="updates" class="activity"><p class="muted">Loading team journal…</p></div></section>
+    <section class="panel" aria-labelledby="activityTitle"><div class="panel-head"><div><div class="section-kicker">LATEST CHANGES</div><h2 id="activityTitle">Recent GitHub activity</h2></div><a class="tiny-link" href="https://github.com/MdShabazS/MineGuard-MATLAB/commits/main/" target="_blank" rel="noopener noreferrer">History ↗</a></div><div id="activity" class="activity"><p class="muted">Loading commits…</p></div></section>
+    <section class="disclaimer" aria-label="Important project limitation"><strong>Research simulation only.</strong> Virtual anomaly detections are not verified mine detections or proof of safe land. A status of DONE indicates recorded task completion with repository evidence, not external scientific certification.</section>
+  </main>
+  <footer><span>MineGuard · ECE major project · Guide observatory</span><span>Read-only · Public GitHub records · <a href="https://github.com/MdShabazS/MineGuard-MATLAB" target="_blank" rel="noopener noreferrer">View source ↗</a></span></footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "tasks": {
+    "MG-000": {
+      "owner": "Shabaz",
+      "state": "IN_PROGRESS",
+      "evidence": null,
+      "startedBy": "Shabaz",
+      "startedOn": "2026-10-31"
+    },
+    "MG-001": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-002": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-003": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-004": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-005": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-006": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-007": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-008": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-009": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-010": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-011": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-012": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-013": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-014": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-015": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-016": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-017": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-018": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-019": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-020": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-021": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    }
+  }
+}

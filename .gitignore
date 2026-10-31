@@ -1,0 +1,29 @@
+# MATLAB temporary data and autosave files
+*.asv
+*.autosave
+*.m~
+*.slx.autosave
+*.slxc
+slprj/
+codegen/
+*.mex*
+*.p
+*.log
+*.diary
+*.bak
+*.tmp
+*.lock
+*.fig~
+# MATLAB generated large/cache data (commit only selected sanitized fixtures/results)
+*.mat
+!tests/fixtures/*.mat
+!results/approved/*.mat
+# Local env and private credentials
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+.DS_Store
+Thumbs.db
+node_modules/
