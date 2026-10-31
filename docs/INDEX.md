@@ -34,6 +34,7 @@
 | **MG-003 frozen v1.0 MATLAB module APIs, records, tests and truth isolation** | [MG003_INTERFACE_FREEZE.md](MG003_INTERFACE_FREEZE.md) |
 | PPO and AI agents | [AI_AGENTS.md](AI_AGENTS.md) |
 | MATLAB App Designer mission control | [DASHBOARD.md](DASHBOARD.md) |
+| **MG-010 dashboard redaction, replay state machine, exports and UI-01…UI-20 tests** | [MG010_MISSION_DASHBOARD_SPEC.md](MG010_MISSION_DASHBOARD_SPEC.md) |
 | Experiments and performance metrics | [EXPERIMENTS.md](EXPERIMENTS.md) |
 | **MG-008 fusion policy, synthetic split firewall, cell-unit confusion metrics and F-01…F-18 acceptance tests** | [MG008_FUSION_DATASET_AND_METRICS.md](MG008_FUSION_DATASET_AND_METRICS.md) |
 
