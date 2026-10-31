@@ -24,8 +24,8 @@ if p.thermal_seed ~= d(1) || p.em_seed ~= d(2) || p.navigation_seed ~= d(3)
     error(id, 'MineGuard provenance: channel seeds do not match the MG-004 derivation from noise_seed.');
 end
 ss = config.sensor_settings;
-if p.sensor_settings_version ~= string(ss.version) || p.thermal_model_version ~= string(ss.thermal.model_version) || ...
-        p.em_model_version ~= string(ss.em.model_version)
+if p.sensor_settings_version ~= string(ss.version) || p.thermal_model_version ~= channelModelVersion(ss, 'thermal') || ...
+        p.em_model_version ~= channelModelVersion(ss, 'em')
     error(id, 'MineGuard provenance: sensor settings/model version mismatch.');
 end
 if p.config_checksum ~= mineguard.evaluation.configChecksum(config)
