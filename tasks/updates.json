@@ -136,6 +136,14 @@
       "summary": "Rendered Guide Portal Static Site on Render at verified HTTPS URL; independent GitHub Actions runner successfully fetched live HTML, JS, CSS and GitHub main task data (22 tasks, 13 DONE at check time).",
       "next": "After reviewed completion PR merge, MG-021 browser/mobile interaction and live GitHub synchronization verification become READY.",
       "evidence": "tasks/evidence/MG-020.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Shabaz",
+      "task": "MG-021",
+      "summary": "Prepared independent GitHub Actions hosted Chromium desktop/mobile-emulated testing of deployed guide site, including live GitHub-main parity, filters, refresh, error cases, screenshots and evidence capture; tests to be executed and reviewed.",
+      "next": "Run hosted browser QA, fix observed failures, document actual logs/screenshots and verify live main transition before MG-021 DONE approval.",
+      "evidence": "tasks/evidence/MG-021.md"
     }
   ]
 }
