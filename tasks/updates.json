@@ -48,6 +48,14 @@
       "summary": "Verified thermal/EM physics limits against publisher sources and documented exact MATLAB sensor records, units, noise validity rules, ground-truth separation, assumed model parameters and 14 downstream acceptance tests.",
       "next": "Review and merge MG-006 specification start PR; then submit separate DONE status PR. Rahil can implement MG-007 after authoritative MG-006 DONE on main.",
       "evidence": "tasks/evidence/MG-006.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Shabaz",
+      "task": "MG-008",
+      "summary": "Specified truth-isolated thermal/EM association and fusion rules, immutable grouped synthetic splits, coherent cell-level confusion metrics, separately matched event localization and 18 MATLAB acceptance tests.",
+      "next": "Review and merge the MG-008 documentation/start PR, then propose DONE separately; Rahil may implement MG-009 only after MG-007 and MG-008 are DONE on main.",
+      "evidence": "tasks/evidence/MG-008.md"
     }
   ]
 }
