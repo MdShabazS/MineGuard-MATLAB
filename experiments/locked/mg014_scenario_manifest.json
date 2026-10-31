@@ -1,0 +1,330 @@
+{
+  "schema_version": "mg014-scenario-lock/1.0",
+  "plan_status": "PREDECLARED_NOT_GENERATED",
+  "locked_by_task": "MG-014",
+  "locked_on": "2026-10-31",
+  "purpose": "Whole-scenario-group split lock; no ground-truth rows or experimental metrics in this artifact.",
+  "source_contract": "mg-contract/1.0",
+  "source_refs": [
+    "docs/MG008_FUSION_DATASET_AND_METRICS.md",
+    "docs/MG012_PPO_POLICY_AND_FAIR_BENCHMARK.md",
+    "docs/MG014_LOCKED_TEST_MATRIX_AND_DEMO.md"
+  ],
+  "allocation": {
+    "train": 18,
+    "validation": 6,
+    "test": 6,
+    "total": 30,
+    "unit": "scenario-family group, never frames/augmented runs"
+  },
+  "base_experiment_config": {
+    "schema_version": "mg-contract/1.0",
+    "x_min_m": 0,
+    "x_max_m": 20,
+    "y_min_m": 0,
+    "y_max_m": 20,
+    "terrain_id": "flat-datum",
+    "grid_spacing_m": 2,
+    "dt_s": 0.1,
+    "sampling_hz": 10,
+    "speed_mps": 2,
+    "min_separation_m": 0.5,
+    "soil_class": "synthetic_loam",
+    "model_version": "MG014-LOCK-1",
+    "exclusion_polygons_enu_m": []
+  },
+  "profile_definitions": [
+    {
+      "id": "negative_empty",
+      "target_count": 0,
+      "clutter_count": 0,
+      "altitude_m": 2,
+      "notes": "No hidden objects; true-negative denominator must follow assessability"
+    },
+    {
+      "id": "single_target",
+      "target_count": 1,
+      "clutter_count": 0,
+      "altitude_m": 2,
+      "notes": "One synthetic target; no guaranteed detection"
+    },
+    {
+      "id": "target_plus_clutter",
+      "target_count": 1,
+      "clutter_count": 2,
+      "altitude_m": 2,
+      "notes": "Confounding clutter with hidden target"
+    },
+    {
+      "id": "clutter_only",
+      "target_count": 0,
+      "clutter_count": 2,
+      "altitude_m": 2,
+      "notes": "Only harmless synthetic clutter; possible false alarms"
+    },
+    {
+      "id": "two_targets",
+      "target_count": 2,
+      "clutter_count": 1,
+      "altitude_m": 2,
+      "notes": "Two synthetic targets; object-matching distinct from cell confusion"
+    },
+    {
+      "id": "weak_standoff",
+      "target_count": 1,
+      "clutter_count": 1,
+      "altitude_m": 5,
+      "notes": "Higher standoff stress; invalid/weak EM must be recorded, not overwritten"
+    }
+  ],
+  "seed_derivation": "MG-004 environment.rng: thermal=mod(noise_seed+1000003,2^32); em=mod(noise_seed+2000006,2^32); navigation=mod(noise_seed+3000009,2^32). Do not modify. Repeat run/noise family stays in its split.",
+  "groups": [
+    {
+      "group_id": "GF-001",
+      "scenario_id": "MG014-TRAIN-001",
+      "split_id": "train",
+      "seed": 440101,
+      "noise_seed": 550101,
+      "profile_id": "negative_empty"
+    },
+    {
+      "group_id": "GF-002",
+      "scenario_id": "MG014-TRAIN-002",
+      "split_id": "train",
+      "seed": 440202,
+      "noise_seed": 550202,
+      "profile_id": "single_target"
+    },
+    {
+      "group_id": "GF-003",
+      "scenario_id": "MG014-TRAIN-003",
+      "split_id": "train",
+      "seed": 440303,
+      "noise_seed": 550303,
+      "profile_id": "target_plus_clutter"
+    },
+    {
+      "group_id": "GF-004",
+      "scenario_id": "MG014-TRAIN-004",
+      "split_id": "train",
+      "seed": 440404,
+      "noise_seed": 550404,
+      "profile_id": "clutter_only"
+    },
+    {
+      "group_id": "GF-005",
+      "scenario_id": "MG014-TRAIN-005",
+      "split_id": "train",
+      "seed": 440505,
+      "noise_seed": 550505,
+      "profile_id": "two_targets"
+    },
+    {
+      "group_id": "GF-006",
+      "scenario_id": "MG014-TRAIN-006",
+      "split_id": "train",
+      "seed": 440606,
+      "noise_seed": 550606,
+      "profile_id": "weak_standoff"
+    },
+    {
+      "group_id": "GF-007",
+      "scenario_id": "MG014-TRAIN-007",
+      "split_id": "train",
+      "seed": 440707,
+      "noise_seed": 550707,
+      "profile_id": "negative_empty"
+    },
+    {
+      "group_id": "GF-008",
+      "scenario_id": "MG014-TRAIN-008",
+      "split_id": "train",
+      "seed": 440808,
+      "noise_seed": 550808,
+      "profile_id": "single_target"
+    },
+    {
+      "group_id": "GF-009",
+      "scenario_id": "MG014-TRAIN-009",
+      "split_id": "train",
+      "seed": 440909,
+      "noise_seed": 550909,
+      "profile_id": "target_plus_clutter"
+    },
+    {
+      "group_id": "GF-010",
+      "scenario_id": "MG014-TRAIN-010",
+      "split_id": "train",
+      "seed": 441010,
+      "noise_seed": 551010,
+      "profile_id": "clutter_only"
+    },
+    {
+      "group_id": "GF-011",
+      "scenario_id": "MG014-TRAIN-011",
+      "split_id": "train",
+      "seed": 441111,
+      "noise_seed": 551111,
+      "profile_id": "two_targets"
+    },
+    {
+      "group_id": "GF-012",
+      "scenario_id": "MG014-TRAIN-012",
+      "split_id": "train",
+      "seed": 441212,
+      "noise_seed": 551212,
+      "profile_id": "weak_standoff"
+    },
+    {
+      "group_id": "GF-013",
+      "scenario_id": "MG014-TRAIN-013",
+      "split_id": "train",
+      "seed": 441313,
+      "noise_seed": 551313,
+      "profile_id": "negative_empty"
+    },
+    {
+      "group_id": "GF-014",
+      "scenario_id": "MG014-TRAIN-014",
+      "split_id": "train",
+      "seed": 441414,
+      "noise_seed": 551414,
+      "profile_id": "single_target"
+    },
+    {
+      "group_id": "GF-015",
+      "scenario_id": "MG014-TRAIN-015",
+      "split_id": "train",
+      "seed": 441515,
+      "noise_seed": 551515,
+      "profile_id": "target_plus_clutter"
+    },
+    {
+      "group_id": "GF-016",
+      "scenario_id": "MG014-TRAIN-016",
+      "split_id": "train",
+      "seed": 441616,
+      "noise_seed": 551616,
+      "profile_id": "clutter_only"
+    },
+    {
+      "group_id": "GF-017",
+      "scenario_id": "MG014-TRAIN-017",
+      "split_id": "train",
+      "seed": 441717,
+      "noise_seed": 551717,
+      "profile_id": "two_targets"
+    },
+    {
+      "group_id": "GF-018",
+      "scenario_id": "MG014-TRAIN-018",
+      "split_id": "train",
+      "seed": 441818,
+      "noise_seed": 551818,
+      "profile_id": "weak_standoff"
+    },
+    {
+      "group_id": "GF-019",
+      "scenario_id": "MG014-VALIDATION-019",
+      "split_id": "validation",
+      "seed": 441919,
+      "noise_seed": 551919,
+      "profile_id": "negative_empty"
+    },
+    {
+      "group_id": "GF-020",
+      "scenario_id": "MG014-VALIDATION-020",
+      "split_id": "validation",
+      "seed": 442020,
+      "noise_seed": 552020,
+      "profile_id": "single_target"
+    },
+    {
+      "group_id": "GF-021",
+      "scenario_id": "MG014-VALIDATION-021",
+      "split_id": "validation",
+      "seed": 442121,
+      "noise_seed": 552121,
+      "profile_id": "target_plus_clutter"
+    },
+    {
+      "group_id": "GF-022",
+      "scenario_id": "MG014-VALIDATION-022",
+      "split_id": "validation",
+      "seed": 442222,
+      "noise_seed": 552222,
+      "profile_id": "clutter_only"
+    },
+    {
+      "group_id": "GF-023",
+      "scenario_id": "MG014-VALIDATION-023",
+      "split_id": "validation",
+      "seed": 442323,
+      "noise_seed": 552323,
+      "profile_id": "two_targets"
+    },
+    {
+      "group_id": "GF-024",
+      "scenario_id": "MG014-VALIDATION-024",
+      "split_id": "validation",
+      "seed": 442424,
+      "noise_seed": 552424,
+      "profile_id": "weak_standoff"
+    },
+    {
+      "group_id": "GF-025",
+      "scenario_id": "MG014-TEST-025",
+      "split_id": "test",
+      "seed": 442525,
+      "noise_seed": 552525,
+      "profile_id": "negative_empty"
+    },
+    {
+      "group_id": "GF-026",
+      "scenario_id": "MG014-TEST-026",
+      "split_id": "test",
+      "seed": 442626,
+      "noise_seed": 552626,
+      "profile_id": "single_target"
+    },
+    {
+      "group_id": "GF-027",
+      "scenario_id": "MG014-TEST-027",
+      "split_id": "test",
+      "seed": 442727,
+      "noise_seed": 552727,
+      "profile_id": "target_plus_clutter"
+    },
+    {
+      "group_id": "GF-028",
+      "scenario_id": "MG014-TEST-028",
+      "split_id": "test",
+      "seed": 442828,
+      "noise_seed": 552828,
+      "profile_id": "clutter_only"
+    },
+    {
+      "group_id": "GF-029",
+      "scenario_id": "MG014-TEST-029",
+      "split_id": "test",
+      "seed": 442929,
+      "noise_seed": 552929,
+      "profile_id": "two_targets"
+    },
+    {
+      "group_id": "GF-030",
+      "scenario_id": "MG014-TEST-030",
+      "split_id": "test",
+      "seed": 443030,
+      "noise_seed": 553030,
+      "profile_id": "weak_standoff"
+    }
+  ],
+  "freeze_rules": {
+    "before_any_held_out_run": "freeze model, thresholds, normalizers, association tolerance, clustering radius, scorer cell policy, matching radius, sensor settings, completed group list and software SHA under a versioned review commit; verify this manifest is unchanged.",
+    "allocation": "TRAIN groups GF-001..018, VALIDATION GF-019..024, TEST GF-025..030. No family derivative may cross a split.",
+    "no_generation_claim": "Scenario rows and seed IDs here are proposals fixed for future execution, not evidence that a simulation, MATLAB validation, training or measurements have run.",
+    "no_passing_claim": "No performance threshold or MATLAB test result supplied by MG-014; executable checks deferred to respective BUILD QA tasks.",
+    "deviation": "Technical inability to generate a listed scenario or profile must be logged as BLOCKED with reason and reviewed split-manifest version change before any test exposure; do not replace a difficult held-out row after viewing results."
+  }
+}

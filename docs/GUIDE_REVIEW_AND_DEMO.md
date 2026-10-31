@@ -15,6 +15,8 @@
 | Can results be reproduced? | MATLAB release/toolboxes, seed, SHA, test commands and source files |
 | Is this ready for real mine detection? | No; simulation-only and no safety certification |
 
+**Predeclared MG-014 guide-demo execution order and fallbacks:** [MG014_LOCKED_TEST_MATRIX_AND_DEMO.md](MG014_LOCKED_TEST_MATRIX_AND_DEMO.md) (D-01…D-10 and L-01…L-24). Do not claim any of the steps executed until actual MATLAB evidence and SHA exist. The [held-out scenario manifest](../experiments/locked/mg014_scenario_manifest.json) is a planned 18/6/6 group allocation, not completed experiment output.
+
 ## Visual demonstration sequence (actual executed results only)
 1. Original project title, motivation and unchanged four objectives (read out directly).
 2. Explain cost >₹1 lakh hardware concept → MATLAB simulation decision with same scientific question.
