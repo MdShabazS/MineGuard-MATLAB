@@ -25,9 +25,56 @@
       <div class="sync-box"><div class="sync-label">LAST CHECKED</div><div id="lastChecked" class="sync-time" aria-live="polite">Checking…</div><button id="refresh" class="refresh" type="button">↻ Refresh now</button></div>
     </div>
     <div id="alert" role="status" class="alert" hidden></div>
+    <section id="v2" class="v2-stage" aria-labelledby="v2Title">
+      <div class="v2-hero">
+        <div class="v2-intro">
+          <div class="section-kicker">ADVANCED V2 / NEW DEVELOPMENT PHASE</div>
+          <h2 id="v2Title">Real-time 3-D UAV research simulation</h2>
+          <p>Building toward a complete virtual takeoff, autonomous survey, synchronized synthetic RGB / thermal / LiDAR, suspected-anomaly mapping, return and landing. <strong>Planned work is not completed work.</strong></p>
+          <div class="v2-links"><a href="https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/v2/README.md" target="_blank" rel="noopener noreferrer">V2 scope &amp; workflow ↗</a><a href="https://github.com/MdShabazS/MineGuard-MATLAB/tree/main/v2/tasks" target="_blank" rel="noopener noreferrer">Authoritative V2 tasks ↗</a></div>
+          <div class="v2-state" id="v2SourceStatus" role="status">Checking V2 records on GitHub main…</div>
+        </div>
+        <div class="v2-progress" aria-label="V2 task completion">
+          <strong id="v2Percent">—</strong><span>V2 COMPLETION</span><small id="v2Done">Awaiting records</small>
+        </div>
+      </div>
+      <div class="v2-metrics" aria-label="V2 task metrics">
+        <div class="v2-metric"><span>Completed</span><strong id="v2DoneCount">—</strong></div>
+        <div class="v2-metric"><span>In progress</span><strong id="v2ActiveCount">—</strong></div>
+        <div class="v2-metric"><span>Ready</span><strong id="v2ReadyCount">—</strong></div>
+        <div class="v2-metric"><span>Blocked</span><strong id="v2BlockedCount">—</strong></div>
+      </div>
+      <div class="two-col">
+        <section class="panel" aria-labelledby="v2CurrentTitle">
+          <div class="panel-head"><div><div class="section-kicker">V2 / NOW AND NEXT</div><h3 id="v2CurrentTitle">Current development</h3></div></div>
+          <div class="stack" id="v2Current"><p class="muted">Awaiting published V2 task records…</p></div>
+        </section>
+        <section class="panel" aria-labelledby="v2OwnersTitle">
+          <div class="panel-head"><div><div class="section-kicker">TWO-MEMBER WORKFLOW</div><h3 id="v2OwnersTitle">Owner progress</h3></div></div>
+          <div class="stack" id="v2Owners"><p class="muted">Awaiting assigned tasks…</p></div>
+          <p class="note">Shabaz + ChatGPT: requirements, architecture, verification, documentation. Rahil + Claude Code: MATLAB engineering, tests and execution evidence. Task owners are humans, not AI systems.</p>
+        </section>
+      </div>
+      <section class="panel" aria-labelledby="v2TaskTitle">
+        <div class="panel-head split">
+          <div><div class="section-kicker">ADVANCED V2 / INDEPENDENT TASK PLAN</div><h3 id="v2TaskTitle">V2 task tracker <span id="v2TaskTotal" class="count-hint"></span></h3></div>
+          <div class="filters" id="v2Filters" aria-label="Filter V2 tasks">
+            <button class="filter selected" type="button" data-filter="ALL" aria-pressed="true">All</button>
+            <button class="filter" type="button" data-filter="IN_PROGRESS" aria-pressed="false">In progress</button>
+            <button class="filter" type="button" data-filter="READY" aria-pressed="false">Ready</button>
+            <button class="filter" type="button" data-filter="BLOCKED" aria-pressed="false">Blocked</button>
+            <button class="filter" type="button" data-filter="DONE" aria-pressed="false">Done</button>
+          </div>
+        </div>
+        <div class="table-scroller"><table><thead><tr><th>Task / deliverable</th><th>Owner</th><th>Status</th><th>Dependency / evidence</th></tr></thead>
+          <tbody id="v2TaskRows"><tr><td colspan="4" class="muted">Loading V2 tasks from GitHub main…</td></tr></tbody></table></div>
+      </section>
+      <p class="v2-note">3-D animation feasibility was demonstrated locally, but it is not yet a committed, independently reviewed V2 build. MATLAB simulation is not live flight telemetry, actual buried-mine detection, or mine-clearance validation.</p>
+    </section>
+    <div class="phase-divider" id="v1Archive"><div class="section-kicker">COMPLETED BASELINE / V1 ARCHIVE</div><h2>MineGuard V1 · 22-task research baseline</h2><p>V1 task completion is shown separately below. It must not be confused with Advanced V2 readiness or field validation.</p></div>
     <section class="hero" aria-labelledby="heroTitle">
       <div class="hero-left">
-        <div class="tagline">PROJECT STATUS / 2026</div><h2 id="heroTitle">MineGuard — Autonomous Aerial Landmine Detection System</h2>
+        <div class="tagline">V1 RESEARCH BASELINE / 2026</div><h2 id="heroTitle">MineGuard — Autonomous Aerial Landmine Detection System</h2>
         <p>MATLAB/Simulink research simulation · Original problem statement and four objectives unchanged</p>
         <div class="hero-links"><a href="https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/docs/PHASE1_BASELINE.md" target="_blank" rel="noopener noreferrer">Original objectives ↗</a><a href="https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/docs/INDEX.md" target="_blank" rel="noopener noreferrer">A–Z documentation ↗</a></div>
         <div class="deadline">COLLEGE DEADLINE <strong>02 NOV 2026</strong> <span id="deadlineState"></span></div>
