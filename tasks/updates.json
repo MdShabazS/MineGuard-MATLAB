@@ -216,6 +216,14 @@
       "summary": "Post-merge review corrections to PR #41: exact public allowlist for PPO comparison metrics (contract list + validateComparisonTable used by validateRunBundle, openComparisonApp, export, comparisonTable; negative tests t20-t23); evidence clarifies uncommitted-working-copy provenance of the single benchmark batch (identical to 41b62b9) and later per-scenario re-runs. 138/138 MATLAB tests pass; benchmark files unchanged.",
       "next": "Shabaz review of corrective PR; then separate MG-019 DONE status PR",
       "evidence": "tasks/evidence/MG-019.md"
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Rahil",
+      "task": "MG-017",
+      "summary": "Release candidate v1.0.0-rc.1 prepared (tag proposed, not created). MG016-R01..R08 dispositioned: S0 fixture/held-out NEGATIVE messaging in demo+dashboard (R01), once-only guards stop re-opening the consumed TEST or overwriting the run-lock (R02), MG-015 doc clarified (R03), clean-clone demo+PPO demo+export readback recorded (R04), export privacy scans (R05), limitations documented (R06-R08); MG-019 t17 moving-ref fix. Real MATLAB R2026b regression in clean clone 151/151; held-out TEST not re-run; TP0 FP26 TN470 FN4 unchanged.",
+      "next": "Shabaz review of MG-017 PR; tag only after merge + explicit authorization; then separate MG-017 DONE status PR",
+      "evidence": "tasks/evidence/MG-017.md"
     }
   ]
 }

@@ -1,0 +1,10 @@
+testMG004Scenario            6 tests: PASS   6 FAIL 0 INCOMPLETE 0
+testMG005Navigation         13 tests: PASS  13 FAIL 0 INCOMPLETE 0
+testMG007Sensors            14 tests: PASS  14 FAIL 0 INCOMPLETE 0
+testMG009Detection          19 tests: PASS  19 FAIL 0 INCOMPLETE 0
+testMG011MissionApp         20 tests: PASS  20 FAIL 0 INCOMPLETE 0
+testMG013PPO                20 tests: PASS  20 FAIL 0 INCOMPLETE 0
+testMG015Integration        23 tests: PASS  23 FAIL 0 INCOMPLETE 0
+testMG019PPOIntegration     23 tests: PASS  23 FAIL 0 INCOMPLETE 0
+testMG017Release            13 tests: PASS  13 FAIL 0 INCOMPLETE 0
+TOTAL 151: PASS 151 FAIL 0 INCOMPLETE 0 | 298 s | finished 2026-10-31 20:09:37 UTC | HEAD a42d30dd6d7ce3aba338dbb5961b644ef26ab118

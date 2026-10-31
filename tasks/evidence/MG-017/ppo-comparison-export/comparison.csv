@@ -1,0 +1,3 @@
+planner,executed,reason,completed,coverage_fraction,unique_cells,n_legal,distance_m,mission_time_s,coverage_per_m,coverage_per_s,invalid_actions,revisits,decisions,runtime_s,events,tp,fp,tn,fn,precision,recall,f1,fpr,invalid_thermal_fraction,invalid_em_fraction,evaluable_cells
+grid,1,COVERAGE_GOAL,1,1,25,25,48,24,0.0208333333333333,0.0416666666666667,0,0,24,0.1099863,1,0,1,22,2,0,0,0,0.0434782608695652,0,0,25
+ppo,1,BUDGET_EXHAUSTED,0,0.96,24,25,50.1347550712336,25.0673775356168,0.0191483931383726,0.0382967862767452,0,1,7,1.9642483,2,0,2,20,2,0,0,0,0.0909090909090909,0,0,24

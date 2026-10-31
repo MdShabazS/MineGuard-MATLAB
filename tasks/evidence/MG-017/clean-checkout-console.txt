@@ -1,0 +1,44 @@
+# Verbatim MATLAB command-window output returned by the MCP tool evaluate_matlab_code
+# (MATLAB `diary` does not capture output under the MCP server, so it was copied from the tool result).
+# Host: Windows 11 Pro, MATLAB R2026b Update 1, desktop session. Working folder: fresh `git clone` of
+# task/MG-017-release-candidate at a42d30dd6d7ce3aba338dbb5961b644ef26ab118 (git status clean before and after).
+# All other MineGuard checkouts were removed from the MATLAB path first; which('mineguardDemo') resolved to the clone.
+
+>> addpath('matlab'); [app, rb] = mineguardDemo;
+
+=== MineGuard MATLAB demo — SIMULATION ONLY (synthetic data; not validated for real landmine detection or clearance) ===
+MineGuard-MATLAB 1.0.0-rc.1 | default planner: fixed grid | PPO: EXPERIMENTAL (see mineguardPPODemo)
+[1/6] Scenario MG015-DEMO-S0 | seed 3001 | noise_seed 53001 | field 10x10 m | cell 0.5 m | altitude 0.3 m
+[2/6] Fixed-grid survey: 999 poses, 198.4 m, 99.8 s simulated, coverage 1.000 (400/400 cells)
+[3/6] Sensors: thermal 999 valid / 999 (K, 292.87..295.37) | EM 999 valid / 999 (dimensionless)
+[4/6] Detector weighted / single_valid (MG009:mg009-baseline-1.0): 5 SUSPECTED events
+[5/6] Aggregate synthetic evaluation (cell-level, 400 evaluable cells): TP 1 FP 4 TN 395 FN 0 | precision 0.200 recall 1.000 F1 0.333 FPR 0.010
+      NOTE: S0 is a DISPLAY FIXTURE (0.3 m altitude, 0.5 m cells); its numbers are NOT held-out performance.
+      Locked held-out TEST (GF-025..GF-030, weighted/single_valid, run once): TP 0 FP 26 TN 470 FN 4 -> NEGATIVE: no method is useful at the locked settings; weighted fusion found 0 of 4 positive cells.
+[6/6] Redacted bundle validated; run_id MG015-MG015-DEMO-S0-f00cf470; git a42d30d; end-to-end 4.3 s. Opening dashboard...
+Dashboard ready: use Play Simulation / Pause / Step / Seek / Reset / Export. Only SUSPECTED events are shown.
+
+(control checks in the same session)
+state after seek end: PAUSED cursor 999/999
+play -> COMPLETE in 5.2 s            (Reset, speed 20x, Play)
+export ok=1: Export verified: 7 files in ...\mg017-out\export\MG011-export-MG015-DEMO-S0-20261031T200354Z
+git status entries in clone: 0
+
+>> [cmp, gb, pb, T] = mineguardPPODemo(7307, 'ExportTo', <folder>, 'OpenReplay', true);
+
+=== MineGuard PPO vs fixed-grid demo — SIMULATION ONLY (synthetic; not validated for real landmine detection or clearance) ===
+MineGuard-MATLAB 1.0.0-rc.1 | PPO planner: EXPERIMENTAL (not the release default; default is the fixed grid) | PPO lost all 8 grid-feasible paired missions; fixed grid stays the default
+[1/5] PPO checkpoint verified: SHA-256 5a0da1715a1c2f7044a3b954d8cdf5e6d234731a2f4619d82cb3ea87e875b8ad (55-d observation, 25 actions, deterministic inference)
+[2/5] Scenario MG019-7307 | seed 7307 | 10x10 m, 2 m cells (25) | 0 no-fly zone(s) | budget 60 m / 30 s / 50 decisions
+[3/5] Missions executed:
+      plan  termination                  cov     cells   dist[m]  time[s]  invalid  revisits  events
+      grid  COVERAGE_GOAL              1.000     25/25      48.0     24.0        0         0       1
+      ppo   BUDGET_EXHAUSTED           0.960     24/25      50.1     25.1        0         1       2
+[4/5] Paired (PPO - grid): coverage -0.040, distance +2.1 m, time +1.1 s
+      Exploratory detection (different routes -> different readings): grid TP/FP 0/1, PPO TP/FP 0/2
+      Comparison export verified: ...\mg017-out\ppo-export\MG019-comparison-MG019-7307-20261031T200420Z
+[5/5] Comparison window open (use "Open PPO replay" / "Open fixed-grid replay" / "Export comparison"). Fixed grid remains the release baseline.
+
+readback cols==allowlist: 1 | rows 2
+MG-019 benchmark CSV row 7307: grid_coverage 1, ppo_coverage 0.96, delta_coverage -0.04 (reproduced exactly)
+git status entries in clone: 0

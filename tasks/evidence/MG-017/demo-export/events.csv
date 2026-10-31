@@ -1,0 +1,6 @@
+event_id,t_s,x_est_m,y_est_m,confidence_0_1,uncertainty_m,thermal_sample_id,em_sample_id,method_name,threshold,status,valid
+EV-00001,1.2,2.55,0.25,NaN,NaN,TH-000013,EM-000013,weighted,2.5,SUSPECTED,1
+EV-00002,4.1,8.45,0.25,NaN,NaN,TH-000042,EM-000042,weighted,2.5,SUSPECTED,1
+EV-00003,6.6,6.68333333333333,0.75,NaN,NaN,TH-000067,EM-000067,weighted,2.5,SUSPECTED,1
+EV-00004,13.1,6.55,1.25,NaN,NaN,TH-000132,EM-000132,weighted,2.5,SUSPECTED,1
+EV-00005,44.9,9.75,4.45000000000001,NaN,NaN,TH-000450,EM-000450,weighted,2.5,SUSPECTED,1
