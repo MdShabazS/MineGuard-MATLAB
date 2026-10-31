@@ -21,9 +21,14 @@
 - GitHub REST unauthenticated rate-limit handled gracefully, with task board still functioning when activity feed fails.
 
 ## Acceptance and QA evidence
-- JS syntax and unit tests in GitHub CI; browser test by actual person before external sharing.
+- JS syntax/unit tests plus independent hosted Chromium UI automation (desktop and mobile-emulated); actual human physical-phone check remains recommended before externally presenting layout.
 - Visual review of empty/unmerged foundation state, correct blockage counts, in-progress state, date/deadline, evidence links, mobile width, rate-limit fallback.
-- Once merged, verify URL and first real data refresh on Render (deployment **NOT YET COMPLETED**). Do not claim a Render URL before it exists.
+- MG-020 was deployed at https://mineguard-guide-portal.onrender.com/ and its first HTTPS/main-data fetch verified in a hosted runner (see `tasks/evidence/MG-020.md`).
+- MG-021 has actual Chromium desktop and responsive mobile-**emulated** browser QA evidence (see `tasks/evidence/MG-021.md` and GitHub Actions run 41218473248). Physical phone and independently observed real main-state transition are documented separately; don't equate emulation with hardware.
+
+## MG-020 deployment completion gate
+
+See [MG020_RENDER_DEPLOYMENT_CHECKLIST.md](MG020_RENDER_DEPLOYMENT_CHECKLIST.md) for the actual Render Blueprint settings, first verified HTTPS fetch, GitHub main-source check, and required evidence. The verified deployed URL is https://mineguard-guide-portal.onrender.com/. MG-021's executed browser checks and limitations are in `tasks/evidence/MG-021.md`.
 
 ## Source and deployment references
 - https://render.com/docs/static-sites

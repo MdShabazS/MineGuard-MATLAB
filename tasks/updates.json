@@ -123,6 +123,38 @@
     },
     {
       "date": "2026-10-31",
+      "owner": "Shabaz",
+      "task": "MG-020",
+      "summary": "Prepared CI-gated Render static-site Blueprint, post-deployment real HTTPS/GitHub-main verifier, deployment checklist, and evidence; not deployed or verified at a real Render URL yet.",
+      "next": "After reviewer merges readiness PR, account owner creates/confirms Render Static Site, returns actual HTTPS URL and first smoke output; only then propose MG-020 DONE and unblock MG-021.",
+      "evidence": "tasks/evidence/MG-020.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Shabaz",
+      "task": "MG-020",
+      "summary": "Rendered Guide Portal Static Site on Render at verified HTTPS URL; independent GitHub Actions runner successfully fetched live HTML, JS, CSS and GitHub main task data (22 tasks, 13 DONE at check time).",
+      "next": "After reviewed completion PR merge, MG-021 browser/mobile interaction and live GitHub synchronization verification become READY.",
+      "evidence": "tasks/evidence/MG-020.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Shabaz",
+      "task": "MG-021",
+      "summary": "Prepared independent GitHub Actions hosted Chromium desktop/mobile-emulated testing of deployed guide site, including live GitHub-main parity, filters, refresh, error cases, screenshots and evidence capture; tests to be executed and reviewed.",
+      "next": "Run hosted browser QA, fix observed failures, document actual logs/screenshots and verify live main transition before MG-021 DONE approval.",
+      "evidence": "tasks/evidence/MG-021.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Shabaz",
+      "task": "MG-021",
+      "summary": "GitHub-hosted Chromium real deployed-site QA passed 15/15, with desktop and touch-emulated mobile/tablet screenshots, filters, refresh, error handling and actual MG-021 main branch TODO→IN_PROGRESS transition observed by a post-merge browser run.",
+      "next": "Review and merge separate MG-021 completion PR; once DONE is on main, optional physical-device Safari/iPhone testing may be done independently without claiming already executed.",
+      "evidence": "tasks/evidence/MG-021.md"
+    },
+    {
+      "date": "2026-10-31",
       "owner": "Rahil",
       "task": "MG-013",
       "summary": "Real PPO coverage policy trained (6,000 episodes, validation-selected checkpoint, SHA-256 recorded) in a custom rlFunctionEnv; paired held-out comparison: PPO does not beat the MG-005 fixed grid where feasible (mean delta coverage -0.07); P-01..P-20 pass, 72/72 with regressions.",

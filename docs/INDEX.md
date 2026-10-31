@@ -66,6 +66,8 @@
 |---|---|
 | Read-only Render status portal | [GUIDE_PORTAL.md](GUIDE_PORTAL.md) |
 | Guide questions, demo walk-through and viva | [GUIDE_REVIEW_AND_DEMO.md](GUIDE_REVIEW_AND_DEMO.md) |
+| **MG-020 Render static deployment, real URL and HTTPS first-fetch evidence** | [MG020_RENDER_DEPLOYMENT_CHECKLIST.md](MG020_RENDER_DEPLOYMENT_CHECKLIST.md) |
+| **MG-021 real hosted Chromium guide-portal browser QA and evidence** | [MG-021 evidence and workflow](../tasks/evidence/MG-021.md) |
 | Report and presentation chapters | [REPORT_BLUEPRINT.md](REPORT_BLUEPRINT.md) |
 | Nov 2 delivery/release checklist | [DELIVERY.md](DELIVERY.md) |
 | Portal installation and limitations | [../portal/README.md](../portal/README.md) |
