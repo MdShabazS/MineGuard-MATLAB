@@ -15,10 +15,12 @@
     },
     "MG-002": {
       "owner": "Rahil",
-      "state": "IN_PROGRESS",
-      "evidence": null,
+      "state": "DONE",
+      "evidence": "tasks/evidence/MG-002.md",
       "startedBy": "Rahil",
-      "startedOn": "2026-10-31"
+      "startedOn": "2026-10-31",
+      "completedBy": "Rahil",
+      "completedOn": "2026-10-31"
     },
     "MG-003": {
       "owner": "Shabaz",

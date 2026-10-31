@@ -8,6 +8,14 @@
       "summary": "MATLAB R2026b, UAV Toolbox and Claude Code MCP verified; Agentic Toolkit installed. Simulink/RL/Deep Learning licensed but not installed yet.",
       "next": "Install Simulink, RL and Deep Learning toolboxes (admin), re-verify, propose DONE",
       "evidence": "tasks/evidence/MG-002.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-002",
+      "summary": "Installed Simulink, RL, Deep Learning and Stateflow. Simulink sim and rlPPOAgent smoke tests pass through Claude Code MCP.",
+      "next": "Shabaz review of #1 and #2; then MG-003 spec unblocks MG-004",
+      "evidence": "tasks/evidence/MG-002.md"
     }
   ]
 }
