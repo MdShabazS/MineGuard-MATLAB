@@ -176,6 +176,14 @@
       "summary": "End-to-end MATLAB integration: mineguard.runExperiment + one-command mineguardDemo (scenario -> grid survey -> thermal/EM -> frozen detector -> separate evaluator -> redacted bundle -> MG-011 dashboard/export). MG014-RUNLOCK-1 proposed (TRAIN/VALIDATION only; sealed TEST not opened). 113/115 tests pass, 0 fail; L-10/L-21 blocked pending run-lock review. Locked config shows chance-level detection with the assumed sensor model.",
       "next": "Shabaz review of MG-015 PR and MG014-RUNLOCK-1; then held-out TEST run once",
       "evidence": "tasks/evidence/MG-015.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-015",
+      "summary": "MG014-RUNLOCK-1 approved by Shabaz; 8/8 pre-TEST integrity checks passed; sealed TEST GF-025..030 executed exactly once. Held-out result is negative: primary weighted fusion TP 0 / FP 26 / TN 470 / FN 4; no method useful at the locked 2 m configuration with assumed sensors. Post-TEST non-TEST regression 115/115.",
+      "next": "Shabaz review of PR #36 final evidence; separate MG-015 DONE PR after merge",
+      "evidence": "tasks/evidence/MG-015.md"
     }
   ]
 }
