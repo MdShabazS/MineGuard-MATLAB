@@ -65,6 +65,17 @@ async function main(){
  assert.equal(jsErrors.length,0,"Uncaught JavaScript error(s): "+jsErrors.join(" | "));
  check("B01 actual desktop HTTPS, browser JS, source data, summary and disclaimer","GitHub main "+summary.counts.DONE+"/"+summary.total);
  await screenshot(page,"desktop-live.png");
+ // Read and verify a REAL main-branch transition made by PR #30, not a mocked response.
+ // Earlier approved evidence observed MG-021 TODO before PR #30 merged.
+ const state21=status.tasks["MG-021"]?.state;
+ assert.ok(["IN_PROGRESS","DONE"].includes(state21),"MG-021 has not advanced on real GitHub main");
+ const row21=page.locator("#taskRows tr").filter({hasText:"MG-021 · "});
+ assert.equal(await row21.count(),1,"MG-021 must appear exactly once in live board");
+ assert.equal((await row21.locator(".status").innerText()).trim(),state21==="DONE"?"Done":"In progress");
+ report.main_source.mg021_state=state21;
+ report.main_source.mg021_real_merge_observed=true;
+ check("B13 actual post-PR30 main transition reflected in deployed browser","MG-021 source="+state21+"; DOM="+state21);
+
 
  // Filter counts, accessibility state and evidence destinations.
  for(const kind of ["DONE","READY","BLOCKED","IN_PROGRESS"]){
