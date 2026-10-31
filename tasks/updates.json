@@ -1,4 +1,13 @@
 {
   "schemaVersion": 1,
-  "updates": []
+  "updates": [
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-002",
+      "summary": "MATLAB R2026b, UAV Toolbox and Claude Code MCP verified; Agentic Toolkit installed. Simulink/RL/Deep Learning licensed but not installed yet.",
+      "next": "Install Simulink, RL and Deep Learning toolboxes (admin), re-verify, propose DONE",
+      "evidence": "tasks/evidence/MG-002.md"
+    }
+  ]
 }
