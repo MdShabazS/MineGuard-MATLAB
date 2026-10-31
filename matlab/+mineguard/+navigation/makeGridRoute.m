@@ -15,7 +15,7 @@ function route = makeGridRoute(navConfig, geometry)
 %   geometry, never on hidden truth.
 navConfig = validateNavConfig(navConfig);
 [bounds, polys] = validateGeometry(geometry);
-[xc, yc, dx, dy] = gridCells(bounds, navConfig.grid_spacing_m);
+[xc, yc] = gridCells(bounds, navConfig.grid_spacing_m);
 
 pts = zeros(0, 2);
 for j = 1:numel(yc)
@@ -31,18 +31,14 @@ if isempty(pts)
     error('mineguard:RouteConflict', 'MineGuard navigation: every survey cell lies inside an exclusion polygon.');
 end
 
-% Leg check: sample each leg densely and reject any leg that crosses an exclusion.
-if ~isempty(polys)
-    step = min(dx, dy) / 20;
-    for k = 1:size(pts,1)-1
-        a = pts(k,:); b = pts(k+1,:);
-        n = max(2, ceil(norm(b - a) / step) + 1);
-        s = linspace(0, 1, n)';
-        p = a + s .* (b - a);
-        if any(insidePolys(p(:,1), p(:,2), polys))
-            error('mineguard:RouteConflict', ['MineGuard navigation: leg %d from (%.3f, %.3f) to (%.3f, %.3f) ' ...
-                'crosses an exclusion polygon. The baseline planner does not reroute.'], k, a(1), a(2), b(1), b(2));
-        end
+% Leg check: exact segment-polygon intersection, not point sampling. Any leg that
+% enters, crosses or touches an exclusion polygon (including narrow polygons) is rejected.
+for k = 1:size(pts,1)-1
+    a = pts(k,:); b = pts(k+1,:);
+    [hit, ip] = segmentHitsPolygons(a, b, polys);
+    if hit
+        error('mineguard:RouteConflict', ['MineGuard navigation: leg %d from (%.3f, %.3f) to (%.3f, %.3f) ' ...
+            'intersects exclusion polygon %d. The baseline planner does not reroute.'], k, a(1), a(2), b(1), b(2), ip);
     end
 end
 route = [pts, repmat(navConfig.altitude_m, size(pts,1), 1)];

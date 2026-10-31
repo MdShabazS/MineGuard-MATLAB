@@ -28,6 +28,15 @@ end
 if any(insidePolys(route(:,1), route(:,2), polys))
     error(id, 'MineGuard navigation: route has waypoints inside an exclusion polygon.');
 end
+% Check every leg on its own (exact segment-polygon test), so a user-supplied route
+% whose endpoints are outside but whose leg crosses or touches an exclusion is rejected.
+for k = 1:size(route,1)-1
+    [hit, ip] = segmentHitsPolygons(route(k,1:2), route(k+1,1:2), polys);
+    if hit
+        error('mineguard:RouteConflict', ['MineGuard navigation: route leg %d from (%.3f, %.3f) to ' ...
+            '(%.3f, %.3f) intersects exclusion polygon %d.'], k, route(k,1), route(k,2), route(k+1,1), route(k+1,2), ip);
+    end
+end
 legs = diff(route, 1, 1);
 legLen = sqrt(sum(legs.^2, 2));
 if any(legLen == 0)

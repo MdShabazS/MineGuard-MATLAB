@@ -137,6 +137,65 @@ classdef testMG005Navigation < matlab.unittest.TestCase
             tc.verifyError(@() mineguard.navigation.makeGridRoute(nav, g2), 'mineguard:RouteConflict');
         end
 
+        function at10b_narrowPolygonBetweenSamples(tc)
+            % A 1 cm wide no-fly strip between cell centres x=5 and x=7. The old 0.1 m
+            % point sampling would miss it, but the exact segment test must reject it.
+            c = testMG005Navigation.fixture();
+            strip = [5.01 0.5; 5.02 0.5; 5.02 1.5; 5.01 1.5];   % crosses row 1 only
+            samples = 5 + (0:20)' * 0.1;                        % the old sampler's points
+            tc.verifyFalse(any(inpolygon(samples, ones(size(samples)), strip(:,1), strip(:,2))), ...
+                'fixture must fall between sampled points');
+            c.exclusion_polygons_enu_m = {strip};
+            [g, ~] = mineguard.scenario.generateScenario(c);
+            nav = mineguard.navigation.navigationConfigFromExperiment(c);
+            tc.verifyError(@() mineguard.navigation.makeGridRoute(nav, g), 'mineguard:RouteConflict');
+            % Boundary contact: a leg that only touches a polygon vertex is rejected.
+            c.exclusion_polygons_enu_m = {[10 1; 11 1.5; 9 1.5]};   % apex sits on row y=1
+            [g2, ~] = mineguard.scenario.generateScenario(c);
+            tc.verifyError(@() mineguard.navigation.makeGridRoute(nav, g2), 'mineguard:RouteConflict');
+        end
+
+        function at10c_manualRouteExclusion(tc)
+            c = testMG005Navigation.fixture();
+            box = [8 8; 12 8; 12 12; 8 12];
+            c.exclusion_polygons_enu_m = {box};
+            [g, ~] = mineguard.scenario.generateScenario(c);
+            nav = mineguard.navigation.navigationConfigFromExperiment(c);
+            % Endpoints outside, but the leg crosses the zone -> rejected by simulatePose.
+            tc.verifyError(@() mineguard.navigation.simulatePose(nav, g, [1 10 2; 19 10 2]), 'mineguard:RouteConflict');
+            % A leg running along the polygon edge (boundary contact) -> rejected.
+            tc.verifyError(@() mineguard.navigation.simulatePose(nav, g, [8 1 2; 8 19 2]), 'mineguard:RouteConflict');
+            % A narrow strip between the endpoints of a manual leg -> rejected.
+            c2 = c; c2.exclusion_polygons_enu_m = {[10 9.999; 10.001 9.999; 10.001 10.001; 10 10.001]};
+            [g2, ~] = mineguard.scenario.generateScenario(c2);
+            tc.verifyError(@() mineguard.navigation.simulatePose(nav, g2, [1 10 2; 19 10 2]), 'mineguard:RouteConflict');
+            % A legal route that goes around the zone is accepted and never enters it.
+            legal = [1 1 2; 19 1 2; 19 19 2; 1 19 2];
+            p = mineguard.navigation.simulatePose(nav, g, legal);
+            tc.verifyEqual(p.mission_state(end), "COMPLETE");
+            tc.verifyFalse(any(inpolygon(p.x_east_m, p.y_north_m, box(:,1), box(:,2))));
+        end
+
+        function c05_nestedTruthInGeometryRejected(tc)
+            c = testMG005Navigation.fixture();
+            [g, truth] = mineguard.scenario.generateScenario(c);
+            nav = mineguard.navigation.navigationConfigFromExperiment(c);
+            id = 'mineguard:InvalidNavigationInput';
+            g1 = g; g1.terrain_model.meta.hidden_truth = struct('n', 1);
+            g2 = g; g2.terrain_model.layers = {struct('label', "target")};
+            g3 = g; g3.terrain_model.extra = truth;
+            g4 = g; g4.terrain_model.a.b.c.burial_depth_m = 0.1;
+            for gg = {g1, g2, g3, g4}
+                tc.verifyError(@() mineguard.navigation.makeGridRoute(nav, gg{1}), id);
+                tc.verifyError(@() mineguard.navigation.simulatePose(nav, gg{1}, [1 1 2; 3 1 2]), id);
+                tc.verifyError(@() mineguard.navigation.computeCoverage(nav, gg{1}, table(0, 1, 1, 2, "INIT", ...
+                    'VariableNames', {'t_s','x_east_m','y_north_m','z_up_m','mission_state'})), id);
+            end
+            % Harmless nested terrain metadata is still accepted.
+            ok = g; ok.terrain_model.meta = struct('source', "synthetic", 'layers', {{struct('kind', "flat")}});
+            tc.verifySize(mineguard.navigation.makeGridRoute(nav, ok), [100 3]);
+        end
+
         function c05_navigationTruthFirewall(tc)
             % (1) Signatures take only (navConfig, geometry[, route]).
             tc.verifyEqual(nargin('mineguard.navigation.makeGridRoute'), 2);
