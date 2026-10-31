@@ -6,7 +6,7 @@ services:
     runtime: static
     branch: main
     autoDeployTrigger: checksPass
-    buildCommand: echo "Static portal: no build required; Task Gate checks source and tests"
+    buildCommand: 'echo "Static portal: no build required; Task Gate checks source and tests"'
     staticPublishPath: portal
     headers:
       - path: /*
