@@ -9,11 +9,13 @@
 | Functional and nonfunctional requirements | [REQUIREMENTS.md](REQUIREMENTS.md) |
 | Proposed architecture | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | MATLAB environment/installation | [ENVIRONMENT.md](ENVIRONMENT.md) |
+| Rahil setup, installation and ChatGPT troubleshooting | [RAHIL_SETUP_SUPPORT.md](RAHIL_SETUP_SUPPORT.md) |
 | Component and module contracts | [DATA_CONTRACTS.md](DATA_CONTRACTS.md) |
 | Scenario and target ground truth | [SCENARIOS.md](SCENARIOS.md) |
 | Thermal/electromagnetic modelling | [SENSOR_MODELS.md](SENSOR_MODELS.md) |
 | AI agents and training | [AI_AGENTS.md](AI_AGENTS.md) |
 | Mission control application | [DASHBOARD.md](DASHBOARD.md) |
+| Guide-facing progress portal | [GUIDE_PORTAL.md](GUIDE_PORTAL.md) |
 | Experiment design and metrics | [EXPERIMENTS.md](EXPERIMENTS.md) |
 | Testing, reproducibility and evidence | [TEST_AND_EVIDENCE.md](TEST_AND_EVIDENCE.md) |
 | Task governance and PR rules | [WORKFLOW.md](WORKFLOW.md) |
@@ -23,4 +25,4 @@
 | Risks/decisions | [DECISION_LOG.md](DECISION_LOG.md) |
 | College demo/release criteria | [DELIVERY.md](DELIVERY.md) |
 
-**Status:** these are baseline design specifications, not evidence that models were implemented or tests passed. Changes to interfaces require a documented change review in a PR.
+**Status:** baseline design specifications, not evidence that MATLAB models were implemented or tests passed. Changes to interfaces require documented PR review.

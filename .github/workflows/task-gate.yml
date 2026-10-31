@@ -15,11 +15,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Syntax check
+      - name: Task gate syntax
         run: node --check scripts/task-gate.mjs
-      - name: Validate task DAG and evidence
+      - name: Validate dependency DAG and evidence
         run: node scripts/task-gate.mjs validate
-      - name: List unblocked work
+      - name: List ready tasks
         run: node scripts/task-gate.mjs ready
+      - name: Guide portal static checks
+        run: |
+          node --check portal/core.mjs
+          node --check portal/app.mjs
+          node --test portal/tests/core.test.mjs
       - name: Scope note
         run: echo 'These checks do NOT execute MATLAB; licensed local MATLAB verification is tracked separately.'

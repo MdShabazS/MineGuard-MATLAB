@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: mineguard-guide-portal
+    runtime: static
+    branch: main
+    buildCommand: echo "No build required"
+    staticPublishPath: portal
