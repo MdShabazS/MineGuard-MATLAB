@@ -62,12 +62,16 @@ classdef ComparisonApp < handle
             tmp = fullfile(tempdir, "MG019-cmp-" + stamp + "-partial");
             try
                 if ~isfolder(folder), error('mineguard:ExportFailed', 'Destination does not exist: %s', folder); end
+                mineguard.app.validateComparisonTable(app.Comparison);   % never export a non-allowlisted column
                 mkdir(tmp);
                 writetable(app.Comparison, fullfile(tmp, 'comparison.csv'));
                 fid = fopen(fullfile(tmp, 'summary.txt'), 'w'); fprintf(fid, '%s\n', [app.Banner; string(app.H.summary.Value)]); fclose(fid);
                 exportapp(app.Fig, fullfile(tmp, 'comparison.png'));
                 T = readtable(fullfile(tmp, 'comparison.csv'), 'TextType', 'string');
                 if height(T) ~= height(app.Comparison), error('mineguard:ExportFailed', 'comparison.csv read-back mismatch.'); end
+                if ~isequal(string(T.Properties.VariableNames), mineguard.contract.comparisonColumns())
+                    error('mineguard:ExportFailed', 'comparison.csv read-back columns differ from the public allowlist.');
+                end
                 if size(imread(fullfile(tmp, 'comparison.png')), 1) < 200, error('mineguard:ExportFailed', 'PNG unreadable.'); end
                 [st, msg] = movefile(tmp, final); if ~st, error('mineguard:ExportFailed', '%s', msg); end
                 app.LastExport = struct('folder', final); ok = true;
