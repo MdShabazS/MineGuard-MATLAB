@@ -80,6 +80,14 @@
       "summary": "Synthetic thermal and EM forward sensor proxies (non-calibrated, assumed parameters) implemented; MG-006 S-01..S-14 pass with MG-004/MG-005 regression, 33/33 in MATLAB R2026b; sensitivity sweeps saved as CSV.",
       "next": "Shabaz review; MG-009 detector/fusion after MG-007 and MG-008 are DONE",
       "evidence": "tasks/evidence/MG-007.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Shabaz",
+      "task": "MG-010",
+      "summary": "Specified redacted MATLAB mission-control replay UI with 20 acceptance cases, exact time/state behavior, ENU/sensor/event displays, evidence export and unvalidated-feature gates; documentation only.",
+      "next": "Merge MG-010 specification/start PR; then submit separate completion status PR. Rahil implements MG-011 after MG-009 DONE.",
+      "evidence": "tasks/evidence/MG-010.md"
     }
   ]
 }
