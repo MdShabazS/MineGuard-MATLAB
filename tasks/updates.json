@@ -72,6 +72,14 @@
       "summary": "Specified truth-isolated thermal/EM association and fusion rules, immutable grouped synthetic splits, coherent cell-level confusion metrics, separately matched event localization and 18 MATLAB acceptance tests.",
       "next": "Review and merge the MG-008 documentation/start PR, then propose DONE separately; Rahil may implement MG-009 only after MG-007 and MG-008 are DONE on main.",
       "evidence": "tasks/evidence/MG-008.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-007",
+      "summary": "Synthetic thermal and EM forward sensor proxies (non-calibrated, assumed parameters) implemented; MG-006 S-01..S-14 pass with MG-004/MG-005 regression, 33/33 in MATLAB R2026b; sensitivity sweeps saved as CSV.",
+      "next": "Shabaz review; MG-009 detector/fusion after MG-007 and MG-008 are DONE",
+      "evidence": "tasks/evidence/MG-007.md"
     }
   ]
 }
