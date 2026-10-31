@@ -44,7 +44,7 @@ assert(isequal(alloc, [18 6 6]) && L01.unique_ids && L01.unique_seeds && numel(p
 % Generate TRAIN + VALIDATION families only.
 P = declared();
 tr = find(G.split_id == "train"); va = find(G.split_id == "validation");
-[Btr, Ctr] = gen(G.group_id(tr)); [Bva, Cva] = gen(G.group_id(va));
+[Btr, ~] = gen(G.group_id(tr)); [Bva, Cva] = gen(G.group_id(va));
 S = cellfun(@(b) b.public.samples, Btr, 'UniformOutput', false); S = vertcat(S{:});
 model = mineguard.detection.fitNormalisers(S, struct('version', "mg015-gf-baseline-1.0", 'w_thermal', P.w_thermal, 'w_em', P.w_em, ...
     'cluster_time_window_s', P.cluster_time_window_s, 'cluster_radius_m', P.cluster_radius_m, 'train_scenario_ids', G.scenario_id(tr)));
