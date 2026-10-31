@@ -18,7 +18,7 @@ Dependency: MG-003 DONE. Downstream: MG-011 (Rahil) requires MG-005, MG-009 and 
 
 **Optional, feature-gated:** `uavScenario` 3-D view, PPO comparisons (MG-013/MG-019), richer interactive mapping, multi-run experiment explorer, image playback. When input, licence or tested implementation is absent, show **NOT AVAILABLE / NOT RUN** rather than placeholder or invented values. Core MG-011 must not depend on PPO or a 3-D renderer; default to 2-D `uiaxes`.
 
-**Platform boundary:** Rahul's/Rahil's MATLAB R2026b on Windows is available as documented in MG-002. Mac GUI compatibility is **NOT VERIFIED** until independently tested, and a desktop GUI is not a web dashboard. The separate Render Guide Portal is a task-status website only, not mission control.
+**Platform boundary:** Rahil's MATLAB R2026b on Windows is available as documented in MG-002. Mac GUI compatibility is **NOT VERIFIED** until independently tested, and a desktop GUI is not a web dashboard. The separate Render Guide Portal is a task-status website only, not mission control.
 
 ## 2. Data ownership, app trust boundary and view-only adapter
 
