@@ -10,16 +10,63 @@ function out = runMG015Locked(stage, outFolder, runlockSha)
 %       and the sealed manifest is unchanged. Only then does it generate GF-025..GF-030, evaluate the
 %       five methods x three rules on a common cell mask, and run the preregistered stress
 %       conditions. TEST is used ONCE; nothing is retuned.
+%
+%   MG-017 once-only protection (MG016-R02). All checks run BEFORE any folder is created, any file is
+%   written or any scenario is generated:
+%     "heldout" -> mineguard:TestConsumed if ANY of the following holds:
+%        (1) outFolder already contains any TEST or stress output (comparison, per-group or stress CSV),
+%            so partially populated result folders are never overwritten;
+%        (2) the repository's authoritative consumption record exists: any of those outputs is committed
+%            under <repo>/tasks/evidence/MG-015/ (checked independently of outFolder);
+%        (3) the sealed manifest in this repository is the consumed MG-014 manifest (LF-normalised
+%            SHA-256 fa5a3fa5...). This holds even for a copied run-lock in a new folder.
+%        In this repository the MG-014 TEST is therefore permanently closed. This protection is
+%        deliberately specific to this repository's archive, not a general access control. A new
+%        study needs a separate preregistered driver and fresh held-out families.
+%     "prepare" -> mineguard:RunLockExists if outFolder already contains a run-lock.
 %   SIMULATION ONLY. Metrics are synthetic and model-dependent.
 root = fileparts(fileparts(fileparts(mfilename('fullpath'))));
 mfile = fullfile(root, 'experiments', 'locked', 'mg014_scenario_manifest.json');
-if ~exist(outFolder, 'dir'), mkdir(outFolder); end
+stage = string(stage); outFolder = string(outFolder);
+if ~ismember(stage, ["prepare","heldout"])
+    error('mineguard:InvalidExperimentConfig', 'stage must be "prepare" or "heldout".');
+end
 lockFile = fullfile(outFolder, 'MG014-RUNLOCK-1.json');
-switch string(stage)
+if stage == "heldout", assertTestNotConsumed(root, mfile, outFolder); end
+if stage == "prepare" && isfile(lockFile)
+    error('mineguard:RunLockExists', 'A run-lock already exists in %s; it is frozen and will not be overwritten.', outFolder);
+end
+if ~exist(outFolder, 'dir'), mkdir(outFolder); end   % only after every guard has passed
+switch stage
     case "prepare", out = prepare(root, mfile, outFolder, lockFile);
     case "heldout", out = heldout(mfile, outFolder, lockFile, string(runlockSha));
-    otherwise, error('mineguard:InvalidExperimentConfig', 'stage must be "prepare" or "heldout".');
 end
+end
+
+function assertTestNotConsumed(root, mfile, outFolder)
+% Read-only checks (no folder creation, no temp files). See the header for the three conditions.
+outputs = ["MG-015-test-comparison.csv","MG-015-test-per-group.csv","MG-015-stress.csv"];
+present = outputs(arrayfun(@(f) isfile(fullfile(outFolder, f)), outputs));
+if ~isempty(present)
+    error('mineguard:TestConsumed', ['Output folder %s already contains TEST/stress output (%s); ' ...
+        'existing results are never overwritten.'], outFolder, strjoin(present, ', '));
+end
+evDir = fullfile(root, 'tasks', 'evidence', 'MG-015');
+committed = outputs(arrayfun(@(f) isfile(fullfile(evDir, f)), outputs));
+consumedManifestSha = "fa5a3fa5e4e35de44d4fba8bf26f5fe362f69d094746fd3a114c051279d19247";
+if ~isempty(committed) || (isfile(mfile) && sha256lfInMemory(mfile) == consumedManifestSha)
+    error('mineguard:TestConsumed', ['The MG-014 sealed TEST (GF-025..GF-030, MG014-RUNLOCK-1) is CONSUMED: it was ' ...
+        'executed once on 2026-10-31 (repository record: tasks/evidence/MG-015/). It is not re-run from any ' ...
+        'output folder or copied run-lock. A new study needs a separately preregistered driver and fresh holdout.']);
+end
+end
+
+function h = sha256lfInMemory(f)
+% LF-normalised SHA-256 (CR bytes removed), computed in memory: identical to sha256() below.
+fid = fopen(f, 'r'); b = fread(fid, inf, '*uint8'); fclose(fid);
+b(b == 13) = [];
+md = java.security.MessageDigest.getInstance('SHA-256');
+h = string(lower(reshape(dec2hex(typecast(md.digest(b), 'uint8'))', 1, [])));
 end
 
 function out = prepare(root, mfile, outFolder, lockFile)

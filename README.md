@@ -6,6 +6,13 @@
 
 The academic **problem statement and four objectives are preserved verbatim** from the Phase-1 review in [docs/PHASE1_BASELINE.md](docs/PHASE1_BASELINE.md). Only the implementation shifts from costly physical UAV hardware to reproducible simulation.
 
+## Release candidate v1.0.0-rc.1 (MG-017) — advanced MATLAB research simulation, not a mine detector
+- **Release notes, install, demos, limitations:** [docs/RELEASE_NOTES_v1.0.0-rc.1.md](docs/RELEASE_NOTES_v1.0.0-rc.1.md). The tag is proposed, not yet created; it needs Shabaz's authorization.
+- **Fixed-grid demo (default):** from the repo root in MATLAB R2026b: `addpath('matlab'); mineguardDemo`
+- **Experimental PPO vs fixed-grid demo (needs the RL/DL toolboxes):** `addpath('matlab'); mineguardPPODemo`
+- **Held-out detection result (sealed MG-014 TEST, run once):** weighted fusion **TP 0, FP 26, TN 470, FN 4**. This is a negative result; no method is useful at the locked settings. 100 % survey coverage is not detection accuracy, and the S0 demo is a display fixture, not held-out performance.
+- **PPO (MG-019):** lost all 8 grid-feasible paired missions. The fixed grid stays the default; PPO is EXPERIMENTAL.
+
 **Start here:** [Documentation index](docs/INDEX.md) → [Workflow](docs/WORKFLOW.md) → [Tasks](tasks/manifest.json). No MATLAB performance, training, detection success, or cross-platform compatibility is claimed until actual runs are recorded in GitHub.
 
 ## Project oversight
@@ -17,7 +24,7 @@ The academic **problem statement and four objectives are preserved verbatim** fr
 Simulated targets and model-generated sensor signals only. Output means a **suspected anomaly**, not verified explosives or a cleared/safe area. Synthetic results must never be represented as operational mine-detection accuracy.
 
 ## Workflow
-Run `node scripts/task-gate.mjs validate` and `node scripts/task-gate.mjs ready`. Node.js 20+ for repo checks only; MATLAB version/toolboxes pending actual `ver` report. GitHub Actions checks dependencies and portal JS tests; MATLAB tests require licensed MATLAB on a real machine.
+Run `node scripts/task-gate.mjs validate` and `node scripts/task-gate.mjs ready`. Node.js 20+ is used for repo checks only. MATLAB: R2026b on Windows 11 is verified (MG-002, MG-015, MG-017). GitHub Actions checks task dependencies and portal JS tests; it does not run MATLAB. MATLAB tests (`matlab/tests/`) need licensed MATLAB on a real machine with a desktop display.
 
 ## Documentation and references
 - [A-to-Z documentation index](docs/INDEX.md)

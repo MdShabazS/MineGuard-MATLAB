@@ -1,0 +1,7 @@
+SIMULATION — synthetic data; not validated for real landmine detection or clearance.
+PLANNER COMPARISON (same scenario, start cell, budget D_max 60 m / T_max 30 s / 50 decisions, motion model)
+Δcoverage (PPO−grid) -0.040   Δdistance +2.1 m   Δtime +1.1 s   PPO invalid actions 0, revisits 1
+PPO termination: BUDGET_EXHAUSTED   completed (all legal cells): false
+Detection columns are exploratory: the routes sample different positions, so sensor readings differ.
+Navigation is the primary comparison. Fixed grid remains the release baseline.
+Not evidence of real mine detection, clearance or flight safety.

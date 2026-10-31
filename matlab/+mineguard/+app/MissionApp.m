@@ -386,6 +386,13 @@ classdef MissionApp < handle
             else
                 ev(end+1) = "PPO comparison: NOT RUN (MG-013/MG-019 not integrated into this replay).";
             end
+            % MG-017 (MG016-R01): never let a display fixture read as held-out performance.
+            if startsWith(string(rb.scenario_id), "MG015-DEMO")
+                ev(end+1) = "DISPLAY FIXTURE (S0, 0.3 m altitude / 0.5 m cells): NOT held-out performance.";
+            end
+            h = mineguard.releaseInfo().heldout;
+            ev(end+1) = sprintf("Locked held-out TEST (%s, %s/%s): TP %d FP %d TN %d FN %d - NEGATIVE.", ...
+                h.families, h.method, h.rule, h.tp, h.fp, h.tn, h.fn);
             ev(end+1) = "Not evidence of real mine detection, clearance or field safety.";
             app.H.eval.Value = ev;
         end
