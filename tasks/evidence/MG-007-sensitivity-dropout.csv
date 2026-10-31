@@ -1,0 +1,5 @@
+dropout_probability,thermal_invalid_fraction
+0,0
+0.1,0.1
+0.3,0.3065
+0.5,0.51
