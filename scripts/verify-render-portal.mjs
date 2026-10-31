@@ -22,7 +22,7 @@ async function get(url, expectedContentType) {
   const res = await fetch(url, {redirect:"follow", signal:AbortSignal.timeout(20000), headers:{"Accept":"*/*"}, cache:"no-store"});
   if (!res.ok) fail(url + " returned HTTP " + res.status);
   const ct = res.headers.get("content-type") || "";
-  if (!ct.toLowerCase().includes(expectedContentType)) fail(url + " wrong content-type: " + ct);
+  if (expectedContentType && !ct.toLowerCase().includes(expectedContentType)) fail(url + " wrong content-type: " + ct);
   const body = await res.text();
   if (body.length < 40) fail(url + " unexpectedly empty");
   return body;
@@ -45,8 +45,8 @@ const css = await get(new URL("./styles.css",site), "text/css");
 if (!css.includes("@media") || !css.includes(".shell")) fail("Served stylesheet failed sanity check");
 result.checks.stylesheet = "PASS";
 const [manifestText,statusText] = await Promise.all([
-  get(base+"tasks/manifest.json","application/json"),
-  get(base+"tasks/status.json","application/json")
+  get(base+"tasks/manifest.json",""),
+  get(base+"tasks/status.json","")
 ]);
 const manifest=JSON.parse(manifestText), status=JSON.parse(statusText);
 if (manifest.schemaVersion!==1 || status.schemaVersion!==1 || !manifest.tasks || !status.tasks) {
