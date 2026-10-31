@@ -1,4 +1,5 @@
 # Guide-Facing Project Review, Portal and Viva Preparation
+**Current MG-018 handover:** [Final Engineering Report](FINAL_ENGINEERING_REPORT.md) · [Timed MATLAB Demo + Viva Script](FINAL_DEMO_SCRIPT.md) · [MG-018 Evidence](../tasks/evidence/MG-018.md). These replace provisional presentation plans where newer executed evidence exists.
 **Audience:** College guide/examiners. This document defines what can be shown honestly; it is not a fake status report.
 
 ## Questions a guide will naturally ask
@@ -15,7 +16,7 @@
 | Can results be reproduced? | MATLAB release/toolboxes, seed, SHA, test commands and source files |
 | Is this ready for real mine detection? | No; simulation-only and no safety certification |
 
-**Predeclared MG-014 guide-demo execution order and fallbacks:** [MG014_LOCKED_TEST_MATRIX_AND_DEMO.md](MG014_LOCKED_TEST_MATRIX_AND_DEMO.md) (D-01…D-10 and L-01…L-24). Do not claim any of the steps executed until actual MATLAB evidence and SHA exist. The [held-out scenario manifest](../experiments/locked/mg014_scenario_manifest.json) is a planned 18/6/6 group allocation, not completed experiment output.
+**MG-014 plan versus subsequently executed evidence:** [MG014_LOCKED_TEST_MATRIX_AND_DEMO.md](MG014_LOCKED_TEST_MATRIX_AND_DEMO.md) remains the historical preregistered D-01…D-10 and L-01…L-24 plan, with 18 TRAIN, 6 VALIDATION and 6 sealed TEST families. The sealed TEST **was executed exactly once** on 2026-10-31 after recorded preflight approval; the frozen results, code SHA and run-lock are in [MG-015 evidence](../tasks/evidence/MG-015.md). Its primary result is **negative (TP 0, FP 26, TN 470, FN 4)** and must not be retuned or rerun. The latest executable presentation procedure and fallback evidence are in [FINAL_DEMO_SCRIPT.md](FINAL_DEMO_SCRIPT.md).
 
 ## Visual demonstration sequence (actual executed results only)
 1. Original project title, motivation and unchanged four objectives (read out directly).

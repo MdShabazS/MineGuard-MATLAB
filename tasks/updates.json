@@ -232,6 +232,14 @@
       "summary": "PR #44 review correction (R02): runMG015Locked heldout guard is now independent of the output folder (repository consumed-TEST record: committed TEST/stress outputs or consumed manifest SHA), protects partially populated result folders, and runs before any mkdir/write. New non-executing tests: alternate folder + copied approved lock refused, no folder created, each partial output protected, frozen hashes unchanged. Clean-clone MATLAB R2026b regression at f65af49: 153/153. Sealed TEST not re-run.",
       "next": "Shabaz re-review of PR #44; no merge or tag until authorized; then MG-017 DONE status PR",
       "evidence": "tasks/evidence/MG-017.md"
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Shabaz",
+      "task": "MG-018",
+      "summary": "Prepared final evidence-linked MATLAB engineering report and timed guide-demo/viva script. Preserved original objectives verbatim; distinguished S0 display fixture from negative locked held-out (weighted TP0 FP26 TN470 FN4), and reported PPO 0/8 feasible wins. No MATLAB TEST rerun, new field evidence or release tag.",
+      "next": "Review and merge MG-018 TODO→IN_PROGRESS PR with complete documents. Then propose separate IN_PROGRESS→DONE completion PR; release tag remains authorization-gated.",
+      "evidence": "tasks/evidence/MG-018.md"
     }
   ]
 }
