@@ -184,6 +184,14 @@
       "summary": "MG014-RUNLOCK-1 approved by Shabaz; 8/8 pre-TEST integrity checks passed; sealed TEST GF-025..030 executed exactly once. Held-out result is negative: primary weighted fusion TP 0 / FP 26 / TN 470 / FN 4; no method useful at the locked 2 m configuration with assumed sensors. Post-TEST non-TEST regression 115/115.",
       "next": "Shabaz review of PR #36 final evidence; separate MG-015 DONE PR after merge",
       "evidence": "tasks/evidence/MG-015.md"
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Rahil",
+      "task": "MG-019",
+      "summary": "Frozen MG-013 PPO integrated end to end (own decisions -> MG-005 poses -> MG-007 sensors -> frozen detector -> evaluator -> redacted bundle -> MG-011 replay + new side-by-side comparison window); one-command mineguardPPODemo. Preregistered MG019-SPLIT-1 (20 fresh + 10 replication): PPO lost all 8 grid-feasible comparisons (mean delta coverage -0.062, +3.2 m), 0/20 complete, 91 invalid actions in 2 missions. Fixed grid remains the default; PPO experimental. 134/134 MATLAB tests pass.",
+      "next": "Shabaz review of MG-019 PR; separate DONE PR after merge",
+      "evidence": "tasks/evidence/MG-019.md"
     }
   ]
 }

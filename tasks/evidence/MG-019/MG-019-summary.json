@@ -1,0 +1,117 @@
+{
+  "manifest_sha256": "dda848a1324a63abc45c1443cf095a000d12d605d36e4dae9924573bb1d29bd5",
+  "checkpoint_sha256": "5a0da1715a1c2f7044a3b954d8cdf5e6d234731a2f4619d82cb3ea87e875b8ad",
+  "runtime_s": 61.381054,
+  "evaluation": {
+    "n": 20,
+    "n_grid_feasible": 8,
+    "n_grid_infeasible": 12,
+    "feasible_mean_delta_coverage": -0.062173913043478288,
+    "feasible_median_delta_coverage": -0.040000000000000036,
+    "feasible_delta_coverage_ci95": [
+      -0.10652173913043479,
+      -0.040000000000000036
+    ],
+    "feasible_mean_delta_distance_m": 3.1512229121677349,
+    "feasible_delta_distance_ci95": [
+      2.1347550712336414,
+      5.1841585940359218
+    ],
+    "feasible_mean_delta_time_s": 1.5756114560838674,
+    "feasible_ppo_wins": 0,
+    "feasible_ties": 0,
+    "feasible_grid_wins": 8,
+    "feasible_mean_grid_coverage": 1,
+    "feasible_mean_ppo_coverage": 0.9378260869565217,
+    "feasible_mean_grid_cov_per_m": 0.020918950500167267,
+    "feasible_mean_ppo_cov_per_m": 0.018478997019942781,
+    "all_mean_ppo_coverage": 0.84716191417278386,
+    "infeasible_mean_ppo_coverage": 0.78671913231695845,
+    "ppo_completed": 0,
+    "ppo_total_invalid_actions": 91,
+    "ppo_missions_with_invalid": 2,
+    "ppo_mean_revisits": 2.2,
+    "ppo_termination_counts": {
+      "BUDGET_EXHAUSTED": 18,
+      "MAX_STEPS": 2
+    },
+    "grid_mean_revisits_feasible": 0.125,
+    "exploratory_detection": {
+      "grid_feasible_tp_fp_tn_fn": [
+        1,
+        6,
+        180,
+        11
+      ],
+      "ppo_same_scenarios_tp_fp_tn_fn": [
+        1,
+        7,
+        168,
+        10
+      ],
+      "ppo_all_tp_fp_tn_fn": [
+        2,
+        20,
+        358,
+        22
+      ],
+      "note": "Exploratory only: routes sample different positions, so evaluable populations and noise realisations differ."
+    }
+  },
+  "replication": {
+    "n": 10,
+    "n_grid_feasible": 4,
+    "n_grid_infeasible": 6,
+    "feasible_mean_delta_coverage": -0.070000000000000034,
+    "feasible_median_delta_coverage": -0.040000000000000036,
+    "feasible_delta_coverage_ci95": [
+      -0.13000000000000003,
+      -0.040000000000000036
+    ],
+    "feasible_mean_delta_distance_m": 3.7857247418517233,
+    "feasible_delta_distance_ci95": [
+      2.1347550712336414,
+      7.087664083087887
+    ],
+    "feasible_mean_delta_time_s": 1.8928623709258616,
+    "feasible_ppo_wins": 0,
+    "feasible_ties": 0,
+    "feasible_grid_wins": 4,
+    "feasible_mean_grid_coverage": 1,
+    "feasible_mean_ppo_coverage": 0.92999999999999994,
+    "feasible_mean_grid_cov_per_m": 0.020833333333333332,
+    "feasible_mean_ppo_cov_per_m": 0.018062476678346782,
+    "all_mean_ppo_coverage": 0.82262582345191038,
+    "infeasible_mean_ppo_coverage": 0.75104303908651726,
+    "ppo_completed": 0,
+    "ppo_total_invalid_actions": 43,
+    "ppo_missions_with_invalid": 1,
+    "ppo_mean_revisits": 2.5,
+    "ppo_termination_counts": {
+      "BUDGET_EXHAUSTED": 9,
+      "MAX_STEPS": 1
+    },
+    "grid_mean_revisits_feasible": 0,
+    "exploratory_detection": {
+      "grid_feasible_tp_fp_tn_fn": [
+        0,
+        1,
+        92,
+        7
+      ],
+      "ppo_same_scenarios_tp_fp_tn_fn": [
+        0,
+        2,
+        86,
+        5
+      ],
+      "ppo_all_tp_fp_tn_fn": [
+        0,
+        10,
+        179,
+        10
+      ],
+      "note": "Exploratory only: routes sample different positions, so evaluable populations and noise realisations differ."
+    }
+  }
+}
