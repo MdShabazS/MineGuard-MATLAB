@@ -25,6 +25,10 @@
 - Visual review of empty/unmerged foundation state, correct blockage counts, in-progress state, date/deadline, evidence links, mobile width, rate-limit fallback.
 - Once merged, verify URL and first real data refresh on Render (deployment **NOT YET COMPLETED**). Do not claim a Render URL before it exists.
 
+## MG-020 deployment completion gate
+
+See [MG020_RENDER_DEPLOYMENT_CHECKLIST.md](MG020_RENDER_DEPLOYMENT_CHECKLIST.md) for the actual Render Blueprint settings, first verified HTTPS fetch, GitHub main-source check, and required evidence. The deployed URL is unknown until Render confirms it. MG-021 independently checks mobile/browser/live updates after MG-020 is truly DONE.
+
 ## Source and deployment references
 - https://render.com/docs/static-sites
 - https://render.com/docs/your-first-deploy
