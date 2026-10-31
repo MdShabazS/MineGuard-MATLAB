@@ -104,6 +104,22 @@
       "summary": "Predeclared locked 30-family 18/6/6 synthetic scenario split, L-01..L-24 integration acceptance, D-01..D-10 guide demo, seed/provenance/metric safeguards and core-vs-PPO feature gates. Documentation only; no MATLAB tests or actual run data.",
       "next": "Review/merge MG-014 documentation/start PR, then separate MG-014 DONE status PR; Rahil may start MG-015 only after both MG-011 and MG-014 DONE on main.",
       "evidence": "tasks/evidence/MG-014.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-009",
+      "summary": "Observation-only detection/fusion (thermal, EM, OR, AND, weighted; missing_modality_rule abstain/single_valid/require_both), cell-level evaluator with separate one-to-one localization, split validation and provenance checks. MATLAB R2026b: F-01..F-18 pass, 51/51 with regressions; frozen-split synthetic experiment recorded (small test set, no method shown superior).",
+      "next": "Shabaz independent review of MG-009 PR",
+      "evidence": "tasks/evidence/MG-009.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-009",
+      "summary": "PR #24 review changes: merged latest main (MG-012/MG-014 preserved); TEST/stress trials now generated only after the frozen model is written; optional second outputs documented as additive with a compatibility test; predeclared weights/radii recorded as reviewer-approved exception. MATLAB R2026b 52/52 pass, checkcode clean, experiment outputs unchanged.",
+      "next": "Shabaz final review of PR #24",
+      "evidence": "tasks/evidence/MG-009.md"
     }
   ]
 }
