@@ -30,6 +30,7 @@
 | Sensor modelling interface | [SENSOR_MODELS.md](SENSOR_MODELS.md) |
 | Scene and surrogate targets | [SCENARIOS.md](SCENARIOS.md) |
 | Data format, units and label separation | [DATA_CONTRACTS.md](DATA_CONTRACTS.md) |
+| **MG-003 frozen v1.0 MATLAB module APIs, records, tests and truth isolation** | [MG003_INTERFACE_FREEZE.md](MG003_INTERFACE_FREEZE.md) |
 | PPO and AI agents | [AI_AGENTS.md](AI_AGENTS.md) |
 | MATLAB App Designer mission control | [DASHBOARD.md](DASHBOARD.md) |
 | Experiments and performance metrics | [EXPERIMENTS.md](EXPERIMENTS.md) |
