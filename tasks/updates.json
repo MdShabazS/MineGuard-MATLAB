@@ -48,6 +48,14 @@
       "summary": "Verified thermal/EM physics limits against publisher sources and documented exact MATLAB sensor records, units, noise validity rules, ground-truth separation, assumed model parameters and 14 downstream acceptance tests.",
       "next": "Review and merge MG-006 specification start PR; then submit separate DONE status PR. Rahil can implement MG-007 after authoritative MG-006 DONE on main.",
       "evidence": "tasks/evidence/MG-006.md"
+    },
+    {
+      "date": "2026-10-31",
+      "owner": "Rahil",
+      "task": "MG-005",
+      "summary": "Fixed serpentine grid route, kinematic pose telemetry, coverage metric and uavScenario replay implemented; MATLAB R2026b regression 16/16 pass incl. C-05 truth firewall and C-10 ENU/NED (simulation only).",
+      "next": "Shabaz review; MG-007 sensor models once its prerequisites are DONE",
+      "evidence": "tasks/evidence/MG-005.md"
     }
   ]
 }
