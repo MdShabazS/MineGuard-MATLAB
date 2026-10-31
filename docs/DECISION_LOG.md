@@ -1,19 +1,27 @@
-# Decisions, Assumptions and Open Issues
+# Decisions, Assumptions and Open Issues (as of 2026-10-31)
 
-## Confirmed by team (2026-10-31)
-- Reuse **exact** Phase-1 title, problem statement and four objectives; only implementation moves to MATLAB/Simulink.
-- Full demonstration target **2026-11-02**; deadline is aggressive and not permission to fabricate.
-- Public new repository `MdShabazS/MineGuard-MATLAB`, GitHub main authoritative.
-- Shabaz: ChatGPT specs/verification and optional MATLAB tests; Rahil: Claude Code and MATLAB engineering.
-- One coherent MATLAB ecosystem, physics/research hybrid, advanced simulated terrain, thermal/EM fusion, PPO compared with fixed grid, App Designer mission control.
-- GitHub-based task DAG, PRs, reciprocal review and CI; independent tasks can run simultaneously.
-- MATLAB Desktop installed on Rahil Windows, full toolbox inventory/activation unverified.
+## Confirmed by user/guide
+- Preserve **exact** original Phase-1 title, problem statement and four objectives. Only implementation becomes MATLAB/Simulink.
+- Research-grade advanced virtual environment, thermal + metal-response simulation, hybrid mathematical+AI fusion, fixed-grid flight vs PPO, App Designer GCS.
+- Full project final demonstration target **2026-11-02**. No skipped QA or false claims for schedule.
+- Public new GitHub `MdShabazS/MineGuard-MATLAB`; old MineGuard repo unchanged.
+- Shabaz owns ChatGPT-led research, documentation, project coordination and independent testing if available.
+- Rahil owns Claude Code programming, MATLAB local execution and reproducible tests.
+- PR review by other member, GitHub Actions task validation and dependency DAG. Independent work allowed when truly unblocked.
+- Guide portal: Render Static Site, read-only GitHub task/evidence dashboard with owner progress, blockers, work journal and PR/CI.
+- Rahil reports MATLAB Desktop installed on Windows; student licence available through college; exact version/toolboxes/activation not verified.
 
-## Pending
-- Rahil GitHub collaborator invitation acceptance; branch protection/ruleset actually enabled.
-- Actual MATLAB release/toolboxes, toolkit execution, legitimate reuse/data sources.
-- Physically defensible model parameters and evidence for realistic detection limits.
-- Whether complex 3D/app/AI features can all be verified before deadline.
+## Independently checked in connected GitHub
+- New public repository exists and `MdRahilA` has **write** permission.
+- Foundation PR #1 open on `setup/mg-000-foundation`, review requested from Rahil.
+- PR GitHub Actions checks previously passed for DAG and four guide-portal tests; **not MATLAB**.
+- Public repo ruleset not configured at last check; no authenticated Render deployment verified.
 
-## Nonnegotiable
-Simulated signal and target data cannot establish field detection performance. Log a scientific limitation instead of silently changing the original academic objective.
+## Critical uncertainty
+The Phase-1 objective says 'accurate subsurface detection' from airborne metal-coil+thermal. Physics imposes severe coil standoff and environmental limits. **Keep wording but explicitly explain unvalidated feasibility.**
+
+## Unresolved decisions
+See [OPEN_DECISIONS_AND_RISKS.md](OPEN_DECISIONS_AND_RISKS.md) for detailed risk log and required evidence. Changes to plan must go through reviewed PR, never silently alter Phase-1 baseline.
+
+## Next milestone
+Review/merge PR #1 after docs QA. Then record approved MG-000 completion and enable dependent tasks. Rahil may independently inspect MATLAB even while the PR is pending, but must submit real `ver`/MCP evidence before claiming MG-002 DONE.
