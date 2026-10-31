@@ -1,0 +1,40 @@
+{
+  "schema_version": "mg019-scenario-lock/1.0",
+  "lock_id": "MG019-SPLIT-1",
+  "locked_by_task": "MG-019",
+  "locked_on": "2026-11-01",
+  "plan_status": "PREREGISTERED_BEFORE_ANY_MG019_COMPARISON_RUN",
+  "purpose": "Fresh, never-inspected scenarios for evaluating the FROZEN MG-013 PPO checkpoint (results/approved/mg013_ppo_checkpoint.mat, SHA-256 5a0da1715a1c2f7044a3b954d8cdf5e6d234731a2f4619d82cb3ea87e875b8ad) against the MG-005 fixed grid. No training, checkpoint selection, threshold or reward change is permitted in MG-019, so these scenarios are an untouched holdout for the frozen policy.",
+  "policy": {
+    "checkpoint": "results/approved/mg013_ppo_checkpoint.mat",
+    "checkpoint_sha256": "5a0da1715a1c2f7044a3b954d8cdf5e6d234731a2f4619d82cb3ea87e875b8ad",
+    "inference": "deterministic (UseExplorationPolicy=false) via mineguard.rl.selectSurveyCell",
+    "action_space": "25 cells (5x5)",
+    "observation": "cov-2N+5-v1 (55 x 1)"
+  },
+  "environment": {
+    "generator": "matlab/experiments/mg013ScenarioConfig.m (10x10 m, 2 m cells, 0-2 seeded rectangular no-fly zones clear of the SW start cell, altitude 2 m, 2 m/s, dt 0.1 s)",
+    "object_counts": "target_count = 1 + mod(seed,2); clutter_count = mod(seed,3) (MG-019 adds synthetic objects for exploratory detection; geometry/no-fly zones are unchanged by counts)",
+    "budget": "mineguard.rl.defaultEnvConfig: D_max 60 m, T_max 30 s, 50 decisions, start cell 1 (SW), shared by both planners",
+    "sensors": "mg007FixtureSettings (MG-007 assumed parameters)",
+    "detector": "MG014-RUNLOCK-1 frozen model (fitted for 2 m altitude), weighted / single_valid, threshold 2; evaluation cell = 2 m MG-005 grid"
+  },
+  "primary_endpoints": "navigation: coverage fraction, unique visited legal cells, distance, simulated time, coverage per metre and per second, invalid actions, revisits, termination reason, completion; paired delta = PPO - GRID on grid-feasible scenarios; grid-infeasible scenarios reported separately and never scored as PPO wins",
+  "secondary_endpoints": "exploratory detection: events, TP/FP/TN/FN, precision, recall, F1, FPR, invalid sensor fractions, localization error. Different routes sample different positions, so sensor noise realisations differ; detection differences are NOT evidence of planner superiority.",
+  "evaluation_set": {
+    "split_id": "test",
+    "seeds": [7301, 7302, 7303, 7304, 7305, 7306, 7307, 7308, 7309, 7310, 7311, 7312, 7313, 7314, 7315, 7316, 7317, 7318, 7319, 7320],
+    "scenario_id_pattern": "MG019-<seed>"
+  },
+  "replication_set": {
+    "label": "REPLICATION of MG-013 TEST (already inspected in MG-013; not a fresh holdout)",
+    "seeds": [7201, 7202, 7203, 7204, 7205, 7206, 7207, 7208, 7209, 7210],
+    "scenario_id_pattern": "MG019-REPL-<seed>"
+  },
+  "excluded": "MG-014 GF-001..GF-030 (20x20 m, 100 cells): incompatible with the 25-action policy and GF-025..030 already opened in MG-015. Not used.",
+  "rules": [
+    "Run every listed scenario once with both planners; never drop or replace a scenario after seeing results.",
+    "Do not modify the checkpoint, reward, budget, sensors, detector model or thresholds.",
+    "Report incomplete/failed PPO missions and infeasible grid routes explicitly."
+  ]
+}

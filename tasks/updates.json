@@ -200,6 +200,14 @@
       "summary": "Completed limited independent GitHub code/evidence and held-out CSV arithmetic audit: 15 method/rule summaries reconcile with 90 per-group records, 25 stress rows match the plan; candid O1–O4 grades accepted. Published 115/115 MATLAB pass count belongs to Rahil's executed evidence, not independent MATLAB rerun. Final MG-017 issue ledger R01–R08 added.",
       "next": "Review and merge the MG-016 audit-evidence amendment; then separate MG-016 IN_PROGRESS→DONE status-only PR to unblock Rahil's MG-017 release-candidate work. Preserve consumed TEST and negative scientific results.",
       "evidence": "tasks/evidence/MG-016.md"
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Rahil",
+      "task": "MG-019",
+      "summary": "Frozen MG-013 PPO integrated end to end (own decisions -> MG-005 poses -> MG-007 sensors -> frozen detector -> evaluator -> redacted bundle -> MG-011 replay + new side-by-side comparison window); one-command mineguardPPODemo. Preregistered MG019-SPLIT-1 (20 fresh + 10 replication): PPO lost all 8 grid-feasible comparisons (mean delta coverage -0.062, +3.2 m), 0/20 complete, 91 invalid actions in 2 missions. Fixed grid remains the default; PPO experimental. 134/134 MATLAB tests pass.",
+      "next": "Shabaz review of MG-019 PR; separate DONE PR after merge",
+      "evidence": "tasks/evidence/MG-019.md"
     }
   ]
 }
