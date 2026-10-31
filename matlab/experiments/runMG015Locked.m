@@ -9,12 +9,22 @@ function out = runMG015Locked(stage, outFolder, runlockSha)
 %       Refuses to run unless the run-lock file's SHA-256 equals runlockSha (the reviewed value)
 %       and the sealed manifest is unchanged. Only then does it generate GF-025..GF-030, evaluate the
 %       five methods x three rules on a common cell mask, and run the preregistered stress
-%       conditions. TEST is used ONCE; nothing is retuned.
+%       conditions. TEST is used ONCE; nothing is retuned. Both stages refuse to run when their
+%       outputs already exist (mineguard:RunLockExists / mineguard:TestConsumed).
 %   SIMULATION ONLY. Metrics are synthetic and model-dependent.
 root = fileparts(fileparts(fileparts(mfilename('fullpath'))));
 mfile = fullfile(root, 'experiments', 'locked', 'mg014_scenario_manifest.json');
 if ~exist(outFolder, 'dir'), mkdir(outFolder); end
 lockFile = fullfile(outFolder, 'MG014-RUNLOCK-1.json');
+% MG-017 once-only guards (MG016-R02): never overwrite a frozen run-lock or re-open a consumed TEST.
+% Checked before any scenario is generated or file written.
+if string(stage) == "prepare" && isfile(lockFile)
+    error('mineguard:RunLockExists', 'A run-lock already exists in %s; it is frozen and will not be overwritten.', outFolder);
+end
+if string(stage) == "heldout" && isfile(fullfile(outFolder, 'MG-015-test-comparison.csv'))
+    error('mineguard:TestConsumed', ['Held-out TEST results already exist in %s. The sealed TEST was consumed once ' ...
+        '(2026-10-31) and is not re-run; any new study needs a separately preregistered fresh holdout.'], outFolder);
+end
 switch string(stage)
     case "prepare", out = prepare(root, mfile, outFolder, lockFile);
     case "heldout", out = heldout(mfile, outFolder, lockFile, string(runlockSha));

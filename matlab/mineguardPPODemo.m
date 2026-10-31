@@ -19,6 +19,8 @@ if nargin < 1 || isempty(seed), seed = 7307; end
 p = inputParser; p.addParameter('ExportTo', ""); p.addParameter('OpenReplay', false); p.parse(varargin{:});
 here = fileparts(mfilename('fullpath')); addpath(here, fullfile(here, 'experiments'));
 fprintf('\n=== MineGuard PPO vs fixed-grid demo — SIMULATION ONLY (synthetic; not validated for real landmine detection or clearance) ===\n');
+rel = mineguard.releaseInfo();
+fprintf('%s %s | PPO planner: %s (not the release default; default is the fixed grid) | %s\n', rel.name, rel.version, rel.ppo_status, rel.ppo.verdict);
 policy = mineguard.integration.loadPPOCheckpoint();
 fprintf('[1/5] PPO checkpoint verified: SHA-256 %s (55-d observation, 25 actions, deterministic inference)\n', policy.checksum);
 c = mg019ScenarioConfig(seed);

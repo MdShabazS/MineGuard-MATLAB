@@ -209,8 +209,12 @@ classdef testMG019PPOIntegration < matlab.uitest.TestCase
         end
 
         function t17_originalDemoAndDashboardPreserved(tc)
-            [~, o] = system(sprintf('git -C "%s" diff --stat origin/main -- matlab/+mineguard/runExperiment.m matlab/mineguardDemo.m matlab/+mineguard/+rl', tc.Root));
-            tc.verifyEqual(strtrim(string(o)), "", 'runExperiment, mineguardDemo and +rl unchanged');
+            % MG-017 fix: compare against the FIXED MG-019 completion commit (ec29ab2), not the moving
+            % origin/main ref (which failed on any later reviewed change and passed vacuously after merge).
+            [~, o] = system(sprintf('git -C "%s" diff --stat ec29ab2 -- matlab/+mineguard/runExperiment.m matlab/+mineguard/+rl', tc.Root));
+            tc.verifyEqual(strtrim(string(o)), "", 'runExperiment and +rl unchanged since MG-019');
+            % mineguardDemo may gain release messaging (MG-017) but must stay the fixed-grid demo: no PPO calls.
+            tc.verifyEmpty(regexp(fileread(fullfile(tc.Root, 'matlab', 'mineguardDemo.m')), 'loadPPOCheckpoint|runSurveyMission|rlPPOAgent', 'once'));
             [rb, rec] = mineguard.runExperiment(mg015DemoConfig("S0"));
             tc.verifyEqual([rb.result.tp rb.result.fp rb.result.tn rb.result.fn height(rb.events)], [1 4 395 0 5]);
             tc.verifyEqual(rec.evaluable_cells, 400);
