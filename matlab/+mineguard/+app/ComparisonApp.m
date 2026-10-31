@@ -31,7 +31,7 @@ classdef ComparisonApp < handle
         function h = uiHandles(app), h = app.H; end
         function s = viewState(app)
             s = struct('state', app.State, 'banner', string(app.H.banner.Text), ...
-                'grid_title', string(app.H.axG.Title.String), 'ppo_title', string(app.H.axP.Title.String), ...
+                'grid_title', strjoin(string(app.H.axG.Title.String), " "), 'ppo_title', strjoin(string(app.H.axP.Title.String), " "), ...
                 'summary', string(app.H.summary.Value), 'table_rows', height(app.H.table.Data), ...
                 'grid_route_points', numel(app.H.gridTrace.XData), 'ppo_route_points', numel(app.H.ppoTrace.XData), ...
                 'grid_events', numel(app.H.gridEv.XData) - any(isnan(app.H.gridEv.XData)), ...
@@ -116,10 +116,10 @@ classdef ComparisonApp < handle
         end
 
         function [hTrace, hEv] = drawMap(~, ax, rb, name)
-            hold(ax, 'on'); axis(ax, 'equal'); box(ax, 'on'); grid(ax, 'on');
+            hold(ax, 'on'); axis(ax, 'equal'); box(ax, 'on'); grid(ax, 'on'); ax.Toolbar.Visible = 'off';
             xlabel(ax, 'x east [m]'); ylabel(ax, 'y north [m]');
             if isempty(rb)
-                title(ax, name + " — NOT RUN (route infeasible: MG-005 RouteConflict)");
+                title(ax, {char(name), 'NOT RUN (route infeasible: MG-005 RouteConflict)'});
                 hTrace = plot(ax, NaN, NaN); hEv = plot(ax, NaN, NaN); return
             end
             b = double(rb.geometry.bounds_enu_m); s = rb.display_settings.grid_spacing_m;
@@ -141,8 +141,8 @@ classdef ComparisonApp < handle
                 hEv = plot(ax, NaN, NaN, 'p');
             end
             c = rb.coverage;
-            title(ax, sprintf('%s — coverage %.2f (%d/%d), %.1f m, %.1f s, %d SUSPECTED', name, c.coverage_fraction, ...
-                c.visited_valid_cells, c.total_valid_cells, c.distance_m, c.mission_time_s, height(E)), 'Interpreter', 'none');
+            title(ax, {char(name), sprintf('coverage %.2f (%d/%d), %.1f m, %.1f s, %d SUSPECTED', c.coverage_fraction, ...
+                c.visited_valid_cells, c.total_valid_cells, c.distance_m, c.mission_time_s, height(E))}, 'Interpreter', 'none');
             pad = 0.03 * (b(2) - b(1)); xlim(ax, [b(1) - pad, b(2) + pad]); ylim(ax, [b(3) - pad, b(4) + pad]);
         end
 
