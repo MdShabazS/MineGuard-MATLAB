@@ -30,6 +30,10 @@ No subjective '90% done' without per-task deliverable status. For each O1–O4, 
 | AT-14 | Mac compatibility | installed MATLAB on both | real open/run logs, else NOT RUN |
 | AT-15 | Source/licence audit | selected third-party code/dataset | verified licence/attribution before inclusion |
 
+## MG-010 dashboard UI acceptance
+
+MG-010 canonical dashboard contract: [MG010_MISSION_DASHBOARD_SPEC.md](MG010_MISSION_DASHBOARD_SPEC.md). Its **UI-01…UI-20** tests are required *later* for Rahil's MG-011 MATLAB App Designer implementation, not passes claimed by MG-010 documentation. In particular, AT-12 "no completed run" means disabled replay/no invented metrics; AT-13 export provenance must be read back from actual saved files; FR-05 virtual geotags must never be described as physical GPS. A synthetic alarm is always **SUSPECTED**, never proof of a cleared area. An evaluator-only aggregate cell confusion matrix can be displayed without sharing private truth with app callbacks.
+
 ## Metrics and interpretation
 ```text
 precision = TP / (TP + FP)
