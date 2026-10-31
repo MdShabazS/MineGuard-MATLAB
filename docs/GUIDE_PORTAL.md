@@ -8,8 +8,8 @@
 3. Who is doing what? — per-owner progress, currently IN_PROGRESS tasks and READY tasks.
 4. What is holding the project back? — computed BLOCKED tasks and outstanding dependencies.
 5. Can I verify claims? — links to task evidence files, PRs, GitHub Actions and commit history.
-6. Are test results genuine? — separate automated repository checks from actual MATLAB execution evidence.
-7. What remains? — complete filterable task table and prerequisites.
+6. What has changed recently and what is next? — date/owner/task notes from the committed `tasks/updates.json` journal.\n7. Are test results genuine? — separate automated repository checks from actual MATLAB execution evidence.
+8. What remains? — complete filterable task table and prerequisites.
 
 ## Product requirements
 - Read-only public site with no logins, no editable fields, no embedded GitHub token.

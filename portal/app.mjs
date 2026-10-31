@@ -99,6 +99,21 @@ function showChecks(data) {
   el("ciStatus").textContent=run ? (run.status==="completed"?(run.conclusion||"Completed"):"Running / queued") : "No task-gate run available";
   el("ciStatus").className=run?.conclusion==="success"?"good":"";
 }
+
+function showUpdates(data) {
+  const entries=Array.isArray(data?.updates)?data.updates:[];
+  const sorted=[...entries].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8);
+  replace("updates",sorted.length?sorted.map(entry=>{
+    const card=make("div","feed-item");
+    card.append(make("div","feed-meta",safeDate(entry.date)+" · "+(entry.owner||"Unknown")+" · "+(entry.task||"Task not recorded")));
+    card.append(make("div","feed-title",entry.summary||"No summary provided"));
+    if(entry.next)card.append(make("div","subtext","Next: "+entry.next));
+    const url=fileUrl(entry.evidence);
+    if(url)card.append(nodeLink("Evidence ↗",url));
+    return card;
+  }):[make("p","muted","No verified work-journal entries yet. The AI agents will commit evidence-backed updates when tasks progress.")]);
+}
+
 function showCommits(items){
   replace("activity",items.length?items.slice(0,6).map(c=>{
     const item=make("div","feed-item"),meta=make("div","feed-meta",safeDate(c.commit?.author?.date)+" · "+(c.sha||"").slice(0,7));
@@ -119,7 +134,8 @@ async function refresh() {
     const extras=await Promise.allSettled([
       getJson(API+"/pulls?state=all&per_page=10"),
       getJson(API+"/actions/runs?per_page=10"),
-      getJson(API+"/commits?per_page=6")
+      getJson(API+"/commits?per_page=6"),
+      getJson(RAW+"tasks/updates.json")
     ]);
     if(extras[0].status==="fulfilled")showPulls(extras[0].value);
     else replace("pullRequests",[make("p","muted","PR feed unavailable; open GitHub to inspect.")]);
@@ -127,6 +143,8 @@ async function refresh() {
     else el("ciStatus").textContent="GitHub API unavailable";
     if(extras[2].status==="fulfilled")showCommits(extras[2].value);
     else replace("activity",[make("p","muted","Activity feed unavailable; open GitHub to inspect.")]);
+    if(extras[3].status==="fulfilled")showUpdates(extras[3].value);
+    else replace("updates",[make("p","muted","Team journal unavailable; see GitHub for task history.")]);
     if(extras.some(x=>x.status==="rejected"))alert("The project task board is current, but one or more GitHub activity feeds could not load (possibly a public API rate limit).","notice");
   }catch(error){
     if(!latestRows.length){

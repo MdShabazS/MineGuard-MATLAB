@@ -3,7 +3,7 @@
 A guide-facing status portal sourced from the **authoritative GitHub `main` branch**. No logins, tokens, additional database or manual status entries. It shows accurate task completion, activity, blockers, owner progress, pull requests, CI summary, evidence links, final deadline and project limitations.
 
 ## Data integrity and refresh
-- Source of truth: `tasks/manifest.json` + `tasks/status.json` from `main`. A task is BLOCKED when TODO and one or more explicit dependencies are not DONE.
+- Work journal: `tasks/updates.json` on `main` holds AI-updated concise daily progress, next steps and evidence links. Initial log is empty; no fake entry is displayed.\n- Source of truth: `tasks/manifest.json` + `tasks/status.json` from `main`. A task is BLOCKED when TODO and one or more explicit dependencies are not DONE.
 - The portal never invents task completion. If the foundation PR is not merged, the page prominently displays **task status unavailable** and links to PR #1.
 - Auto-refresh is 5 minutes while visible, plus on manual request or returning to tab. Latest-check time is a **fetch timestamp**, not the last project update.
 - PRs, Actions and commits use GitHub's unauthenticated REST API. Public unauthenticated requests are capped (typically 60/hour/IP), so activity feeds may temporarily be unavailable. Task board can still work. All data are public and read-only.

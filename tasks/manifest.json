@@ -23,9 +23,7 @@
     "MG-002": {
       "owner": "Rahil",
       "kind": "BUILD",
-      "dependsOn": [
-        "MG-000"
-      ],
+      "dependsOn": [],
       "title": "Verify MATLAB release/licence/toolboxes and Claude Code MCP execution",
       "evidence": "tasks/evidence/MG-002.md"
     },

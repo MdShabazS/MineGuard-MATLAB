@@ -6,6 +6,14 @@
 - GitHub `main` is authoritative. No unpushed working copy, chat statement or AI summary is an accepted task outcome.
 
 ## Task DAG
+
+**Independence example:** MG-002 (Rahil's local MATLAB release/toolbox check) has no hard dependency on MG-000, so he may independently inspect MATLAB while the foundation PR is in review. However he cannot record accepted DONE on main before the repository task system is merged. Other tasks remain blocked by their actual listed dependencies.
+
+## Work journal
+
+Each substantive progress update is recorded as a truthful, GitHub-reviewed entry in `tasks/updates.json`. Required fields: `date` (actual date), `owner` (Shabaz/Rahil), `task` (task ID), `summary`, `next`, optional `evidence` (repository file path). No fabricated updates. Guide portal reads these entries on `main` and provides a plain-English current work journal.
+
+## Task DAG
 `tasks/manifest.json` defines each task ID, owner, dependencies and artifact path; `tasks/status.json` records TODO/IN_PROGRESS/DONE. **BLOCKED is computed**, not manually set. No fake global serial order: two unrelated tasks may be IN_PROGRESS simultaneously. READY means every prerequisite is DONE on main.
 
 ## Work protocol
