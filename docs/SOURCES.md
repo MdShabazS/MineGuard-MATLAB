@@ -2,7 +2,7 @@
 **Research pass:** 2026-10-31 · **Evidence class:** Official product docs and publisher records were checked. No local MATLAB run, dataset access or experimental validation was performed in this pass.
 
 ## Immutable primary academic source
-- Team's `Review1Phase1.pptx`, slides 3 and 4: original title/four objectives and five problem-statement bullets. Verbatim transcription in [PHASE1_BASELINE.md](PHASE1_BASELINE.md). Original slide bibliographic placeholder entries are not independently validated.
+- **Verified 2026-10-31:** original private `Review1Phase1.pptx`, 9 slides, 1,338,001 bytes, SHA-256 `620eed853f5b7e807e3290d69b5c92485368a0e48d6985a9061b4b3648ddf236`. Slides 3–4 match title, four objectives and five problem points in [PHASE1_BASELINE.md](PHASE1_BASELINE.md), with only line-break/whitespace normalization. Recovered from a prior user project upload; not redistributed in public repo. See [SOURCE_VERIFICATION.md](SOURCE_VERIFICATION.md). Slide-5 literature entries remain historical/unverified as publications.
 
 ## MathWorks official documentation
 - https://www.mathworks.com/help/uav/ — UAV Toolbox and scenarios.
@@ -45,8 +45,8 @@ When code uses a paper/model, add the exact equation/parameter derivation and so
 - Claude Code's working MATLAB MCP connection.
 - Availability and reuse rights of thermal images, real EM-coil datasets or calibrated soil data.
 - Actual model training runs, plots, detection metrics, standalone MATLAB UI.
-- Branch protection configured on the new public repository, Render deployed URL and live portal browser test.
+- Independent live Render browser/mobile QA and completion of task evidence MG-020/MG-021 remains separate from MG-001. The user reported Render deployment at `https://mineguard-guide-portal.onrender.com` and provided desktop screenshots, but formal evidence/CI verification belongs in MG-020/MG-021.
 
 ## New verified candidate record in audit (2026-10-31)
 - Baur, J.; Steinberg, G.; Lekhak, S.; Nikulin, A.; de Smet, T.; Ientilucci, E.; Brinkley, A.; Myers, H.; Nitsche, F. (2026). *Demining Research Community Seeded Field Multimodal Landmine Detection Dataset*, Zenodo v2, DOI https://doi.org/10.5281/zenodo.19100554. Contains aerial imaging and separate handheld electromagnetic/metal detector studies. Licencing and cross-modality alignment are **unverified**, so redistribution and performance claims are blocked.
-- Primary original Phase-1 slides: team transcription stored in `PHASE1_BASELINE.md`, **independent verification pending** because original PPTX is not in this new repository. See `SOURCE_VERIFICATION.md`.
+- Original Phase-1 slide-3/4 title and text: **verified against recovered original PPTX on 2026-10-31**; source copy stays private and not published to this new repository. Slide-5 placeholder bibliography remains unverified as separate publications. See `SOURCE_VERIFICATION.md`.

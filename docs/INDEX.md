@@ -1,7 +1,7 @@
 # MineGuard MATLAB — A-to-Z Documentation Library
 
 **Read first:** [PROJECT_MASTER_BRIEF.md](PROJECT_MASTER_BRIEF.md) and the [A–Z checklist](A_TO_Z_CHECKLIST.md).
-**Non-negotiable:** [PHASE1_BASELINE.md](PHASE1_BASELINE.md) preserves the original title, problem statement and four objectives verbatim. All MATLAB implementations are simulated and unverified until real execution evidence is committed.
+**Non-negotiable:** [PHASE1_BASELINE.md](PHASE1_BASELINE.md) preserves the original title, problem statement and four objectives. Verified against the recovered Phase-1 PPTX on 2026-10-31 (see [SOURCE_VERIFICATION.md](SOURCE_VERIFICATION.md)). All MATLAB implementations are simulated and unverified until real execution evidence is committed.
 
 ## 1. Academic baseline and research
 | Topic | Document |
@@ -9,11 +9,12 @@
 | Complete project overview and change decision | [PROJECT_MASTER_BRIEF.md](PROJECT_MASTER_BRIEF.md) |
 | Literal A–Z readiness checklist | [A_TO_Z_CHECKLIST.md](A_TO_Z_CHECKLIST.md) |
 | Original Phase-1 title, PS and objectives | [PHASE1_BASELINE.md](PHASE1_BASELINE.md) |
-| Primary-source verification and hash | [SOURCE_VERIFICATION.md](SOURCE_VERIFICATION.md) |
+| Original PPTX slide-3/4 primary-source verification and SHA-256 | [SOURCE_VERIFICATION.md](SOURCE_VERIFICATION.md) |
 | Repository audit corrections | [FOUNDATION_AUDIT.md](FOUNDATION_AUDIT.md) |
 | Cost transition and feasibility | [COST_AND_FEASIBILITY.md](COST_AND_FEASIBILITY.md) |
 | Scope and scientific limitations | [SCOPE_AND_LIMITATIONS.md](SCOPE_AND_LIMITATIONS.md) |
 | Verified published literature and open gaps | [LITERATURE_REVIEW.md](LITERATURE_REVIEW.md) |
+| Objective-linked, staged academic research plan | [RESEARCH_PLAN.md](RESEARCH_PLAN.md) |
 | Dataset review, licensing and synthetic splits | [DATASET_AND_LICENSING.md](DATASET_AND_LICENSING.md) |
 | Sources and URLs | [SOURCES.md](SOURCES.md) |
 
