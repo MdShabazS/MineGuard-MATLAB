@@ -25,3 +25,10 @@ State: (1) unchanged humanitarian problem/objectives, (2) cost-driven transition
 
 ## Fallback if incomplete
 Demonstrate truthful validated submodules with named remaining gaps. Quality beats unsupported claims even under deadline.
+
+## Guide portal and optional PPO release gates (added after audit)
+- MG-020 Render guide site is a distinct deliverable with a real HTTPS URL and evidence, separate from MATLAB simulation.
+- MG-021 requires live browser/mobile verification; static JS tests alone are insufficient.
+- MG-015 core integration must be independently demonstrable even when optional RL agent is untrained or unavailable.
+- MG-019 PPO integration is an optional experimental enhancement; show only executed, auditable benchmark results.
+- The source Phase-1 review deck must be compared with `PHASE1_BASELINE.md` and provenance recorded before making a formal academic claim of word-for-word verification.

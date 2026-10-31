@@ -147,10 +147,9 @@
       "kind": "BUILD",
       "dependsOn": [
         "MG-011",
-        "MG-013",
         "MG-014"
       ],
-      "title": "End-to-end integration and quantitative MATLAB validation",
+      "title": "Core end-to-end integration and MATLAB validation (not blocked by experimental PPO)",
       "evidence": "tasks/evidence/MG-015.md"
     },
     "MG-016": {
@@ -179,6 +178,34 @@
       ],
       "title": "Prepare final engineering report, demo script and open limitations",
       "evidence": "tasks/evidence/MG-018.md"
+    },
+    "MG-019": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "MG-013",
+        "MG-015"
+      ],
+      "title": "Optional PPO integration and performance analysis against tested grid baseline",
+      "evidence": "tasks/evidence/MG-019.md"
+    },
+    "MG-020": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "MG-000"
+      ],
+      "title": "Deploy guide portal to Render and document verified HTTPS URL",
+      "evidence": "tasks/evidence/MG-020.md"
+    },
+    "MG-021": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "MG-020"
+      ],
+      "title": "Independent guide portal browser/mobile and live GitHub synchronization checks",
+      "evidence": "tasks/evidence/MG-021.md"
     }
   }
 }

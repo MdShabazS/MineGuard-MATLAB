@@ -46,3 +46,7 @@ When code uses a paper/model, add the exact equation/parameter derivation and so
 - Availability and reuse rights of thermal images, real EM-coil datasets or calibrated soil data.
 - Actual model training runs, plots, detection metrics, standalone MATLAB UI.
 - Branch protection configured on the new public repository, Render deployed URL and live portal browser test.
+
+## New verified candidate record in audit (2026-10-31)
+- Baur, J.; Steinberg, G.; Lekhak, S.; Nikulin, A.; de Smet, T.; Ientilucci, E.; Brinkley, A.; Myers, H.; Nitsche, F. (2026). *Demining Research Community Seeded Field Multimodal Landmine Detection Dataset*, Zenodo v2, DOI https://doi.org/10.5281/zenodo.19100554. Contains aerial imaging and separate handheld electromagnetic/metal detector studies. Licencing and cross-modality alignment are **unverified**, so redistribution and performance claims are blocked.
+- Primary original Phase-1 slides: team transcription stored in `PHASE1_BASELINE.md`, **independent verification pending** because original PPTX is not in this new repository. See `SOURCE_VERIFICATION.md`.

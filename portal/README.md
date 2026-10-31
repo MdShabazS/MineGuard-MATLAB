@@ -25,3 +25,8 @@ A guide-facing status portal sourced from the **authoritative GitHub `main` bran
 
 ## Limitations
 No notifications, approvals, or access-controlled student dashboard. No background sync guarantee; the guide must open the site (it refreshes while visible). Changes are only visible after committed status on GitHub main.
+
+## Portal deployment and verification tasks
+- `MG-020`: guide-facing Render Static Site with real URL and first actual fetch evidence, after MG-000 foundation merged.
+- `MG-021`: test the real HTTPS site on desktop and phone, verify filters, source-of-truth main, warnings, PR and CI feeds and screenshot/log proof. No false claim of deployment or QA before evidence.
+- CI on the portal must select the latest `main`-branch Task Gate run, not report a successful unmerged PR check as main's status.

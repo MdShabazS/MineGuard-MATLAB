@@ -9,6 +9,8 @@
 | Complete project overview and change decision | [PROJECT_MASTER_BRIEF.md](PROJECT_MASTER_BRIEF.md) |
 | Literal A–Z readiness checklist | [A_TO_Z_CHECKLIST.md](A_TO_Z_CHECKLIST.md) |
 | Original Phase-1 title, PS and objectives | [PHASE1_BASELINE.md](PHASE1_BASELINE.md) |
+| Primary-source verification and hash | [SOURCE_VERIFICATION.md](SOURCE_VERIFICATION.md) |
+| Repository audit corrections | [FOUNDATION_AUDIT.md](FOUNDATION_AUDIT.md) |
 | Cost transition and feasibility | [COST_AND_FEASIBILITY.md](COST_AND_FEASIBILITY.md) |
 | Scope and scientific limitations | [SCOPE_AND_LIMITATIONS.md](SCOPE_AND_LIMITATIONS.md) |
 | Verified published literature and open gaps | [LITERATURE_REVIEW.md](LITERATURE_REVIEW.md) |

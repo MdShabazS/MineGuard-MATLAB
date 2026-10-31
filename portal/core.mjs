@@ -39,6 +39,10 @@ export function githubLink(value) {
   try {const u=new URL(value);return u.protocol==="https:" && u.hostname==="github.com" && u.pathname.startsWith("/"+REPO+"/") ? u.href : null;}
   catch {return null;}
 }
+export function findMainTaskGateRun(data) {
+ const runs=Array.isArray(data?.workflow_runs)?data.workflow_runs:[];
+ return runs.find(r=>(r.name==="Task Gate" || r.path?.includes("task-gate")) && r.head_branch==="main") || null;
+}
 export function safeDate(iso) {
   if (!iso) return "Date unavailable";
   const date=new Date(iso);

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {buildTaskRows,summarize,fileUrl,githubLink} from "../core.mjs";
+import {buildTaskRows,summarize,fileUrl,githubLink,findMainTaskGateRun} from "../core.mjs";
 const manifest={tasks:{
   "MG-000":{owner:"Shabaz",kind:"DOC",title:"Foundation",dependsOn:[],evidence:"docs/FOUNDATION.md"},
   "MG-001":{owner:"Rahil",kind:"BUILD",title:"MATLAB",dependsOn:["MG-000"],evidence:"tasks/evidence/MG-001.md"},
@@ -36,4 +36,13 @@ test("evidence and feed links reject unsafe domains and path traversal",()=>{
  assert.equal(githubLink("https://evil.example/x"),null);
  assert.equal(githubLink("javascript:alert(1)"),null);
  assert.ok(githubLink("https://github.com/MdShabazS/MineGuard-MATLAB/pull/1"));
+});
+
+test("CI status must not show an unmerged PR result as main success",()=>{
+ const runs={workflow_runs:[
+  {name:"Task Gate",head_branch:"setup/mg-000-foundation",status:"completed",conclusion:"success"},
+  {name:"Task Gate",head_branch:"main",status:"completed",conclusion:"failure"}
+ ]};
+ assert.equal(findMainTaskGateRun(runs)?.conclusion,"failure");
+ assert.equal(findMainTaskGateRun({workflow_runs:[runs.workflow_runs[0]]}),null);
 });

@@ -25,3 +25,11 @@ See [OPEN_DECISIONS_AND_RISKS.md](OPEN_DECISIONS_AND_RISKS.md) for detailed risk
 
 ## Next milestone
 Review/merge PR #1 after docs QA. Then record approved MG-000 completion and enable dependent tasks. Rahil may independently inspect MATLAB even while the PR is pending, but must submit real `ver`/MCP evidence before claiming MG-002 DONE.
+
+## 2026-10-31 foundation audit follow-up
+- Corrected critical weakness where task prerequisites were checked against a PR's proposed statuses rather than authoritative target-branch statuses; added PR comparison CI and negative tests.
+- PPO MG-013 no longer blocks core MG-015, and optional PPO integration MG-019 is separately tracked.
+- Guide portal Render deployment MG-020 and real browser QA MG-021 are explicit tasks; no live site is claimed.
+- Primary original slide deck is absent from new repository, so original-wording verification remains PENDING. Wording itself has not been changed.
+- Zenodo DRC 2026 candidate added as research only, **licence not established** and no data downloaded.
+- Read-only guide portal Task Gate CI presentation will filter to actual `main` runs.

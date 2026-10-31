@@ -1,4 +1,4 @@
-import {REPO, BASE, buildTaskRows, summarize, fileUrl, githubLink, safeDate} from "./core.mjs";
+import {REPO, BASE, buildTaskRows, summarize, fileUrl, githubLink, safeDate, findMainTaskGateRun} from "./core.mjs";
 const RAW="https://raw.githubusercontent.com/"+REPO+"/main/";
 const API="https://api.github.com/repos/"+REPO;
 let latestRows=[],filter="ALL",loading=false;
@@ -95,8 +95,8 @@ function showPulls(pulls){
   }):[make("p","muted","No pull requests found.")]);
 }
 function showChecks(data) {
-  const run=data?.workflow_runs?.find(r=>r.name==="Task Gate" || r.path?.includes("task-gate"));
-  el("ciStatus").textContent=run ? (run.status==="completed"?(run.conclusion||"Completed"):"Running / queued") : "No task-gate run available";
+  const run=findMainTaskGateRun(data);
+  el("ciStatus").textContent=run ? (run.status==="completed"?(run.conclusion||"Completed"):"Running / queued") : "No main-branch task-gate run available";
   el("ciStatus").className=run?.conclusion==="success"?"good":"";
 }
 

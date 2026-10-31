@@ -97,6 +97,21 @@
       "owner": "Shabaz",
       "state": "TODO",
       "evidence": null
+    },
+    "MG-019": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-020": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "MG-021": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
     }
   }
 }
