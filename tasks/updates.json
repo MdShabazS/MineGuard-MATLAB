@@ -208,6 +208,14 @@
       "summary": "Frozen MG-013 PPO integrated end to end (own decisions -> MG-005 poses -> MG-007 sensors -> frozen detector -> evaluator -> redacted bundle -> MG-011 replay + new side-by-side comparison window); one-command mineguardPPODemo. Preregistered MG019-SPLIT-1 (20 fresh + 10 replication): PPO lost all 8 grid-feasible comparisons (mean delta coverage -0.062, +3.2 m), 0/20 complete, 91 invalid actions in 2 missions. Fixed grid remains the default; PPO experimental. 134/134 MATLAB tests pass.",
       "next": "Shabaz review of MG-019 PR; separate DONE PR after merge",
       "evidence": "tasks/evidence/MG-019.md"
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Rahil",
+      "task": "MG-019",
+      "summary": "Post-merge review corrections to PR #41: exact public allowlist for PPO comparison metrics (contract list + validateComparisonTable used by validateRunBundle, openComparisonApp, export, comparisonTable; negative tests t20-t23); evidence clarifies uncommitted-working-copy provenance of the single benchmark batch (identical to 41b62b9) and later per-scenario re-runs. 138/138 MATLAB tests pass; benchmark files unchanged.",
+      "next": "Shabaz review of corrective PR; then separate MG-019 DONE status PR",
+      "evidence": "tasks/evidence/MG-019.md"
     }
   ]
 }

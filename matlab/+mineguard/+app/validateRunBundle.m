@@ -14,6 +14,8 @@ function validateRunBundle(rb)
 %     with a reason; units are channel-separated.
 %   - Events: status is only "SUSPECTED"; any thermal/EM sample reference exists or is empty; t_s is finite.
 %   - The optional result has exactly the 21 frozen ExperimentResult fields, with a matching scenario_id.
+%   - The optional comparison table must pass validateComparisonTable, which enforces the EXACT public
+%     metric allowlist (MG-019 review correction).
 id = 'mineguard:InvalidRunBundle';
 if ~isstruct(rb) || ~isscalar(rb)
     error(id, 'Invalid run bundle: runBundle must be a scalar struct.');
@@ -41,9 +43,11 @@ for f = setdiff(names, ["poses","thermal_samples","em_samples","events","compari
     end
 end
 if isfield(rb, 'comparison')
-    c = rb.comparison;
-    if ~istable(c) || any(ismember(string(c.Properties.VariableNames), forbidden))
-        error(id, 'Invalid run bundle: comparison must be a table without truth columns.');
+    % Exact public allowlist (mineguard.contract.comparisonColumns); not a denylist.
+    try
+        mineguard.app.validateComparisonTable(rb.comparison);
+    catch cerr
+        error(id, 'Invalid run bundle: %s', cerr.message);
     end
 end
 g = rb.geometry;

@@ -228,6 +228,56 @@ classdef testMG019PPOIntegration < matlab.uitest.TestCase
             tc.verifyTrue(all(tc.Rp.reason ~= "COVERAGE_GOAL") || tc.Rp.completed, 'completion flag consistent with reason');
         end
 
+        function t20_comparisonAllowlistAccepted(tc)
+            % Review correction: the valid comparison table matches the exact public allowlist.
+            T = mineguard.integration.comparisonTable({tc.Rg, tc.Rp});
+            tc.verifyEqual(string(T.Properties.VariableNames), mineguard.contract.comparisonColumns());
+            mineguard.app.validateComparisonTable(T);
+            b = tc.P7307; b.comparison = T; mineguard.app.validateRunBundle(b);
+            c1 = mg019ScenarioConfig(7301); [~, gi] = mineguard.integration.runSurveyMission(c1, "grid");
+            mineguard.app.validateComparisonTable(mineguard.integration.comparisonTable({gi, tc.Rp}));   % NaN rows (infeasible grid) allowed
+        end
+
+        function t21_comparisonRejectsUnexpectedColumns(tc)
+            % Hidden-truth fields and misleading alternative names are rejected everywhere.
+            T = mineguard.integration.comparisonTable({tc.Rg, tc.Rp});
+            bad = ["label","target_count","clutter_count","burial_depth_m","target_id","material_type","x_east_m", ...
+                   "hidden_truth","accuracy","detection_accuracy","detection_rate","mines_found","mine_count", ...
+                   "safe_fraction","cleared_cells","confirmed_mines","probability","true_targets"];
+            for c = bad
+                X = T; X.(c) = zeros(height(T), 1);
+                tc.verifyError(@() mineguard.app.validateComparisonTable(X), 'mineguard:InvalidComparison', c);
+                b = tc.P7307; b.comparison = X;
+                tc.verifyError(@() mineguard.app.validateRunBundle(b), 'mineguard:InvalidRunBundle', c);
+                tc.verifyError(@() mineguard.app.openComparisonApp(tc.G7307, tc.P7307, X), 'mineguard:InvalidComparison', c);
+            end
+            % Renamed column (alias) and missing column are also rejected.
+            X = renamevars(T, 'coverage_fraction', 'coverage'); tc.verifyError(@() mineguard.app.validateComparisonTable(X), 'mineguard:InvalidComparison');
+            X = removevars(T, 'fp');                         tc.verifyError(@() mineguard.app.validateComparisonTable(X), 'mineguard:InvalidComparison');
+            X = T(:, [2 1 3:end]);                           tc.verifyError(@() mineguard.app.validateComparisonTable(X), 'mineguard:InvalidComparison');
+        end
+
+        function t22_comparisonRejectsBadValues(tc)
+            T = mineguard.integration.comparisonTable({tc.Rg, tc.Rp}); id = 'mineguard:InvalidComparison';
+            X = T; X.planner(2) = "ppo2";               tc.verifyError(@() mineguard.app.validateComparisonTable(X), id);
+            X = T; X.planner(2) = "grid";               tc.verifyError(@() mineguard.app.validateComparisonTable(X), id);
+            X = T; X.coverage_fraction(1) = 1.5;        tc.verifyError(@() mineguard.app.validateComparisonTable(X), id);
+            X = T; X.tp(1) = 0.5;                       tc.verifyError(@() mineguard.app.validateComparisonTable(X), id);
+            X = T; X.distance_m(1) = Inf;               tc.verifyError(@() mineguard.app.validateComparisonTable(X), id);
+            X = T; X.executed = double(X.executed);     tc.verifyError(@() mineguard.app.validateComparisonTable(X), id);
+            tc.verifyError(@() mineguard.app.validateComparisonTable(table2struct(T)), id);
+        end
+
+        function t23_exportUsesAllowlist(tc)
+            d = tempname; mkdir(d); tc.addTeardown(@() rmdir(d, 's'));
+            ca = mineguard.app.openComparisonApp(tc.G7307, tc.P7307, mineguard.integration.comparisonTable({tc.Rg, tc.Rp})); tc.addTeardown(@() ca.close());
+            tc.verifyTrue(ca.exportComparison(d));
+            R = readtable(fullfile(ca.LastExport.folder, 'comparison.csv'), 'TextType', 'string');
+            tc.verifyEqual(string(R.Properties.VariableNames), mineguard.contract.comparisonColumns(), 'exported columns = exact allowlist');
+            src = fileread(fullfile(tc.Root, 'matlab', '+mineguard', '+app', 'ComparisonApp.m'));
+            tc.verifySubstring(src, 'mineguard.app.validateComparisonTable(app.Comparison);');
+        end
+
         function t19_evidenceConsistency(tc)
             ev = fullfile(tc.Root, 'tasks', 'evidence', 'MG-019');
             P = readtable(fullfile(ev, 'MG-019-paired-missions.csv'), 'TextType', 'string');
