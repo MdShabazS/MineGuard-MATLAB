@@ -29,6 +29,10 @@ The authoritative deployment/first-HTTPS-proof procedure is [docs/MG020_RENDER_D
 - Browser smoke test manually (actual browser, not asserted here): desktop/mobile, All/Blocked filters, refresh, evidence links, failure when main files absent, GitHub API limit/offline behaviour, accessibility.
 - Check that `main` reflects merged task transitions. An unmerged branch must not influence visible progress.
 
+## MG-021 executed live browser and mobile-viewport QA
+
+On 2026-10-31, the real deployed portal passed **14/14** hosted Chromium assertions in [GitHub Actions run 41218473248](https://github.com/MdShabazS/MineGuard-MATLAB/actions/runs/41218473248), with downloadable desktop/tablet/mobile-view screenshots and `report.json`. The suite checks GitHub main-source parity, all filters, user refresh, evidence links, simulated rate limit and stale/unavailable source fallback. The mobile tests run in Chromium viewport/touch **emulation, not actual phone hardware**. A simulated changed status response is *not* proof of a real GitHub main mutation; post-merge verification is a separate explicit checkpoint. See [MG-021 evidence](../tasks/evidence/MG-021.md).
+
 ## Limitations
 No notifications, approvals, or access-controlled student dashboard. No background sync guarantee; the guide must open the site (it refreshes while visible). Changes are only visible after committed status on GitHub main.
 
