@@ -6,6 +6,8 @@ classdef testMG013PPO < matlab.unittest.TestCase
 
     properties (Constant)
         Ev = fullfile(fileparts(fileparts(fileparts(mfilename('fullpath')))), 'tasks', 'evidence', 'MG-013')
+        % Committed checkpoint copy (repo .gitignore allows *.mat only under results/approved/).
+        Ck = fullfile(fileparts(fileparts(fileparts(mfilename('fullpath')))), 'results', 'approved', 'mg013_ppo_checkpoint.mat')
     end
 
     methods (TestClassSetup)
@@ -31,7 +33,7 @@ classdef testMG013PPO < matlab.unittest.TestCase
             F = jsondecode(fileread(fullfile(testMG013PPO.Ev, 'MG-013-frozen-policy.json')));
         end
         function pol = frozenPolicy()
-            L = load(fullfile(testMG013PPO.Ev, 'mg013_ppo_checkpoint.mat'));
+            L = load(testMG013PPO.Ck);
             pol = struct('kind', "ppo", 'version', "mg013-ppo-1.0", 'layout_id', "cov-2N+5-v1", 'n_cells', 25, 'agent', L.saveAgent);
         end
         function h = sha256(f)
@@ -222,7 +224,7 @@ classdef testMG013PPO < matlab.unittest.TestCase
             F = testMG013PPO.frozen();
             T = readtable(fullfile(testMG013PPO.Ev, 'MG-013-training-episodes.csv'));
             tc.verifyGreaterThanOrEqual(height(T), 1000);
-            tc.verifyEqual(testMG013PPO.sha256(fullfile(testMG013PPO.Ev, 'mg013_ppo_checkpoint.mat')), string(F.checkpoint_sha256));
+            tc.verifyEqual(testMG013PPO.sha256(testMG013PPO.Ck), string(F.checkpoint_sha256));
         end
 
         function p15_splitLeakage(tc)
