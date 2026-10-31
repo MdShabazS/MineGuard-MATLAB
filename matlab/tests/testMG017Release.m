@@ -52,6 +52,24 @@ classdef testMG017Release < matlab.uitest.TestCase
             md = java.security.MessageDigest.getInstance('SHA-256');
             h = string(lower(reshape(dec2hex(typecast(md.digest(b), 'uint8'))', 1, [])));
         end
+        function h = frozenHashes(tc)
+            h = arrayfun(@(k) testMG017Release.sha(fullfile(tc.Root, tc.Frozen(k, 1)), true), (1:size(tc.Frozen, 1))');
+            h(end+1) = testMG017Release.sha(fullfile(tc.Root, 'results', 'approved', 'mg013_ppo_checkpoint.mat'), false);
+        end
+        function verifyGuardError(tc, fh, id, msgPart)
+            % The error must come from the read-only guard (assertTestNotConsumed), which runs before
+            % any folder creation, file write or TEST-family generation, and must be fast (no simulation).
+            t0 = tic;
+            try
+                fh(); tc.verifyFail("expected " + id);
+            catch err
+                tc.verifyEqual(string(err.identifier), string(id));
+                tc.verifySubstring(err.message, char(msgPart));
+                tc.verifyEqual(string(err.stack(1).name), "assertTestNotConsumed", 'raised by the pre-execution guard');
+                [~, fn] = fileparts(err.stack(1).file); tc.verifyEqual(string(fn), "runMG015Locked", 'guard is the local function of runMG015Locked');
+            end
+            tc.verifyLessThan(toc(t0), 5, 'guard refused without running any scenario');
+        end
         function [names, strs, nums] = walk(x)
             % Recursively collect field/variable names, text values and numeric values.
             names = strings(0, 1); strs = strings(0, 1); nums = zeros(0, 1);
@@ -117,15 +135,41 @@ classdef testMG017Release < matlab.uitest.TestCase
         end
 
         function r02_onceOnlyGuards(tc)
+            % Original evidence folder: TEST refused, run-lock not overwritten, nothing written.
             ev = fullfile(tc.Root, 'tasks', 'evidence', 'MG-015');
-            before = testMG017Release.sha(fullfile(ev, 'MG-015-test-comparison.csv'), true);
-            tc.verifyError(@() runMG015Locked("heldout", ev, tc.Frozen(2, 2)), 'mineguard:TestConsumed');
+            before = testMG017Release.frozenHashes(tc);
+            testMG017Release.verifyGuardError(tc, @() runMG015Locked("heldout", ev, tc.Frozen(2, 2)), 'mineguard:TestConsumed', "already contains");
             tc.verifyError(@() runMG015Locked("prepare", ev), 'mineguard:RunLockExists');
-            tc.verifyEqual(testMG017Release.sha(fullfile(ev, 'MG-015-test-comparison.csv'), true), before, 'guard wrote nothing');
-            d = tempname; mkdir(d); tc.addTeardown(@() rmdir(d, 's'));       % guard also holds for any other folder
-            fid = fopen(fullfile(d, 'MG-015-test-comparison.csv'), 'w'); fclose(fid);
-            tc.verifyError(@() runMG015Locked("heldout", d, "x"), 'mineguard:TestConsumed');
             tc.verifyError(@() mg015DemoConfig("GF-025"), 'mineguard:SealedTest');
+            tc.verifyEqual(testMG017Release.frozenHashes(tc), before, 'guards changed no frozen file');
+        end
+
+        function r02_alternateFolderWithCopiedLockRefused(tc)
+            % PR #44 review: a NEW folder holding a copy of the approved run-lock, called with the
+            % approved SHA, must be refused by the repository consumption record (not by folder contents).
+            before = testMG017Release.frozenHashes(tc);
+            d = tempname; mkdir(d); tc.addTeardown(@() rmdir(d, 's'));
+            copyfile(fullfile(tc.Root, tc.Frozen(2, 1)), fullfile(d, 'MG014-RUNLOCK-1.json'));
+            tc.assertEqual(testMG017Release.sha(fullfile(d, 'MG014-RUNLOCK-1.json'), true), tc.Frozen(2, 2), 'copied lock is the approved lock');
+            listing = sort(string({dir(d).name}));
+            testMG017Release.verifyGuardError(tc, @() runMG015Locked("heldout", d, tc.Frozen(2, 2)), 'mineguard:TestConsumed', "CONSUMED");
+            tc.verifyEqual(sort(string({dir(d).name})), listing, 'nothing written into the alternate folder');
+            % A not-yet-existing folder: refused before mkdir (no folder created).
+            n = tempname;
+            testMG017Release.verifyGuardError(tc, @() runMG015Locked("heldout", n, tc.Frozen(2, 2)), 'mineguard:TestConsumed', "CONSUMED");
+            tc.verifyFalse(isfolder(n), 'guard must fail before creating the output folder');
+            tc.verifyEqual(testMG017Release.frozenHashes(tc), before, 'frozen files unchanged');
+        end
+
+        function r02_partialOutputsProtected(tc)
+            % Any single existing TEST or stress output blocks the run (no partial overwrite).
+            for f = ["MG-015-test-comparison.csv","MG-015-test-per-group.csv","MG-015-stress.csv"]
+                d = tempname; mkdir(d); tc.addTeardown(@() rmdir(d, 's'));
+                fid = fopen(fullfile(d, f), 'w'); fprintf(fid, 'sentinel'); fclose(fid);
+                testMG017Release.verifyGuardError(tc, @() runMG015Locked("heldout", d, tc.Frozen(2, 2)), 'mineguard:TestConsumed', f);
+                tc.verifyEqual(string(fileread(fullfile(d, f))), "sentinel", f + " not overwritten");
+                tc.verifyEqual(numel(dir(d)) - 2, 1, 'no other file written');
+            end
         end
 
         % ---------- R03: MG-015 documentation clarified ----------
