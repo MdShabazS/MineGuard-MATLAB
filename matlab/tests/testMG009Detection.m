@@ -81,6 +81,30 @@ classdef testMG009Detection < matlab.unittest.TestCase
     end
 
     methods (Test)
+        function x01_optionalOutputsAreAdditive(tc)
+            % Reviewer-approved additive extension: optional 2nd outputs. The four inputs and the
+            % frozen primary outputs must be unchanged for 1-output callers.
+            tc.verifyEqual(nargin('mineguard.detection.detectAnomalies'), 4);
+            tc.verifyEqual(nargin('mineguard.evaluation.scoreDetections'), 4);
+            tc.verifyEqual(nargout('mineguard.detection.detectAnomalies'), 2);
+            tc.verifyEqual(nargout('mineguard.evaluation.scoreDetections'), 2);
+            P = testMG009Detection.poses([1 2 3], [1 1 1], [0 0.1 0.2]);
+            S = [testMG009Detection.samples("thermal", P, 1:3, [293.65 293.15 293.65]); ...
+                 testMG009Detection.samples("em", P, 1:3, [0.05 0.15 0.15])];
+            d = testMG009Detection.dc("or", "single_valid", 1); m = testMG009Detection.model();
+            e1 = mineguard.detection.detectAnomalies(d, P, S, m);
+            [e2, diag] = mineguard.detection.detectAnomalies(d, P, S, m);
+            tc.verifyTrue(isequaln(e1, e2), 'one-output and two-output events identical');
+            tc.verifyEqual(width(e1), 12); tc.verifyEqual(diag.events, height(e1));
+            rm = testMG009Detection.meta(true(2,4), [0 4 0 2], 1);
+            t = testMG009Detection.truth([1 1], "target");
+            r1 = mineguard.evaluation.scoreDetections(testMG009Detection.cfg(), e1, t, rm);
+            [r2, rep] = mineguard.evaluation.scoreDetections(testMG009Detection.cfg(), e1, t, rm);
+            tc.verifyTrue(isequaln(r1, r2), 'one-output and two-output results identical');
+            tc.verifyEqual(numel(fieldnames(r1)), 21);
+            tc.verifyEqual(rep.metric_unit, "evaluable_survey_cell");
+        end
+
         function f01_pairingUnitsAndFusionRules(tc)
             P = testMG009Detection.poses([1 2 3], [1 1 1], [0 0.1 0.2]);
             S = [testMG009Detection.samples("thermal", P, 1:3, [293.65 293.15 293.65]); ...

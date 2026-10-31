@@ -1,15 +1,17 @@
 function out = runMG009Experiment(outFolder)
 %RUNMG009EXPERIMENT Frozen-split synthetic evaluation of the five MG-009 detection methods.
 %   out = runMG009Experiment(outFolder)
-%   Order (enforced in code):
+%   Order (enforced in code; recorded in out.execution_order):
 %     1. Build and validate the immutable split manifest
 %        (train 12 / validation 4 / test 4 groups, plus 6 stress conditions x 2 groups).
+%        Generate ONLY the TRAIN and VALIDATION trials.
 %     2. Fit normalisers on TRAIN samples only.
 %     3. Select thresholds on VALIDATION only (rule single_valid), then write the frozen model
 %        and threshold JSON.
-%     4. Re-read the frozen JSON and evaluate TEST once per method and rule, on a common
+%     4. Only after that, generate the TEST and stress trials.
+%     5. Re-read the frozen JSON and evaluate TEST once per method and rule, on a common
 %        (matched) evaluable-cell mask.
-%     5. Evaluate stress conditions with the same frozen model, under all three missing-modality rules.
+%     6. Evaluate stress conditions with the same frozen model, under all three missing-modality rules.
 %   Every number is a SYNTHETIC SIMULATION result under assumed sensor parameters (MG-007
 %   fixture). It is NOT a mine-detection rate.
 if ~exist(outFolder, 'dir'), mkdir(outFolder); end
@@ -23,20 +25,18 @@ manifest = table("G" + string(seeds'), "MG009-" + string(seeds'), seeds', seeds'
     mod(seeds', 4), mod(seeds' * 7, 4), 'VariableNames', {'group_key','scenario_id','seed','noise_seed','split_id','condition','target_count','clutter_count'});
 mineguard.evaluation.validateSplitManifest(manifest);
 
-% Generate every trial (sensor data only; truth stays in bundle.private).
+% Generate ONLY the TRAIN and VALIDATION trials here. TEST and stress trials are not created
+% until the frozen model file has been written (step 4), so they cannot influence selection.
 n = height(manifest);
 bundles = cell(n, 1); configs = cell(n, 1);
-for k = 1:n
+dev = find(ismember(manifest.split_id, ["train","validation"]));
+held = find(ismember(manifest.split_id, ["test","stress"]));
+for k = dev'
     [configs{k}, opts] = trialConfig(manifest(k, :), P);
     bundles{k} = mineguard.evaluation.runTrial(configs{k}, opts);
 end
-manifest.config_checksum = string(cellfun(@(b) char(b.provenance.config_checksum), bundles, "UniformOutput", false));
-manifest.thermal_seed = cellfun(@(b) b.provenance.thermal_seed, bundles);
-manifest.em_seed = cellfun(@(b) b.provenance.em_seed, bundles);
-manifest.navigation_seed = cellfun(@(b) b.provenance.navigation_seed, bundles);
-manifest.altitude_m = cellfun(@(c) c.altitude_m, configs);
-manifest.sensor_settings_version = string(cellfun(@(c) char(c.sensor_settings.version), configs, "UniformOutput", false));
-writetable(manifest, fullfile(outFolder, 'MG-009-split-manifest.csv'));
+order = strings(0, 1);
+order(end+1) = "generated " + numel(dev) + " TRAIN/VALIDATION trials";
 
 % 2. TRAIN normalisers.
 tr = find(manifest.split_id == "train");
@@ -54,8 +54,23 @@ va = find(manifest.split_id == "validation");
 writetable(selection, fullfile(outFolder, 'MG-009-validation-selection.csv'));
 frozen = struct('model', model, 'method_thresholds', thr, 'declared', P);
 fid = fopen(fullfile(outFolder, 'MG-009-frozen-model.json'), 'w'); fprintf(fid, '%s', jsonencode(frozen, 'PrettyPrint', true)); fclose(fid);
+order(end+1) = "fitted TRAIN normalisers, selected VALIDATION thresholds, wrote frozen model JSON";
 
-% 4. TEST evaluation using the re-read frozen artifact.
+% 4. Only now generate the held-out TEST and stress trials, then complete the manifest record.
+for k = held'
+    [configs{k}, opts] = trialConfig(manifest(k, :), P);
+    bundles{k} = mineguard.evaluation.runTrial(configs{k}, opts);
+end
+order(end+1) = "generated " + numel(held) + " TEST/STRESS trials after freezing";
+manifest.config_checksum = string(cellfun(@(b) char(b.provenance.config_checksum), bundles, "UniformOutput", false));
+manifest.thermal_seed = cellfun(@(b) b.provenance.thermal_seed, bundles);
+manifest.em_seed = cellfun(@(b) b.provenance.em_seed, bundles);
+manifest.navigation_seed = cellfun(@(b) b.provenance.navigation_seed, bundles);
+manifest.altitude_m = cellfun(@(c) c.altitude_m, configs);
+manifest.sensor_settings_version = string(cellfun(@(c) char(c.sensor_settings.version), configs, "UniformOutput", false));
+writetable(manifest, fullfile(outFolder, 'MG-009-split-manifest.csv'));
+
+% 5. TEST evaluation using the re-read frozen artifact.
 F = jsondecode(fileread(fullfile(outFolder, 'MG-009-frozen-model.json')));
 fm = F.model; fm.version = string(fm.version);
 fm.provenance.normaliser_split = string(fm.provenance.normaliser_split);
@@ -81,7 +96,7 @@ writetable(testTable, fullfile(outFolder, 'MG-009-test-comparison.csv'));
 perScenario = vertcat(perScen{:});
 writetable(perScenario, fullfile(outFolder, 'MG-009-test-per-scenario.csv'));
 
-% 5. Stress conditions (frozen model, all three rules, common mask per rule). Kept separate from TEST.
+% 6. Stress conditions (frozen model, all three rules, common mask per rule). Kept separate from TEST.
 srows = {};
 for c = unique(manifest.condition(manifest.split_id == "stress"), 'stable')'
     idx = find(manifest.split_id == "stress" & manifest.condition == c);
@@ -100,12 +115,17 @@ end
 stressTable = vertcat(srows{:});
 writetable(stressTable, fullfile(outFolder, 'MG-009-stress.csv'));
 
+order(end+1) = "evaluated TEST and STRESS with the re-read frozen model";
 out = struct('manifest', manifest, 'model', fm, 'thresholds', F.method_thresholds, 'selection', selection, ...
-    'test', testTable, 'per_scenario', perScenario, 'stress', stressTable, 'declared', P, 'provenance', prov);
+    'test', testTable, 'per_scenario', perScenario, 'stress', stressTable, 'declared', P, 'provenance', prov, ...
+    'execution_order', order);
 end
 
 function P = declaredParameters()
 % Declared BEFORE any data was generated; not tuned on TEST. Values are illustrative.
+% The 0.5/0.5 weights, clustering window/radius and localization match radius are PREDECLARED
+% baseline choices, accepted by the reviewer (Shabaz, PR #24) as an exception to the MG-008
+% section 4.4 validation-selection wording. They were NOT selected on validation and are NOT optimised.
 P = struct('bounds_m', 10, 'grid_spacing_m', 0.5, 'altitude_m', 0.3, 'speed_mps', 2, 'dt_s', 0.1, ...
     'association_tolerance_s', 0.05, 'cluster_time_window_s', 1.0, 'cluster_radius_m', 0.75, ...
     'localization_match_radius_m', 0.75, 'w_thermal', 0.5, 'w_em', 0.5, 'selection_rule', "single_valid", ...

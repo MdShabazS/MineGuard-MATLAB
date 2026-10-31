@@ -1,7 +1,8 @@
 function [result, report] = scoreDetections(config, events, truth, runMetadata)
 %SCOREDETECTIONS Evaluator-only scoring (mg-contract/1.0, MG-009; MG-008 Sections 5-6).
 %   result = mineguard.evaluation.scoreDetections(config, events, truth, runMetadata)
-%   [result, report] = ...   (report: denominators, exclusions, localization details)
+%   [result, report] = ...   OPTIONAL second output (reviewer-approved ADDITIVE extension; the
+%   four inputs and the frozen 21-field ExperimentResult are unchanged): denominators, exclusions, localization
 %
 %   PRIMARY (cell unit, metric_unit = "evaluable_survey_cell"): the population is the legal AND
 %   evaluable cells in runMetadata.evaluable_cell_mask (from evaluableCellMask, with no truth).

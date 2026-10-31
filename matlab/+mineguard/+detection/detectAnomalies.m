@@ -1,7 +1,8 @@
 function [events, diagnostics] = detectAnomalies(detectorConfig, poses, samples, model)
 %DETECTANOMALIES Observation-only anomaly detection and sensor fusion (mg-contract/1.0, MG-009).
 %   events = mineguard.detection.detectAnomalies(detectorConfig, poses, samples, model)
-%   [events, diagnostics] = ...   (optional second output: raw exceedance/abstention counts)
+%   [events, diagnostics] = ...   OPTIONAL second output (reviewer-approved ADDITIVE extension; the
+%   four inputs and the frozen 12-column events output are unchanged): candidate, abstention and raw exceedance counts
 %
 %   Inputs carry NO truth. detectorConfig is whitelisted (see validateDetectorConfig), poses is
 %   PoseSample, samples is a vertical concatenation of thermal and EM SensorSample tables, and
