@@ -1,0 +1,45 @@
+name: MG-021 Live Desktop and Mobile Browser QA
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/mg021-live-browser.mjs'
+      - '.github/workflows/mg021-browser-qa.yml'
+      - 'tasks/evidence/MG-021.md'
+      - 'tasks/status.json'
+      - 'tasks/updates.json'
+  push:
+    branches: [main]
+    paths:
+      - 'tasks/status.json'
+      - 'portal/**'
+      - '.github/workflows/mg021-browser-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run independent Chrome desktop / mobile-emulated checks against live HTTPS
+        run: node scripts/mg021-live-browser.mjs
+      - name: Upload browser evidence, screenshots and failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mg021-live-browser-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/mg021/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Scope
+        if: always()
+        run: echo "Actual remote Chromium interaction and responsive mobile device emulation; not proof of a physical phone, actual live main-state change, or MATLAB testing."
