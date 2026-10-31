@@ -1,5 +1,5 @@
 # Dataset Research, Rights and Synthetic Data Specification
-**State:** research candidates; no real images or sensor datasets have yet been downloaded to the new repository.
+**State:** research candidates; no real images or sensor datasets have yet been downloaded to the new repository. **Binding synthetic split / leakage protocol:** [MG008_FUSION_DATASET_AND_METRICS.md](MG008_FUSION_DATASET_AND_METRICS.md), Section 4; scenario-group (not per-frame) splits and immutable test sets.
 
 ## 1. Initial datasets
 | Candidate | Type | Evidence | Access/licence | Intended use |
@@ -23,10 +23,10 @@
 Scenario input includes scenario identifier, soil class, thermal properties, target material (coarsely), burial depth, target location, camera footprint, altitude, coil standoff, time of day, noise seeds and class imbalance. All stochastic parameters must be generated from saved RNG seed; labels are stored *only* in `TargetTruth` and evaluation pipeline, never passed to model feature constructor.
 
 ### Ground-truth split
-- Training seeds, validation seeds and held-out test seeds disjoint and saved.
+- Training seeds, validation seeds and held-out test seeds disjoint and saved. Group all derived noise seeds, near-duplicate frames, augmentations and repeated passes of the **same base scenario layout** into one split.
 - If one scenario has multiple nearby sensor frames, group them by scenario/target so duplicate frames never cross splits.
 - Feature scaling/statistics learned only from training data.
-- Synthetic simulator hyperparameters not retuned on final held-out set.
+- Synthetic simulator hyperparameters not retuned on final held-out set. Choose temporal alignment, event clustering, matching radius and decision thresholds using train/validation only, then freeze prior to test. Keep cell-level confusion separate from object-event localization matching.
 
 ## 4. Synthetic vs real domain gap
 Even 99% accuracy on clean synthetic data could be meaningless on real field data. State 'synthetic test accuracy' explicitly, run stress tests with altered soil/noise and reveal failures. Calibrated real-world probability requires independent representative measurements and validation, not just a trained classifier.
