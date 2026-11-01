@@ -53,3 +53,20 @@ function testPreviewRequiresExplicitAnchorBeforeOpeningGraphics(tc)
 verifyError(tc,@() mgv2SatelliteMapPreview(Visible="off"), ...
     'mgv2:MissingGeographicAnchor');
 end
+
+function testNearNullGeographicAnchorRejected(tc)
+for a = [0 0 1e-9; 1e-9 0 0; 0 0 5]
+    verifyError(tc,@() mgv2.geo.enuToWgs84([0 0 0],a), ...
+        'mgv2:MissingGeographicAnchor');
+end
+end
+
+function testExtremeVerticalOffsetRejected(tc)
+verifyError(tc,@() mgv2.geo.enuToWgs84([0 0 5e6],[12.983 77.594 915]), ...
+    'mgv2:GeographicExtentTooLarge');
+end
+
+function testPreviewRejectsNearNullAnchorBeforeGraphics(tc)
+verifyError(tc,@() mgv2SatelliteMapPreview(AnchorLLA=[0 0 5],Visible="off"), ...
+    'mgv2:MissingGeographicAnchor');
+end
