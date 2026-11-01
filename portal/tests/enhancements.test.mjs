@@ -46,7 +46,9 @@ test("portal has a separate roadmap section, linked only to merged main roadmap 
   for (const id of ["enhancementsTitle","roadmapStatus","roadmapBreakdown","roadmapItems"]) {
     assert.match(html,new RegExp('id="'+id+'"'));
   }
-  assert.match(app, /getJson\(RAW\+"v2\/roadmap\/enhancements\.json"\)/);
+  assert.match(app, /getPublishedWithFallback\(/);
+  assert.match(app, /\["v2\/roadmap\/enhancements\.json"\]/);
+  assert.match(app, /"\.\/data\/enhancements\.json"/);
   assert.match(app, /validateEnhancements\(data\)/);
   assert.match(app, /enhancement-group-grid/);
   assert.match(app, /item.category===group.id/);
