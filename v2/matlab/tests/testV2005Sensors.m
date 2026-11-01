@@ -230,7 +230,7 @@ classdef testV2005Sensors < matlab.unittest.TestCase
         end
 
         function v14_lidarOutOfRangeAndSky(tc)                            % SC-14, fixture C4
-            flat = mgv2.sensors.buildSensorScene(testV2005Sensors.flatWorld()); c = tc.Cfg.LIDAR_TERRAIN; c.mount.max_range_m = 4;
+            flat = mgv2.sensors.buildSensorScene(testV2005Sensors.flatWorld()); c = tc.Cfg.LIDAR_TERRAIN; c.valid_range_m = [0.3 4];
             s = mgv2.sensors.sampleLidar(flat, c, tc.Ms, testV2005Sensors.fixture([10 20 5], 0, 0, 0), 1);
             tc.verifyFalse(any(s.valid_ray_mask)); tc.verifyTrue(all(s.ray_invalid_code == 2)); tc.verifyTrue(all(isnan(s.ranges_m)));
             tc.verifyEqual(s.invalid_reason, "OUT_OF_RANGE", 'no 4 m clipped "hit"');
@@ -351,6 +351,90 @@ classdef testV2005Sensors < matlab.unittest.TestCase
             [~, pl] = matlab.codetools.requiredFilesAndProducts(fullfile({f.folder}, {f.name}));
             tc.verifyEqual(string({pl.Name}), "MATLAB", 'sensor package needs base MATLAB only (Mac-safe)');
             tc.log(matlab.unittest.Verbosity.Terse, sprintf('SC-28 environment: MATLAB %s, %s', version, computer));
+        end
+
+        function v24_lidarRangeFromValidRange(tc)                         % review fix 1: one range source
+            flat = mgv2.sensors.buildSensorScene(testV2005Sensors.flatWorld()); p = testV2005Sensors.fixture([10 20 5], 0, 0, 0);
+            c0 = tc.Cfg.LIDAR_TERRAIN;
+            tc.verifyEqual(c0.valid_range_m, [0.3 100], 'nominal effective range unchanged (V2-003 rig defaults)');
+            tc.verifyFalse(any(isfield(c0.mount, {'max_range_m','min_range_m'})), 'mount carries geometry only');
+            s0 = mgv2.sensors.sampleLidar(flat, c0, tc.Ms, p, 1);
+            tc.verifyEqual([s0.min_range_m s0.max_range_m], [0.3 100], 'reported = applied');
+            ok0 = s0.valid_ray_mask | s0.ray_invalid_code == 1;   % 1 = configured 1% per-ray SENSOR_DROPOUT
+            tc.verifyTrue(all(ok0) && any(s0.ray_invalid_code == 0), 'nominal: every ray valid except random dropout');
+            c = c0; c.valid_range_m = [0.3 6];                         % max range via valid_range_m
+            s = mgv2.sensors.sampleLidar(flat, c, tc.Ms, p, 1); h = s.T_world_sensor(3,4); el = s.scan_elevation_deg(:);
+            far = h ./ sind(el) > 6;
+            tc.verifyTrue(all(s.ray_invalid_code(far) == 2) && all(s.valid_ray_mask(~far) | s.ray_invalid_code(~far) == 1), 'rays beyond 6 m OUT_OF_RANGE, the rest valid (or dropout)');
+            tc.verifyEqual(s.max_range_m, 6); tc.verifyTrue(all(s.ranges_m(s.valid_ray_mask) < 6 + 5 * c.params.range_sigma_m + c.params.range_bias_m));
+            c = c0; c.valid_range_m = [6 100];                         % min range (blind zone) via valid_range_m
+            s = mgv2.sensors.sampleLidar(flat, c, tc.Ms, p, 1); near = h ./ sind(el) < 6;
+            tc.verifyTrue(all(s.ray_invalid_code(near) == 2) && all(s.valid_ray_mask(~near) | s.ray_invalid_code(~near) == 1), 'rays closer than 6 m invalid (blind zone)');
+            tc.verifyEqual(s.min_range_m, 6); tc.verifyTrue(all(isnan(s.ranges_m(near))));
+            both = ~near & s.valid_ray_mask & s0.valid_ray_mask;
+            tc.verifyEqual(s.ranges_m(both), s0.ranges_m(both), 'same seq: unaffected rays bit-identical (range limits do not touch RNG)');
+            mgv2.sensors.validateSample(s);
+        end
+
+        function v25_rangeConfigRejected(tc)                              % review fix 1: no contradictory sources
+            c = tc.Cfg; c.LIDAR_TERRAIN.mount.max_range_m = 4;
+            tc.verifyError(@() mgv2.sensors.validateSensorConfig(c), 'mgv2:InvalidSensorConfig');
+            bad = {[0 100], [5 5], [-1 10], [0.3 NaN], [0.3 Inf], 7};
+            for i = 1:numel(bad)
+                c = tc.Cfg; c.LIDAR_TERRAIN.valid_range_m = bad{i};
+                tc.verifyError(@() mgv2.sensors.validateSensorConfig(c), 'mgv2:InvalidSensorConfig', sprintf('LiDAR range case %d', i));
+            end
+            c = tc.Cfg; c.THERMAL_LWIR.dropout_model.intervals_s = [12 10];
+            tc.verifyError(@() mgv2.sensors.validateSensorConfig(c), 'mgv2:InvalidSensorConfig', 'reversed dropout interval');
+            c = tc.Cfg; c.RGB_NADIR.params = 3; tc.verifyError(@() mgv2.sensors.validateSensorConfig(c), 'mgv2:InvalidSensorConfig');
+            ok = tc.Cfg; ok.LIDAR_TERRAIN.valid_range_m = [1 50];
+            a = mgv2.sensors.SensorSystem(tc.W, tc.Mc, SensorConfig=ok);
+            tc.verifyEqual(a.Config.LIDAR_TERRAIN.valid_range_m, [1 50], 'documented override workflow still accepted');
+        end
+
+        function v26_parameterFingerprint(tc)                             % review fix 2
+            c0 = tc.Cfg; ids = tc.Sys.Order; fp = @(c) arrayfun(@(id) c.(id).parameter_hash, ids);
+            h0 = fp(c0);
+            tc.verifyTrue(all(startsWith(h0, "fnv1a64:")) && numel(unique(h0)) == 4);
+            tc.verifyEqual(fp(mgv2.sensors.defaultSensorConfig()), h0, 'identical configurations -> identical fingerprints');
+            tc.verifyEqual(fp(mgv2.sensors.validateSensorConfig(c0)), h0, 're-validation is idempotent');
+            c = c0; c.THERMAL_LWIR.dropout_model.intervals_s = [38 42]; v = mgv2.sensors.validateSensorConfig(c);
+            tc.verifyNotEqual(v.THERMAL_LWIR.parameter_hash, c0.THERMAL_LWIR.parameter_hash, 'thermal dropout change -> thermal fingerprint changes');
+            tc.verifyEqual(fp(v) == h0, ids ~= "THERMAL_LWIR", 'other channels unchanged');
+            tc.verifyEqual(c.THERMAL_LWIR.parameter_hash, c0.THERMAL_LWIR.parameter_hash, 'precondition: user-edited struct still holds the stale hash');
+            c = c0; c.LIDAR_TERRAIN.valid_range_m = [0.3 60]; v = mgv2.sensors.validateSensorConfig(c);
+            tc.verifyEqual(fp(v) == h0, ids ~= "LIDAR_TERRAIN", 'LiDAR range change -> only the LiDAR fingerprint changes');
+            c = c0; c.RGB_NADIR.params.read_noise_dn = 1.5 + 1e-12; v = mgv2.sensors.validateSensorConfig(c);
+            tc.verifyNotEqual(v.RGB_NADIR.parameter_hash, h0(ids == "RGB_NADIR"), 'full precision: a 1e-12 change is detected');
+            c = c0; c.VIRTUAL_GNSS_INS.parameter_hash = "forged"; v = mgv2.sensors.validateSensorConfig(c);
+            tc.verifyEqual(v.VIRTUAL_GNSS_INS.parameter_hash, h0(ids == "VIRTUAL_GNSS_INS"), 'supplied hash replaced by the effective fingerprint');
+            r = c0.RGB_NADIR; r2 = orderfields(r, flip(fieldnames(r)));
+            tc.verifyEqual(mgv2.sensors.configFingerprint(r2), mgv2.sensors.configFingerprint(r), 'field order does not matter');
+            c = c0; c.THERMAL_LWIR.dropout_model.intervals_s = [38 42];
+            a = mgv2.sensors.SensorSystem(tc.W, tc.Mc, SensorConfig=c);
+            tc.verifyEqual(a.Config.THERMAL_LWIR.parameter_hash, mgv2.sensors.configFingerprint(a.Config.THERMAL_LWIR), ...
+                'accepted config hash matches its effective parameters');
+            tc.verifyEqual(a.Config.THERMAL_LWIR.dropout_model.intervals_s, [38 42]);
+        end
+
+        function v27_fingerprintDoesNotTouchSamples(tc)                   % schemas + RNG preserved
+            p = testV2005Sensors.pose(tc.T, 801); c = tc.Cfg; c2 = c; c2.THERMAL_LWIR.dropout_model.intervals_s = [500 501];
+            c2 = mgv2.sensors.validateSensorConfig(c2);
+            a = mgv2.sensors.sampleCamera(tc.Sc, c.THERMAL_LWIR, tc.Ms, p, 9); b = mgv2.sensors.sampleCamera(tc.Sc, c2.THERMAL_LWIR, tc.Ms, p, 9);
+            tc.verifyEqual(a.temperature_K, b.temperature_K, 'a config-only change outside the sample time leaves the sample bit-identical');
+            tc.verifyEqual(fieldnames(a), fieldnames(b)); mgv2.sensors.validateSample(b);
+            k = mgv2.sensors.contract(); tc.verifyFalse(any(contains(k.envelope, "hash")), 'envelope schema unchanged (fingerprint stays in config)');
+        end
+
+        function v28_missionStillSynchronised(tc)                         % regression after both fixes
+            tc.verifyEqual(tc.Sys.Config.LIDAR_TERRAIN.valid_range_m, [0.3 100]);
+            L = tc.Sys.Log; nT = tc.Eng.TickId;
+            for id = tc.Sys.Order
+                k = L.sensor_id == id;
+                tc.verifyEqual(double(L.tick_id(k))', 0:tc.Sys.Period.(id):nT, id + ": no missing/duplicated/invented samples");
+            end
+            tc.verifyEqual(numel(unique(L.frame_id)), height(L), 'unique frame ids');
+            s = tc.Sys.latest("LIDAR_TERRAIN"); tc.verifyEqual([s.min_range_m s.max_range_m], [0.3 100]);
         end
 
         function v23_performanceLogged(tc)                                % SC-29

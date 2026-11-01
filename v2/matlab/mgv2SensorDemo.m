@@ -69,7 +69,7 @@ last = struct(); pal = string(o.Palette);
     end
 sys.subscribe(@onSample);
 sys.attach(eng); eng.start();
-shots = sort(o.Shots(:))'; si = 1; tw = tic; late = 0; nScene = 0;
+shots = sort(o.Shots(:))'; si = 1; tw = tic; late = 0; nScene = 0; sceneMs = zeros(0, 1); wall60 = NaN; nShots = 0;
 if strlength(string(o.ShotDir)) > 0 && ~isfolder(o.ShotDir), mkdir(o.ShotDir); end
 while eng.TickId < o.MaxTicks
     if o.RealTime > 0
@@ -80,25 +80,32 @@ while eng.TickId < o.MaxTicks
     s = eng.snapshot();
     shotNow = si <= numel(shots) && s.t_s >= shots(si);
     if mod(s.tick_id, o.SceneEvery) == 0 || eng.isTerminal() || shotNow
-        r.update(s); nScene = nScene + 1;
+        tu = tic; r.update(s); nScene = nScene + 1;
         H.st.String = statusText(sys, s, last, toc(tw));
-        drawnow limitrate;
+        drawnow limitrate; sceneMs(end+1, 1) = 1e3 * toc(tu); %#ok<AGROW>
     end
+    if isnan(wall60) && s.t_s >= 60, wall60 = toc(tw); end
     if shotNow && strlength(string(o.ShotDir)) > 0
         drawnow; fn = fullfile(o.ShotDir, sprintf('V2-005-live-t%06.2f-tick%04d-%s.png', s.t_s, s.tick_id, s.phase));
-        exportapp(f, fn); fprintf('  screenshot %s\n', fn); si = si + 1;
+        exportapp(f, fn); fprintf('  screenshot %s\n', fn); si = si + 1; nShots = nShots + 1;
     end
 end
 wall = toc(tw); L = sys.Log;
+ss = sort(sceneMs);
 stats = struct('phase', eng.Phase, 'sim_s', eng.time(), 'wall_s', wall, 'sim_to_wall', eng.time() / wall, 'ticks', eng.TickId, ...
-    'late_ticks', late, 'scene_updates', nScene);
+    'late_ticks', late, 'scene_updates', nScene, 'scene_every', o.SceneEvery, 'screenshots', nShots, ...
+    'scene_update_median_ms', median(ss), 'scene_update_p95_ms', ss(max(1, ceil(0.95 * numel(ss)))), 'scene_update_max_ms', ss(end), ...
+    'scene_stalls_over_100ms', nnz(ss > 100), 'wall_at_60s_sim', wall60, ...
+    'invalid_samples', nnz(~sys.Log.valid), 'emitted_samples', height(sys.Log));
 for id = sys.Order
     g = sort(L.gen_ms(L.sensor_id == id)); k = L.sensor_id == id;
     stats.(char(id)) = struct('samples', nnz(k), 'valid', nnz(L.valid(k)), 'median_ms', median(g), 'p95_ms', g(max(1, ceil(0.95 * numel(g)))), 'max_ms', g(end));
     fprintf('  %-17s samples %4d valid %4d | generation median %6.1f ms p95 %6.1f max %6.1f\n', id, nnz(k), nnz(L.valid(k)), median(g), stats.(char(id)).p95_ms, g(end));
 end
-fprintf('result: %s | sim %.2f s, wall %.2f s (x%.3f) | ticks %d | ticks behind 1x schedule %d | scene updates %d\n', ...
-    stats.phase, stats.sim_s, stats.wall_s, stats.sim_to_wall, stats.ticks, late, nScene);
+fprintf(['result: %s | SceneEvery %d | sim %.2f s, wall %.2f s (x%.3f) | 60 s sim reached at %.2f s wall | ticks %d | ', ...
+    'scene updates %d (scheduled; NOT measured screen FPS): median %.1f ms p95 %.1f max %.1f, >100 ms %d | screenshots %d | samples %d, invalid %d\n'], ...
+    stats.phase, o.SceneEvery, stats.sim_s, stats.wall_s, stats.sim_to_wall, wall60, stats.ticks, nScene, stats.scene_update_median_ms, ...
+    stats.scene_update_p95_ms, stats.scene_update_max_ms, stats.scene_stalls_over_100ms, nShots, stats.emitted_samples, stats.invalid_samples);
 end
 
 function txt = statusText(sys, s, last, wall)
