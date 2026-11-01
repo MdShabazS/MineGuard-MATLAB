@@ -3,7 +3,7 @@ import {validateEnhancements, enhancementLabel} from "./enhancements.mjs";
 const RAW="https://raw.githubusercontent.com/"+REPO+"/main/";
 const API="https://api.github.com/repos/"+REPO;
 let latestRows=[],filter="ALL",loading=false;
-let v2Rows=[],v2Filter="ALL",v2WorkNotes=new Map();
+let v2Rows=[],v2Filter="ALL",v2WorkNotes=new Map(),v2SourceLabel="GitHub main";
 const el=id=>document.getElementById(id);
 function make(tag,cls,text) {
   const node=document.createElement(tag);
@@ -165,7 +165,8 @@ function showV2Tasks(rows) {
   }
   replace("v2TaskRows",entries);
 }
-function showV2Data(rows, sourceLabel="GitHub main") {
+function showV2Data(rows, sourceLabel=v2SourceLabel) {
+  v2SourceLabel=sourceLabel;
   const s=summarize(rows);
   v2Rows=rows;
   el("v2Percent").textContent=s.percentage+"%";
