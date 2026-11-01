@@ -3,8 +3,10 @@
   "tasks": {
     "V2-001": {
       "owner": "Shabaz",
-      "state": "TODO",
-      "evidence": null
+      "state": "IN_PROGRESS",
+      "evidence": null,
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-01"
     },
     "V2-002": {
       "owner": "Rahil",
