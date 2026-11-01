@@ -20,6 +20,13 @@ The academic **problem statement and four objectives are preserved verbatim** fr
 
 **Start here:** [Documentation index](docs/INDEX.md) → [Workflow](docs/WORKFLOW.md) → [Tasks](tasks/manifest.json). No MATLAB performance, training, detection success, or cross-platform compatibility is claimed until actual runs are recorded in GitHub.
 
+## MineGuard Advanced V2 — separate development phase
+
+- **Existing guide portal (same Render site):** [MineGuard Guide Observatory](https://mineguard-guide-portal.onrender.com/), with independent V2 tracking and a preserved 22/22 completed V1 archive after the portal continuation PR merges into `main`.
+- **V2 architecture, scope, two-person ownership and acceptance protocol:** [v2/README.md](v2/README.md).
+- **V2 task manifest and authoritative statuses:** [v2/tasks/manifest.json](v2/tasks/manifest.json) and [v2/tasks/status.json](v2/tasks/status.json). All V2 tasks initially TODO; no V2 implementation is falsely claimed as completed.
+- Local exploratory MATLAB UAV Toolbox 3-D flight is verified by user-reported Mac screenshots and completion output but is not yet committed V2 implementation or independently validated flight-control simulation.
+
 ## Project oversight
 - [Guide's Read-Only Progress Portal](portal/README.md): Render static site showing merged GitHub task status, blockers, owner progress, review activity and evidence.
 - [Rahil MATLAB Setup and ChatGPT Support](docs/RAHIL_SETUP_SUPPORT.md): first verify installed release/toolboxes, then install only eligible missing products and connect Claude Code.

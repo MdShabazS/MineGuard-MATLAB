@@ -2,6 +2,17 @@
 
 A guide-facing status portal sourced from the **authoritative GitHub `main` branch**. No logins, tokens, additional database or manual status entries. It shows accurate task completion, activity, blockers, owner progress, pull requests, CI summary, evidence links, final deadline and project limitations.
 
+## Advanced V2 continuation in the SAME portal
+
+The portal at **https://mineguard-guide-portal.onrender.com/** now has two distinct tracking phases after this change is merged into `main`:
+
+- **Advanced V2 (new top section):** `v2/tasks/manifest.json` + `v2/tasks/status.json` on `main`; ten new proposed tasks, with task ownership, dependency-aware READY/BLOCKED states, active work and evidence.
+- **V1 research baseline (existing archive):** the original `tasks/manifest.json` + `tasks/status.json` on `main`; keeps all **22/22 V1 DONE** statuses and evidence unchanged.
+
+V2 is deliberately shown separately so V1's 100% does **not** imply V2 is completed. V2 begins 0/10 DONE and must not be populated from an unmerged `v2/` branch. Until the PR merges and Render redeploys, the public guide continues to see only the previous version. No second portal, Render service, API credentials or database is created.
+
+V2 governance: `node scripts/v2-gate.mjs validate` and `node scripts/v2-gate.mjs ready`; the existing Task Gate workflow also audits V2 PR transitions. The local, manually run 3-D feasibility demo is not represented as completed V2 engineering evidence. See [V2 scope and workflow](../v2/README.md).
+
 ## Data integrity and refresh
 - Work journal: `tasks/updates.json` on `main` holds AI-updated concise daily progress, next steps and evidence links. Initial log is empty; no fake entry is displayed.\n- Source of truth: `tasks/manifest.json` + `tasks/status.json` from `main`. A task is BLOCKED when TODO and one or more explicit dependencies are not DONE.
 - The portal never invents task completion. If the foundation PR is not merged, the page prominently displays **task status unavailable** and links to PR #1.

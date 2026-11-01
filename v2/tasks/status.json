@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "tasks": {
+    "V2-001": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-002": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-003": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-004": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-005": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-006": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-007": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-008": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-009": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-010": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    }
+  }
+}
