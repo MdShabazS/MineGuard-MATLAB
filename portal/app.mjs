@@ -2,7 +2,7 @@ import {REPO, BASE, buildTaskRows, summarize, fileUrl, githubLink, safeDate, fin
 const RAW="https://raw.githubusercontent.com/"+REPO+"/main/";
 const API="https://api.github.com/repos/"+REPO;
 let latestRows=[],filter="ALL",loading=false;
-let v2Rows=[],v2Filter="ALL";
+let v2Rows=[],v2Filter="ALL",v2WorkNotes=new Map();
 const el=id=>document.getElementById(id);
 function make(tag,cls,text) {
   const node=document.createElement(tag);
@@ -103,7 +103,13 @@ function showChecks(data) {
 
 function showUpdates(data) {
   const entries=Array.isArray(data?.updates)?data.updates:[];
-  const sorted=[...entries].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8);
+  const notes=new Map();
+  for(const entry of [...entries].reverse()){
+    if(/^V2-\d{3}$/.test(entry.task) && !notes.has(entry.task))notes.set(entry.task,entry);
+  }
+  v2WorkNotes=notes;
+  if(v2Rows.length)showV2Data(v2Rows);
+  const sorted=[...entries].map((entry,index)=>({...entry,index})).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")) || b.index-a.index).slice(0,8);
   replace("updates",sorted.length?sorted.map(entry=>{
     const card=make("div","feed-item");
     card.append(make("div","feed-meta",safeDate(entry.date)+" · "+(entry.owner||"Unknown")+" · "+(entry.task||"Task not recorded")));
@@ -111,6 +117,8 @@ function showUpdates(data) {
     if(entry.next)card.append(make("div","subtext","Next: "+entry.next));
     const url=fileUrl(entry.evidence);
     if(url)card.append(nodeLink("Evidence ↗",url));
+    const pr=githubLink(entry.pr_url);
+    if(pr)card.append(nodeLink("Review PR",pr));
     return card;
   }):[make("p","muted","No verified work-journal entries yet. The AI agents will commit evidence-backed updates when tasks progress.")]);
 }
@@ -129,6 +137,14 @@ function showV2Tasks(rows) {
   const entries=filtered.map(task=>{
     const tr=make("tr"),info=make("td"),state=make("td"),detail=make("td");
     info.append(make("div","task-name",task.id+" · "+task.title),make("div","task-kind",task.kind));
+    const workNote=v2WorkNotes.get(task.id);
+    const reported=workNote && ["READY","IN_PROGRESS"].includes(task.displayState);
+    if(reported){
+      info.append(make("div","subtext","Active contribution reported · not a DONE task"));
+      detail.append(make("div","subtext",workNote.summary));
+      const pr=githubLink(workNote.pr_url);
+      if(pr)detail.append(nodeLink("Review contribution PR",pr));
+    }
     state.append(statusNode(task.displayState));
     if(task.displayState==="BLOCKED")detail.append(make("span","warning","Waiting: "+task.unfinished.join(", ")));
     else if(task.displayState==="DONE" && task.evidence){
@@ -136,7 +152,11 @@ function showV2Tasks(rows) {
       detail.append(url?nodeLink("View evidence ↗",url):make("span","muted","Invalid evidence link"));
     }else if(task.displayState==="IN_PROGRESS")detail.append(make("span","muted","Active · "+(task.startedOn||"date not recorded")));
     else detail.append(make("span","muted",task.dependencies.length?"Prerequisites complete":"No prerequisites"));
-    tr.append(info,make("td","owner-cell",task.owner),state,detail);return tr;
+    const owner=make("td","owner-cell",task.owner);
+    if(reported && workNote.owner && workNote.owner!==task.owner){
+      owner.append(make("div","subtext","MATLAB contributor: "+workNote.owner));
+    }
+    tr.append(info,owner,state,detail);return tr;
   });
   if(!entries.length){
     const tr=make("tr"),td=make("td","muted","No V2 tasks match this filter");
@@ -157,7 +177,19 @@ function showV2Data(rows) {
   const now=[];
   if(active.length)now.push(...active.map(taskSnippet));
   else now.push(make("p","muted","No V2 task is currently IN_PROGRESS on GitHub main."));
-  if(ready.length){now.push(make("div","below-heading","Ready to start"));now.push(...ready.slice(0,4).map(taskSnippet));}
+  const reported=rows.filter(t=>["READY","IN_PROGRESS"].includes(t.displayState) && v2WorkNotes.has(t.id));
+  if(reported.length){
+    now.push(make("div","below-heading","Parallel MATLAB development (reported, not merged)"));
+    for(const task of reported){
+      const note=v2WorkNotes.get(task.id),item=make("div","task-snippet");
+      item.append(make("strong","",task.id+" · "+note.owner+" · MATLAB development"));
+      item.append(make("p","subtext",note.summary));
+      const pr=githubLink(note.pr_url);
+      if(pr)item.append(nodeLink("View active contribution PR",pr));
+      now.push(item);
+    }
+  }
+  if(ready.length){now.push(make("div","below-heading","Officially READY on GitHub main"));now.push(...ready.slice(0,4).map(taskSnippet));}
   replace("v2Current",now);
   replace("v2Owners",s.owners.map(o=>{
     const item=make("div","owner-card"),top=make("div","owner-top");
