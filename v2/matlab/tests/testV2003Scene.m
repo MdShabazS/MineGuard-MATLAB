@@ -32,6 +32,10 @@ classdef testV2003Scene < matlab.unittest.TestCase
         function q = pct(x, p)
             x = sort(x(:)); q = x(max(1, min(numel(x), round(p / 100 * numel(x)))));
         end
+        function P = centreHit(world, c, pose)
+            T = mgv2.scene.sensorPose(pose, c); [O, D] = mgv2.scene.pixelRays(c, T, [c.cx c.cy]);
+            P = mgv2.scene.intersectTerrain(world, O, D);
+        end
         function Pw = aircraftWorldVertices(pose)
             parts = mgv2.scene.quadrotorModel(); V = vertcat(parts.V);
             Pw = V * mgv2.frames.quatToRotm(pose.orientation_quat)' + pose.position_enu_m;
@@ -186,19 +190,24 @@ classdef testV2003Scene < matlab.unittest.TestCase
 
         function s11_sensorMountingTransforms(tc)
             rig = mgv2.scene.sensorRig();
-            tc.verifyEqual([rig.id], ["rgb_nadir","thermal_nadir","lidar_nadir"]);
+            tc.verifyEqual([rig.sensor_id], ["RGB_NADIR","THERMAL_LWIR","LIDAR_TERRAIN"], 'V2-004 controlled sensor_id values');
             for s = rig
-                Rb = s.T_body_sensor(1:3,1:3);
+                Rb = s.rotation_sensor_to_body;
                 tc.verifyEqual(Rb' * Rb, eye(3), 'AbsTol', 1e-12); tc.verifyEqual(det(Rb), 1, 'AbsTol', 1e-12);
                 tc.verifyEqual(Rb(:,3)', [0 0 -1], 'optical axis = body down');
-                tc.verifyEqual(s.status, "PROVISIONAL (pending V2-004)");
+                tc.verifyEqual(s.T_body_sensor, [Rb s.translation_body_m(:); 0 0 0 1]);
+                tc.verifyEqual([s.contract s.config_origin], ["mg-v2-sensors/1.0" "ASSUMED"]);
             end
+            tc.verifyEqual([rig(1).width_px rig(1).height_px rig(1).hfov_deg], [320 240 70], 'V2-004 RGB default target');
+            tc.verifyEqual([rig(2).width_px rig(2).height_px rig(2).hfov_deg], [160 120 45], 'V2-004 thermal default target');
+            tc.verifyEqual(rig(3).max_range_m, 100, 'V2-004 LiDAR max range');
+            tc.verifyEqual(rig(1).K, [rig(1).fx 0 160.5; 0 rig(1).fx 120.5; 0 0 1]); tc.verifyEqual(rig(1).distortion, zeros(1, 5));
             level = testV2003Scene.fixture([10 20 30], deg2rad(40), 0, 0);
             T_ws = mgv2.scene.sensorPose(level, rig(1));
             tc.verifyEqual(T_ws(1:3,3)', [0 0 -1], 'AbsTol', 1e-12, 'level flight: camera looks straight down in ENU');
             f = mgv2.frames.quatToRotm(level.orientation_quat) * [1 0 0]';
             tc.verifyEqual(-T_ws(1:3,2), f, 'AbsTol', 1e-12, 'image up (-y_cam) = aircraft forward');
-            tc.verifyEqual(T_ws(1:3,4)', [10 20 30] + (mgv2.frames.quatToRotm(level.orientation_quat) * rig(1).T_body_sensor(1:3,4))', 'AbsTol', 1e-12);
+            tc.verifyEqual(T_ws(1:3,4)', [10 20 30] + (mgv2.frames.quatToRotm(level.orientation_quat) * rig(1).translation_body_m')', 'AbsTol', 1e-12);
         end
 
         function s12_landmarkProjectionClosedLoop(tc)
@@ -211,7 +220,7 @@ classdef testV2003Scene < matlab.unittest.TestCase
                     T_ws = mgv2.scene.sensorPose(poses{i}, c);
                     [uv, ~, in] = mgv2.scene.projectToImage(c, T_ws, Pl); tc.assertTrue(in, 'landmark in image');
                     [O, D] = mgv2.scene.pixelRays(c, T_ws, uv); [Pg, hit] = mgv2.scene.intersectTerrain(w, O, D);
-                    tc.verifyTrue(hit); tc.verifyLessThan(norm(Pg - Pl), 0.01, sprintf('%s back-projection within 1 cm (got %.4f m)', c.id, norm(Pg - Pl)));
+                    tc.verifyTrue(hit); tc.verifyLessThan(norm(Pg - Pl), 0.01, sprintf('%s back-projection within 1 cm (got %.4f m; V2-004 SC-07 allows 0.5 m)', c.sensor_id, norm(Pg - Pl)));
                     [corners, ok] = mgv2.scene.cameraFootprint(w, c, T_ws); tc.verifyTrue(ok);
                     tc.verifyTrue(inpolygon(Pl(1), Pl(2), corners(:,1), corners(:,2)), 'landmark inside the ground footprint');
                 end
@@ -310,6 +319,55 @@ classdef testV2003Scene < matlab.unittest.TestCase
             tc.verifyEqual(r.Handles.aircraft.Matrix, M, 'rejected poses leave the scene unchanged');
             good.phase = "RETURN_HOME"; r.update(good);
             tc.verifySubstring(char(r.Handles.hud.String), 'RETURN\_HOME', 'phase underscore escaped for the TeX HUD');
+        end
+
+        function s20_v2004AnalyticalFixtures(tc)
+            % V2-004 verification matrix section C, fixtures 2 and 5 (analytical expected values)
+            rig = mgv2.scene.sensorRig(); c = rig(1);
+            tc.verifyEqual(c.fx, 228.50, 'AbsTol', 0.005, 'C5: W=320, FOVh=70 deg -> fx = 160/tan(35 deg) = 228.50 px');
+            tc.verifyEqual(c.cx, 160.5, 'C5: principal point 160.5 with 1-based pixel centres');
+            flat = mgv2.scene.buildWorld(mgv2.scene.defaultSceneConfig('relief_m', 0, 'slope', [0 0], 'n_rocks', 0, 'n_bushes', 0));
+            tc.verifyEqual(max(abs(flat.Z(:))), 0, 'AbsTol', 1e-12, 'flat U = 0 world');
+            T_ws = [[0 -1 0]', [-1 0 0]', [0 0 -1]', [10; 20; 5]; 0 0 0 1];   % optical axis exactly world [0 0 -1]
+            [O, D] = mgv2.scene.pixelRays(c, T_ws, [c.cx c.cy]);
+            [P, hit, rng] = mgv2.scene.intersectTerrain(flat, O, D);
+            tc.verifyTrue(hit); tc.verifyEqual(P, [10 20 0], 'AbsTol', 1e-9, 'C2: central ray hits [10,20,0]');
+            tc.verifyEqual(rng, 5, 'AbsTol', 1e-9, 'C2: slant range exactly 5 m');
+        end
+
+        function s21_nadirFootprintUnderYawAndBank(tc)
+            % V2-004 SC-06: nadir optical transform; rotated yaw/bank changes the footprint as expected
+            w = mgv2.scene.buildWorld(mgv2.scene.defaultSceneConfig('relief_m', 0, 'slope', [0 0], 'n_rocks', 0, 'n_bushes', 0));
+            rig = mgv2.scene.sensorRig(); c = rig(1); p0 = [5 -5 20];
+            lvl = testV2003Scene.fixture(p0, 0, 0, 0); Pc = testV2003Scene.centreHit(w, c, lvl);
+            off = (mgv2.frames.quatToRotm(lvl.orientation_quat) * c.translation_body_m')';
+            tc.verifyEqual(Pc(1:2), p0(1:2) + off(1:2), 'AbsTol', 1e-9, 'level: centre ray hits directly below the camera');
+            [C0, ok0] = mgv2.scene.cameraFootprint(w, c, mgv2.scene.sensorPose(lvl, c)); tc.assertTrue(ok0);
+            yw = deg2rad(37); rot = testV2003Scene.fixture(p0, yw, 0, 0);
+            [C1, ok1] = mgv2.scene.cameraFootprint(w, c, mgv2.scene.sensorPose(rot, c)); tc.assertTrue(ok1);
+            Rz = [cos(yw) -sin(yw); sin(yw) cos(yw)];
+            tc.verifyEqual(C1(:,1:2) - p0(1:2), (C0(:,1:2) - p0(1:2)) * Rz', 'AbsTol', 1e-6, 'yaw rotates the footprint about the aircraft');
+            bank = testV2003Scene.fixture(p0, 0, 0, deg2rad(10));   % roll: right wing down 10 deg
+            % right wing down => the aircraft's top tilts right and its BELLY (nadir camera) points LEFT, so the
+            % footprint moves toward the raised (left) wing: +y body = north at yaw 0
+            Pb = testV2003Scene.centreHit(w, c, bank); left = [0 1];
+            shift = Pb(1:2) - Pc(1:2);
+            tc.verifyGreaterThan(shift * left', 3, 'right-wing-down bank moves the nadir footprint toward the raised left wing');
+            tc.verifyEqual(norm(shift), 20 * tand(10), 'RelTol', 0.02, 'shift = AGL * tan(bank)');
+        end
+
+        function s22_rigidTransformRoundTrip(tc)
+            % V2-004 SC-16: sensor/body/world round trip with nonzero translation and asymmetric angles
+            rig = mgv2.scene.sensorRig(); s = RandStream('mt19937ar', 'Seed', 22);
+            for k = 1:50
+                pose = testV2003Scene.fixture(100 * (rand(s, 1, 3) - 0.5), deg2rad(173 * rand(s) - 80), deg2rad(30 * rand(s) - 12), deg2rad(40 * rand(s) - 17));
+                c = rig(1 + mod(k, 3)); Tws = mgv2.scene.sensorPose(pose, c); ps = 5 * (rand(s, 1, 3) - [0.5 0.2 0.7]);
+                pw = (Tws * [ps 1]')';
+                pwRef = (mgv2.frames.quatToRotm(pose.orientation_quat) * (c.rotation_sensor_to_body * ps' + c.translation_body_m') + pose.position_enu_m')';
+                tc.verifyLessThan(norm(pw(1:3) - pwRef), 1e-8, 'p_world = R_wb (R_bs p_s + t_b) + p_w');
+                back = (Tws \ pw')';
+                tc.verifyLessThan(norm(back(1:3) - ps), 1e-8, 'round trip within 1e-8 m');
+            end
         end
     end
 end
