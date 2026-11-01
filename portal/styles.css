@@ -29,16 +29,25 @@
 .enhancements-panel{border-color:#33646a;background:linear-gradient(148deg,#142430,#101b2a 56%,#10232e)}
 .roadmap-intro{color:#a8bed0;font-size:12px;line-height:1.6;margin:9px 0 0;max-width:740px}
 .roadmap-source{font-size:11px;color:#96b6c5;margin:-4px 0 16px;line-height:1.5}
-.enhancement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.enhancement-grid{display:flex;flex-direction:column;gap:20px}
+.enhancement-group{min-width:0}
+.enhancement-group-heading{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid #355467;padding-bottom:8px}
+.enhancement-group-heading h4{font-size:15px;color:#dff5f6;margin:0;font-weight:730}
+.enhancement-count{font-size:11px;color:#9ccad2}
+.enhancement-group-subtitle{font-size:11px;line-height:1.55;color:#93b1bf;margin:7px 0 12px}
+.enhancement-group-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.roadmap-breakdown{font-size:12px;line-height:1.65;color:#d9eaf3;border:1px solid #355467;border-radius:8px;background:#122b36;padding:9px 12px;margin:0 0 17px}
 .enhancement-card{border:1px solid #315065;border-radius:10px;background:#142436;padding:16px;display:flex;flex-direction:column;gap:9px;min-width:0}
 .enhancement-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .enhancement-state{font-size:10px;font-weight:700;line-height:1.35;color:#bcd6e1;background:#263a48;border:1px solid #3c6171;border-radius:14px;padding:5px 9px}
 .enhancement-state.active-unmerged{color:#90d9f9;background:#1b3b4a;border-color:#335a73}
 .enhancement-state.draft-unverified,.enhancement-state.local-unpublished{color:#edd59a;background:#3b3327;border-color:#5c513d}
 .enhancement-state.blocked{color:#d4a8a8;background:#342c35;border-color:#554454}
+.enhancement-state.tested-blocked{color:#f1d29c;background:#453521;border-color:#725637}
+.enhancement-state.merged-in-branch{color:#a9e0d0;background:#20403c;border-color:#3f6860}
 .enhancement-title{font-size:14px;font-weight:720;line-height:1.35;margin:0;color:#e5f0f9}
 .enhancement-owner{font-size:11px;color:#8babc0;margin:0}
 .enhancement-detail{font-size:12px;color:#d0e1ee;line-height:1.55;margin:0}
 .enhancement-dependency{font-size:11px;color:#d9b982;line-height:1.5;margin:0}
 .enhancement-card .tiny-link{margin-top:auto;padding-top:2px}
-@media(max-width:750px){.enhancement-grid{grid-template-columns:1fr}}
+@media(max-width:750px){.enhancement-group-grid{grid-template-columns:1fr}}
