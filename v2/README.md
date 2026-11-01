@@ -31,6 +31,17 @@ A published architecture is not a completed MATLAB V2 simulation. Follow the sep
 
 Human team members own tasks. AI tools are assistants, not execution evidence.
 
+## V2-004 — Synthetic sensor and evaluation design
+
+Shabaz's V2-004 documentation freezes the **planned** sensor interfaces and independent scientific checks. It does **not** mean RGB, LWIR thermal or LiDAR streams are working yet:
+
+- [Virtual sensor contracts](docs/V2_004_SENSOR_CONTRACTS.md): shared time/pose, ENU/body/camera transforms, true numeric apparent-temperature Kelvin raster, scene-based RGB, LiDAR ranges and virtual GNSS/INS; sample provenance, invalidity and strict truth firewall.
+- [Synthetic research and evaluation protocol](docs/V2_004_EVALUATION_PROTOCOL.md): new grouped train/validation/fresh-held-out-test splits, negative controls, quantitative metrics and explicit non-clearance limitations.
+- [Sensor verification matrix](docs/V2_004_VERIFICATION_MATRIX.md): SC-01 through SC-30 planned future implementation tests, including geometry, clock, dropout, calibration limitations and data leakage.
+- [V2-004 documentation and research evidence](evidence/V2-004.md): official MathWorks, thermal measurement, peer-reviewed and mine-action references; no false MATLAB runtime claim.
+
+These contracts become **authoritative only after reviewed merge into main**. V2-005 depends on V2-002, V2-003 and V2-004 all DONE. Shabaz/ChatGPT owns the design; Rahil/Claude Code owns actual virtual sensor code and execution evidence.
+
 ## Independent V2 task plan
 
 - V2-001: architecture and acceptance freeze (Shabaz)
