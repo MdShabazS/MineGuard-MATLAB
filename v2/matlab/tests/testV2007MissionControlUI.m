@@ -455,6 +455,8 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             tc.assertWarningVisible(app);
             tc.verifyEqual(string(app.Panels.events.StatusLabel.Text), "DETECTOR NOT CONNECTED");
             tc.verifyEqual(height(app.Session.Sensors.Log), 3080, 'same sample count as the Stage 1 mission');
+            h = app.Panels.lidar.Points; ax = app.Panels.lidar.Axes; k = isfinite(h.XData);
+            tc.verifyGreaterThan(max(h.XData(k)) - min(h.XData(k)), 0.2 * diff(ax.XLim), 'the landing scan must stay legible, not shrink to a dot');
         end
 
         function adapterSeamRejectsBadRecords(tc)
