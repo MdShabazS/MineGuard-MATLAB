@@ -205,22 +205,48 @@ function showV2Data(rows) {
 /** Enhancement roadmap is editorial planning data, never official V2 completion. */
 function showEnhancements(data) {
   const rows=validateEnhancements(data);
-  const cards=rows.map(item=>{
-    const card=make("article","enhancement-card");
-    const header=make("div","enhancement-head");
-    const meta=make("span","mini-id",item.id+" · "+item.priority);
-    const state=make("span","enhancement-state "+item.status.toLowerCase().replaceAll("_","-"),enhancementLabel(item.status));
-    header.append(meta,state);
-    card.append(header,make("h4","enhancement-title",item.title));
-    card.append(make("p","enhancement-owner",item.owner));
-    card.append(make("p","enhancement-detail",item.detail));
-    card.append(make("p","enhancement-dependency","Next gate: "+item.dependency));
-    const url=githubLink(item.url);
-    if(url)card.append(nodeLink(item.urlLabel,url,"tiny-link"));
-    return card;
-  });
-  replace("roadmapItems",cards);
-  el("roadmapStatus").textContent=rows.length+" enhancement entries · source: GitHub main · updated "+String(data.asOf || "date unavailable")+" · not included in official V2 progress";
+  const groups=[
+    {id:"engineering",title:"Engineering enhancements",subtitle:"Detector integration, satellite prototype, mission UI, 3-D realism and scientific safeguards"},
+    {id:"campus",title:"BITM / Ballari college presentation",subtitle:"Recognizable geographic context, offline backup and synthetic-to-satellite visualization"}
+  ];
+  const sections=groups.map(group=>{
+    const items=rows.filter(item=>item.category===group.id);
+    if(!items.length)return null;
+    const section=make("section","enhancement-group");
+    const heading=make("div","enhancement-group-heading");
+    heading.append(make("h4","",group.title),
+      make("span","enhancement-count",items.length+" planned/tracked entries"));
+    section.append(heading,make("p","enhancement-group-subtitle",group.subtitle));
+    const grid=make("div","enhancement-group-grid");
+    for(const item of items){
+      const card=make("article","enhancement-card");
+      const header=make("div","enhancement-head");
+      const meta=make("span","mini-id",item.id+" · "+item.priority);
+      const state=make("span","enhancement-state "+item.status.toLowerCase().replaceAll("_","-"),enhancementLabel(item.status));
+      header.append(meta,state);
+      card.append(header,make("h5","enhancement-title",item.title));
+      card.append(make("p","enhancement-owner","Owner: "+item.owner));
+      card.append(make("p","enhancement-detail",item.detail));
+      card.append(make("p","enhancement-dependency","Next gate: "+item.dependency));
+      const url=githubLink(item.url);
+      if(url)card.append(nodeLink(item.urlLabel,url,"tiny-link"));
+      grid.append(card);
+    }
+    section.append(grid);
+    return section;
+  }).filter(Boolean);
+  replace("roadmapItems",sections);
+  const counts=Object.fromEntries(["ACTIVE_UNMERGED","TESTED_BLOCKED","MERGED_IN_BRANCH","PLANNED","BLOCKED"]
+    .map(key=>[key,rows.filter(item=>item.status===key).length]));
+  el("roadmapBreakdown").textContent=
+    counts.ACTIVE_UNMERGED+" in development · "+
+    counts.TESTED_BLOCKED+" tested, blocked · "+
+    counts.MERGED_IN_BRANCH+" merged in a feature branch · "+
+    counts.PLANNED+" planned · "+counts.BLOCKED+" blocked";
+  el("roadmapStatus").textContent=rows.length+
+    " tracked enhancements · "+rows.filter(x=>x.category==="campus").length+
+    " campus-specific · source: GitHub main · reviewed "+String(data.asOf || "date unavailable")+
+    " · status notes are curated, not live PR automation · excluded from official V2 progress";
 }
 async function refreshEnhancements() {
   try {
@@ -228,6 +254,7 @@ async function refreshEnhancements() {
     showEnhancements(data);
   }catch(error) {
     replace("roadmapItems",[make("p","muted","Enhancement roadmap unavailable from GitHub main. Review the repository roadmap file; no completion is assumed.")]);
+    el("roadmapBreakdown").textContent="Enhancement status unavailable";
     el("roadmapStatus").textContent="Enhancement roadmap unavailable: "+error.message;
   }
 }
