@@ -42,7 +42,7 @@ Use **scene family/terrain tile + environmental scenario + source capture group*
 
 ### 3.2 Positive/negative and nuisance balance
 
-Define ground-truth targets *privately* only in scenario generator/evaluator. New case groups:
+Define ground-truth targets *privately* in a restricted TargetTruth structure, accessible **only** to the scenario forward simulator and the independent evaluator; never expose TargetTruth itself or any derived labels to the public detector, navigation, UI or exports. New case groups:
 - target-present with **visible surface perturbation** (document that this can be perceptible from RGB);
 - target-present but **no visible/thermal surface perturbation**, to show model blind spots (buried, occluded, low contrast);
 - target-absent visually confusing rocks, metal-colored scrap, wet patches, vegetation, shadow and exposed soil;
