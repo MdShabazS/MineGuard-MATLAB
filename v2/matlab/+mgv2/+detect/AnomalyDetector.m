@@ -224,7 +224,9 @@ classdef AnomalyDetector < handle
             x = sum(w .* det.Ob.x(j)) / sw; y = sum(w .* det.Ob.y(j)) / sw;
             scat = sum(w .* ((det.Ob.x(j) - x) .^ 2 + (det.Ob.y(j) - y) .^ 2)) / sw / 2;
             det.Tr.x(k) = x; det.Tr.y(k) = y; det.Tr.z(k) = sum(w .* det.Ob.z(j)) / sw;
-            det.Tr.sigma(k) = sqrt(1 / sw + scat);        % per-axis 1-sigma: model term + observed spread (conservative)
+            % per-axis 1-sigma: averaged random term + observed spread + the ASSUMED pose term, which is systematic
+            % and therefore NOT reduced by averaging many sightings
+            det.Tr.sigma(k) = sqrt(1 / sw + scat + det.Config.association.pose_sigma_m ^ 2);
         end
 
         function mergeNear(det, k)

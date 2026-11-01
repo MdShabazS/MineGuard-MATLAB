@@ -249,7 +249,7 @@ classdef testV2006Detection < matlab.unittest.TestCase
             tc.verifyTrue(all(m.traversed_count(C == 2) > 0));
             cv = m.coverage;
             tc.verifyEqual(cv.valid_any_camera_pct + cv.invalid_only_pct + cv.traversed_only_pct + cv.unobserved_pct, 100, 'AbsTol', 1e-9);
-            tc.verifyTrue(contains(cv.meaning, "NOT detector accuracy") && contains(cv.meaning, "NOT hazard-free"));
+            tc.verifyTrue(contains(cv.meaning, "NOT detector accuracy") && contains(cv.meaning, "NOT a land-release"));
             full = tc.Demo.map.snapshot().coverage;
             tc.verifyEqual(full.valid_any_camera_pct, 100);                     % 100 % evidence coverage ...
             R = mgv2.eval.evaluateEvents(tc.Demo.events, tc.DemoTruth);
@@ -371,7 +371,7 @@ classdef testV2006Detection < matlab.unittest.TestCase
             x.temperature_K(:) = 290; tc.verifyEmpty(mgv2.detect.frameCandidates(x, w, cfg).u_px);   % flat frame: no forced hotspot
             r = tc.firstValid(tc.Demo.sensors, "RGB_NADIR"); y = r; y.image_rgb_uint8(:) = 120; y.valid_pixel_mask(:) = true;
             y.image_rgb_uint8 = y.image_rgb_uint8 + uint8(randi(RandStream('mrg32k3a', 'Seed', 1), [0 4], size(y.image_rgb_uint8)));
-            d = hypot(U * 2 - 200, V * 2 - 120) <= 14; d = imresizeNearest(d, [240 320]);
+            [U2, V2] = meshgrid(1:320, 1:240); d = hypot(U2 - 200, V2 - 120) <= 4;   % 0.5 m disc (box-mean halo stays below threshold)
             for c = 1:3, ch = y.image_rgb_uint8(:,:,c); ch(d) = 40; y.image_rgb_uint8(:,:,c) = ch; end
             Cr = mgv2.detect.frameCandidates(y, w, cfg);
             tc.assertGreaterThanOrEqual(numel(Cr.u_px), 1); tc.verifyEqual(Cr.polarity(1), -1); tc.verifyGreaterThan(Cr.strength(1), cfg.rgb.z_threshold);
@@ -385,10 +385,6 @@ classdef testV2006Detection < matlab.unittest.TestCase
             end
             tc.verifyTrue(hasRock);
             fix = E(hypot([E.x_est_m] - 5.5, [E.y_est_m] - 3.25) < 1); tc.verifyEqual(fix.features.lidar_context, "FLAT");   % flat paint: LiDAR blind
-            function B = imresizeNearest(A, sz)
-                ri = min(max(round(((1:sz(1)) - 0.5) * size(A, 1) / sz(1) + 0.5), 1), size(A, 1));
-                ci = min(max(round(((1:sz(2)) - 0.5) * size(A, 2) / sz(2) + 0.5), 1), size(A, 2)); B = A(ri, ci);
-            end
         end
 
         function d23_missingModalityPolicy(tc)                               % single-channel labelling, policy switch

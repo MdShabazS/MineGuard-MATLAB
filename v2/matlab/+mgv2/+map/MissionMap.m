@@ -36,7 +36,7 @@ classdef MissionMap < handle
     properties (Constant)
         StateNames = ["UNOBSERVED","PLANNED","TRAVERSED","INVALID_OBSERVED","VALID_OBSERVED"]
         StateLabels = ["Unobserved (no plan, no data)", "Planned, no sensor data yet", "Traversed, no camera frame", ...
-            "Invalid / missing sensor data", "Valid sensor observation (evidence only; NOT a hazard-free statement)"]
+            "Invalid / missing sensor data", "Valid sensor observation (evidence acquisition only; says nothing about hazards)"]
     end
 
     methods
@@ -126,7 +126,7 @@ classdef MissionMap < handle
                 'valid_rgb_pct', pct(m.ValidRGB > 0), 'valid_thermal_pct', pct(m.ValidThermal > 0), ...
                 'valid_lidar_pct', pct(m.LidarReturns > 0), 'valid_any_camera_pct', pct(C == 4), ...
                 'invalid_only_pct', pct(C == 3), 'traversed_only_pct', pct(C == 2), 'unobserved_pct', pct(C == 1), ...
-                'meaning', "percent of planned cells with valid synthetic sensor evidence; NOT detector accuracy, NOT hazard-free area");
+                'meaning', "percent of planned cells with valid synthetic sensor evidence; NOT detector accuracy, NOT a land-release statement");
             ev = struct('event_id', {}, 'x_est_m', {}, 'y_est_m', {}, 'uncertainty_m', {}, 'model_score', {}, 'detection_basis', {}, 'status', {});
             for k = 1:numel(m.Events)
                 e = m.Events(k);
