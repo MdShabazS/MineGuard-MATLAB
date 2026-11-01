@@ -288,6 +288,14 @@
       "summary": "Addressed PR #62 review: LiDAR effective range now comes only from SensorConfig.valid_range_m (applied and reported; mount range fields rejected), and every channel's parameter_hash is a deterministic FNV-1a-64 fingerprint recomputed from its effective parameters at validation. 5 new regression tests; clean clone eac6440: 72/72 MATLAB tests pass. Benchmark at 1x pacing with contract sensor rates: SceneEvery 2 x0.936, 4 x0.999, 8 x1.000 (no screenshots), 4 with screenshots x0.950; all meet the 0.8x presentation requirement. Mac NOT TESTED.",
       "next": "Shabaz re-review of PR #62 and Mac acceptance; separate V2-005 DONE PR after merge",
       "evidence": "v2/evidence/V2-005.md"
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Rahil",
+      "task": "V2-006",
+      "summary": "Implemented an interpretable suspected-anomaly detector, observation-derived mapping with uncertainty, an offline mission map, an evidence inspector and a pre-registered evaluation. Software tests: 97/97 MATLAB tests pass in a clean clone at 1a02f03 on Windows R2026b. Scientific result is NEGATIVE: with thresholds frozen on TRAIN, the one VALIDATION run found 0 of 4 hidden targets in G07 for every mode (fused FP 45) and gave false alarms in target-free G08 (fused 32, RGB-only 4, thermal-only 1). Original TRAIN and VAL CSVs hold pre-fix uncertainty values; the pose-term fix came after VAL. Held-out TEST NOT RUN. Mac NOT TESTED.",
+      "next": "Shabaz review of the implementation PR and Mac run (commands in the evidence); separate V2-006 DONE PR after merge",
+      "evidence": "v2/evidence/V2-006.md"
     }
   ]
 }
