@@ -1,7 +1,9 @@
-function sc = buildSensorScene(world, env)
+function sc = buildSensorScene(world, env, features)
 %BUILDSENSORSCENE Precomputed, PUBLIC visibility scene + private-to-forward-model radiometry (V2-005).
 %   sc = mgv2.sensors.buildSensorScene(world)
 %   sc = mgv2.sensors.buildSensorScene(world, env)      env from mgv2.sensors.defaultEnvironment
+%   sc = mgv2.sensors.buildSensorScene(world, env, features)   PRIVATE flat surface features (V2-006 hook,
+%        mgv2.sensors.validateSurfaceFeatures); default none = V2-005 output, bit-identical
 %   Built once per mission from the shared V2-003 world (same triangles as the 3-D view):
 %     objects  - per object: world-frame vertices/faces, face normals, bounding sphere, kind, RGB
 %     terrain  - world reference (heightAt/albedoAt), global max height, max slope (ray-cast bound)
@@ -9,6 +11,7 @@ function sc = buildSensorScene(world, env)
 %   V2-004 §2.3: the radiometric part (temperatures, emissivities) is SceneRadiometryConfig-like data used
 %   only inside the forward models; public samples never contain it. The world has no hidden targets.
 if nargin < 2, env = mgv2.sensors.defaultEnvironment(); end
+if nargin < 3, features = []; end
 O = world.objects; n = height(O);
 obj = struct('kind', cell(n, 1), 'V', [], 'F', [], 'N', [], 'c', [], 'r', [], 'rgb', [], 'T_K', [], 'eps', []);
 for k = 1:n
@@ -37,6 +40,7 @@ for di = -1:1, for dj = -1:1, dil = max(dil, pad((2:end-1) + di, (2:end-1) + dj)
 slopeTiles = struct('x0', world.x(1), 'y0', world.y(1), 'size_m', ts * (world.x(2) - world.x(1)), 'max_slope', dil);
 sc = struct('schema', "mg-v2-sensorscene/0.1", 'world', world, 'objects', obj, ...
     'obj_c', reshape([obj.c], 3, [])', 'obj_r', [obj.r]', ...
-    'zmax', max(world.Z(:)), 'zmin', min(world.Z(:)), 'max_slope', max(sl(:)), 'slope_tiles', slopeTiles, 'env', env);
+    'zmax', max(world.Z(:)), 'zmin', min(world.Z(:)), 'max_slope', max(sl(:)), 'slope_tiles', slopeTiles, 'env', env, ...
+    'features', mgv2.sensors.validateSurfaceFeatures(features));
 sc = mgv2.sensors.thermalSurface(sc);
 end
