@@ -14,7 +14,7 @@ SIMULATION ONLY. A "refresh" is a scene update plus a synchronous `drawnow`. **D
 | V2-007 UI (35 + 3 new) | 38 | 38 | 0 | 0 |
 | **Total** | **110** | **110** | **0** | **0** |
 
-The baseline passed 107/107 before any change. Four existing tests changed because frames moved to odd ticks: the tick-sequence, pause-tick and sensor-label expectations in `sceneRunsFasterThanSensorPanels` and `pauseButtonFreezesAndResumeContinues`.
+The baseline passed 107/107 before any change. Two existing tests had their expectations updated because frames moved to odd ticks: `sceneRunsFasterThanSensorPanels` (tick sequence, sensor labels) and `pauseButtonFreezesAndResumeContinues` (pause tick).
 
 ## What profiling found
 
@@ -70,7 +70,7 @@ Frames now fall on odd ticks, so sampling ticks carry no drawing. Images and map
 
 All 12 runs ended COMPLETE with 2799 ticks and 3080 samples, and every sample's checksum, time, tick and frame id equals a headless run. Refresh and label changes do not touch simulated data. Images and map draw one tick (0.05 s) after their sample, so the map's UAV marker can be about 0.3 m ahead of the RGB footprint at survey speed. Each label shows its sample's own time.
 
-## Responsiveness (2 runs each, one-tick-resolution harness timer at 5 Hz during a 1x run)
+## Responsiveness (2 runs each, harness timer at 5 Hz during a 1x run)
 
 | Measure | A | B |
 |---|---|---|
