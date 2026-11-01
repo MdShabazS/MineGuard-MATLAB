@@ -29,15 +29,39 @@ async function get(url, expectedContentType) {
 }
 const result = {site:site.href, checked_at_utc:new Date().toISOString(), checks:{}};
 const html = await get(site.href, "text/html");
-if (!html.includes("MineGuard") || !html.includes('src="./app.mjs"') || !html.includes('href="./styles.css"')) {
+if (!html.includes("MineGuard") || !/src="\.\/app\.mjs(?:\?[^"]*)?"/.test(html) || !/href="\.\/styles\.css(?:\?[^"]*)?"/.test(html)) {
   fail("Root HTML is not the MineGuard Guide Observatory");
 }
 result.checks.homepage = "PASS";
+if (!html.includes('id="enhancementsTitle"') || !html.includes('id="roadmapBreakdown"') || !html.includes('id="roadmapItems"')) {
+  fail("DEPLOYMENT OUTDATED: live HTML is missing the 11-task ENH roadmap. Confirm Render is linked to main and deploy the latest commit.");
+}
+const buildMatch=html.match(/<meta name="mineguard-portal-build" content="([^"]+)"/);
+if (!buildMatch) fail("DEPLOYMENT OUTDATED: live portal has no build marker (2026-11-02 status fix missing).");
+result.portal_build=buildMatch[1];
+result.checks.enhancement_html="PASS";
 const app = await get(new URL("./app.mjs",site), "javascript");
-if (!app.includes('raw.githubusercontent.com/') || !app.includes('tasks/status.json') || !app.includes('tasks/manifest.json')) {
+if (!app.includes('raw.githubusercontent.com/') || !app.includes('tasks/status.json') || !app.includes('tasks/manifest.json') || !app.includes('getPublishedWithFallback') || !app.includes('refreshEnhancements')) {
   fail("Served app.mjs does not contain GitHub main-branch task data fetch");
 }
 result.checks.client_code = "PASS";
+const snapshotText=await get(new URL("./data/enhancements.json",site),"json");
+const enh=JSON.parse(snapshotText);
+const ids=enh.items?.map(item=>item.id)||[];
+if (ids.length!==11 || new Set(ids).size!==11 || !ids.includes("ENH-008") || !ids.includes("ENH-011")) {
+  fail("Deployed enhancement snapshot is missing valid ENH-001..011 records.");
+}
+result.checks.enhancement_snapshot="PASS";
+result.enhancement_count=ids.length;
+const [v2ManifestText,v2StatusText]=await Promise.all([
+  get(new URL("./data/v2-manifest.json",site),"json"),
+  get(new URL("./data/v2-status.json",site),"json")
+]);
+const v2Manifest=JSON.parse(v2ManifestText),v2Status=JSON.parse(v2StatusText);
+const v2Ids=Object.keys(v2Manifest.tasks||{});
+if(v2Ids.length!==10 || v2Ids.some(id=>!v2Status.tasks?.[id])) fail("Invalid deployed V2 status snapshot.");
+result.checks.v2_status_snapshot="PASS";
+result.v2_snapshot_done_count=v2Ids.filter(id=>v2Status.tasks[id].state==="DONE").length;
 const core = await get(new URL("./core.mjs",site), "javascript");
 if (!core.includes(expectedRepo) || !core.includes("buildTaskRows")) fail("Served core.mjs does not match expected repository");
 result.checks.core_module = "PASS";
@@ -52,10 +76,10 @@ const manifest=JSON.parse(manifestText), status=JSON.parse(statusText);
 if (manifest.schemaVersion!==1 || status.schemaVersion!==1 || !manifest.tasks || !status.tasks) {
   fail("GitHub main task schemas are not valid");
 }
-const ids=Object.keys(manifest.tasks);
-if (!ids.length || ids.some(id=>!(id in status.tasks))) fail("GitHub main task ID sets do not match");
+const idsV1=Object.keys(manifest.tasks);
+if (!idsV1.length || idsV1.some(id=>!(id in status.tasks))) fail("GitHub main task ID sets do not match");
 result.checks.github_main_task_data="PASS";
-result.github_main_task_count=ids.length;
-result.github_main_done_count=ids.filter(id=>status.tasks[id].state==="DONE").length;
-result.notes="Remote HTTP and public GitHub raw-data smoke check only. MG-021 still requires independent browser/mobile and live-sync testing. Does not verify that JavaScript executed in a browser.";
+result.github_main_task_count=idsV1.length;
+result.github_main_done_count=idsV1.filter(id=>status.tasks[id].state==="DONE").length;
+result.notes="Remote HTTP/source smoke check for a DEPLOYED 11-entry roadmap and 10-task V2 snapshot, not a browser rendering test or proof the remote GitHub live fetch succeeds. The bundled status can lag GitHub main and must be labelled as a snapshot. MG-021 browser QA remains separate.";
 process.stdout.write(JSON.stringify(result,null,2)+"\n");
