@@ -248,6 +248,14 @@
       "summary": "Prepared the MineGuard Advanced V2 architecture freeze, three substantive specification/acceptance documents and source-backed DOC evidence, including live 3-D mission, RGB/thermal/LiDAR views, first-class map and strict synthetic limitations; proposed TODO-to-IN_PROGRESS transition on review branch.",
       "next": "Review the V2-001 start/specification pull request; after merge, prepare the separate IN_PROGRESS-to-DONE completion PR. Then release V2-002/V2-003 to Rahil and V2-004 to Shabaz.",
       "evidence": "v2/evidence/V2-001.md"
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Rahil",
+      "task": "V2-002",
+      "summary": "Implemented the V2 live mission engine in MATLAB: deterministic fixed-step clock (dt 0.05 s, no wall clock), convex lawnmower survey planner, continuous transit/survey/return route, bounded point-mass flight model with thrust lag, drag, seeded wind and differential-flatness attitude, terrain following, explicit CLEARANCE/TERRAIN_COLLISION/GEOFENCE/TIMEOUT/PREFLIGHT/ABORT outcomes, pause/resume/reset and per-tick PoseSample snapshots. 22/22 MATLAB tests pass in a clean clone on Windows R2026b; macOS NOT TESTED.",
+      "next": "Shabaz review of start PR and implementation PR; Mac run of the listed commands; separate V2-002 DONE PR after merge",
+      "evidence": "v2/evidence/V2-002.md"
     }
   ]
 }
