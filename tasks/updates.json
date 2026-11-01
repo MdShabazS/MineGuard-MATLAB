@@ -288,6 +288,22 @@
       "summary": "Addressed PR #62 review: LiDAR effective range now comes only from SensorConfig.valid_range_m (applied and reported; mount range fields rejected), and every channel's parameter_hash is a deterministic FNV-1a-64 fingerprint recomputed from its effective parameters at validation. 5 new regression tests; clean clone eac6440: 72/72 MATLAB tests pass. Benchmark at 1x pacing with contract sensor rates: SceneEvery 2 x0.936, 4 x0.999, 8 x1.000 (no screenshots), 4 with screenshots x0.950; all meet the 0.8x presentation requirement. Mac NOT TESTED.",
       "next": "Shabaz re-review of PR #62 and Mac acceptance; separate V2-005 DONE PR after merge",
       "evidence": "v2/evidence/V2-005.md"
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Rahil",
+      "task": "V2-006",
+      "summary": "Development reported in Rahil's local V2-006 worktree: detector, suspected-anomaly mapping and uncertainty analysis have five unpushed commits; 97/97 Windows MATLAB software tests were reported. TRAIN/VALIDATION detection performance is negative. Work is not yet merged or accepted.",
+      "next": "Correct V2 status-gate metadata, commit detailed evidence and regression log, push and open the implementation PR for Shabaz; preserve original negative evaluation and sealed TEST.",
+      "evidence": null
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Shabaz",
+      "task": "V2-007",
+      "summary": "Shabaz began Stage-1 MATLAB mission-control UI development using Claude Code on Mac in local feature/V2-007-ui-shabaz. MATLAB MCP/UAV Toolbox and UI feasibility checks passed; Stage-1 code, tests, integration and PR are not yet verified or merged. Rahil remains official V2-007 owner.",
+      "next": "Complete and test Stage-1 UI components on the separate branch; review the V2-006 public interfaces and hand off reviewed UI code to Rahil for governed V2-007 integration.",
+      "evidence": null
     }
   ]
 }
