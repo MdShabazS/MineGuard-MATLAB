@@ -61,7 +61,7 @@ try
     % Display a persistent, visible credit below the map. Never introspect or
     % manipulate undocumented BasemapDisplay internals.
     if opts.Basemap == "satellite"
-        providerText = ['World Imagery sources: Esri, DigitalGlobe, GeoEye, i-cubed, USDA FSA, USGS, AEX, ' ...
+        providerText = ['Powered by Esri | World Imagery sources: Esri, DigitalGlobe, GeoEye, i-cubed, USDA FSA, USGS, AEX, ' ...
             'Getmapping, Aerogrid, IGN, IGP, swisstopo and the GIS User Community.'];
         providerUrl = "https://support.esri.com/en-us/knowledge-base/what-is-the-correct-way-to-cite-an-arcgis-online-basema-000012040";
         providerLink = "Esri full imagery-source credits";
@@ -70,7 +70,7 @@ try
         providerUrl = "https://www.mathworks.com/help/matlab/ref/geobasemap.html";
         providerLink = "MathWorks basemap source information";
     else
-        providerText = 'Basemap provided by Esri; provider and geographic data-source attributions depend on map selection.';
+        providerText = 'Powered by Esri | geographic basemap. Specific providers and data-source attributions depend on map selection.';
         providerUrl = "https://www.mathworks.com/help/matlab/ref/geobasemap.html";
         providerLink = "Map provider and attribution details";
     end
