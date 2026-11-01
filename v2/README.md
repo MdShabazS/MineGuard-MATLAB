@@ -11,6 +11,17 @@ The aim is a high-fidelity, time-synchronized **MATLAB virtual mission** with a 
 - V1 is a reproducible synthetic offline 2-D mission replay, **22/22 legacy tasks DONE**; its frozen once-only TEST and PPO evidence remain unchanged.
 - The V1 weighted synthetic detector missed all four held-out positive cells: **TP 0, FP 26, TN 470, FN 4**. No operational mine detection, clearance, safety performance or validated buried-mine location is claimed. V2 anomaly alerts remain **SUSPECTED** and **synthetic**.
 
+## V2-001 finalized architecture and guide-acceptance documents
+
+The following source-controlled documents define the required V2 capabilities **before any build task begins**:
+
+- [System requirements and visual/mission scope](docs/V2_SYSTEM_REQUIREMENTS.md) — 3-D UAV flight, first-class mission map, scene-linked RGB camera, numeric thermal frame, terrain LiDAR, evidence inspector, stage separation and original academic objectives.
+- [Technical architecture and cross-team data contract](docs/V2_TECHNICAL_ARCHITECTURE.md) — common simulation clock, ENU/NED adapter, separate forward-model truth, simulator/GUI boundaries, sensor scheduling and failure handling.
+- [Guide demo acceptance matrix](docs/V2_DEMO_ACCEPTANCE_MATRIX.md) — 25 measurable acceptance tests, actual Mac execution evidence, science limitations and final-review gates.
+- [V2-001 documentation review evidence](evidence/V2-001.md) — verified user observations, authoritative research references and clearly unimplemented functions.
+
+A published architecture is not a completed MATLAB V2 simulation. Follow the separate TODO → IN_PROGRESS → DONE PR lifecycle for V2-001. Subsystems V2-002/V2-003/V2-004 remain blocked until its final DONE status merges to main.
+
 ## Two-member ownership
 
 | Member | Tool | Primary responsibility |
