@@ -1,0 +1,8 @@
+prefdir <temporary prefs folder>
+probe: MATLAB:webservices:HTTP503StatusCodeError
+1 proxy off: credit_source PINNED_2026_11_02; status Provider service did not answer when this window opened. Map may be blank or cached. After reconnecting, pan, zoom or reopen; offline, use the ENU mission map.; map std 4.8
+2 proxy on, same window untouched 15 s: status Provider service did not answer when this window opened. Map may be blank or cached. After reconnecting, pan, zoom or reopen; offline, use the ENU mission map.; map std 4.8
+3 proxy on, after pan in same window: status Provider service did not answer when this window opened. Map may be blank or cached. After reconnecting, pan, zoom or reopen; offline, use the ENU mission map.; map std 42.5
+4 proxy on, new window: credit_source LIVE_SERVICE; status Provider service answered when this window opened. Tiles load separately; blank areas mean tiles were not available.; map std 53.9
+figures 0
+DONE

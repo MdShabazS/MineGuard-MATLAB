@@ -11,7 +11,10 @@ function out = mgv2SatelliteMapPreview(opts)
 %   WARNING: Basemap is only GEOGRAPHIC CONTEXT, not drone-captured imagery.
 %   All route points are SIMULATED; this does not geolocate real mines, targets
 %   or the aircraft. Existing local ENU MapPanel is the offline primary map.
-%   Satellite tiles are served online by Esri; attribution must stay visible.
+%   Satellite tiles are served online by Esri; attribution stays visible in a footer outside the map.
+%   Online tiles have no failure signal: uncached areas are simply blank when offline. The footer reports
+%   whether the provider's service answered when the window opened, which does not prove tiles loaded.
+%   After a reconnect, tiles return on the next pan or zoom; the footer keeps describing the moment of opening.
 %   This standalone PREVIEW changes no mission engine, sensor or detector state.
 arguments
     opts.AnchorLLA (1,3) double = [NaN NaN NaN]
@@ -19,7 +22,7 @@ arguments
     opts.Basemap (1,1) string {mustBeMember(opts.Basemap, ["satellite","streets-light","topographic","darkwater"])} = "satellite"
     opts.Visible (1,1) string {mustBeMember(opts.Visible, ["on","off"])} = "on"
 end
-if any(~isfinite(opts.AnchorLLA)) || isequal(opts.AnchorLLA, [0 0 0])
+if any(~isfinite(opts.AnchorLLA)) || hypot(opts.AnchorLLA(1), opts.AnchorLLA(2)) < 0.01
     error('mgv2:MissingGeographicAnchor', ...
         ['An explicit WGS84 demo anchor [lat lon ellipsoidal_height] is required. ' ...
         'The mission config''s [0 0 0] origin is only a virtual placeholder.']);
@@ -36,11 +39,15 @@ geoRoute = mgv2.geo.enuToWgs84(to3(route.xy), opts.AnchorLLA);
 geoPoly = mgv2.geo.enuToWgs84(to3(polygon), opts.AnchorLLA);
 geoHome = mgv2.geo.enuToWgs84(to3(home), opts.AnchorLLA);
 % Validate inputs and perform all conversion BEFORE opening a figure.
+src = basemapSource(opts.Basemap);
 
 fig = uifigure('Name','MineGuard V2 - SIMULATED Satellite Route Preview', ...
     'Position',[100 100 1040 760], 'Visible','off','Color',[0.08 0.10 0.13]);
 try
-    g = uigridlayout(fig,[2 1], 'RowHeight',{52,'1x'}, 'ColumnWidth',{'1x'}, ...
+    % Fix the graphics theme before children are created. R2026b can otherwise
+    % render near-white geographic tick labels on this dark figure in light desktop mode.
+    theme(fig, "dark");
+    g = uigridlayout(fig,[3 1], 'RowHeight',{52,'1x',84}, 'ColumnWidth',{'1x'}, ...
         'Padding',[8 8 8 8], 'RowSpacing',6, 'BackgroundColor',[0.08 0.10 0.13]);
     warningText = ['SIMULATION ONLY | GEOGRAPHIC CONTEXT | NOT A REAL FLIGHT / NOT A HAZARD MAP' newline ...
         'Live satellite tiles require internet. Offline flight uses the existing synthetic ENU mission map.'];
@@ -51,7 +58,22 @@ try
     gx = geoaxes(g,'Basemap',char(opts.Basemap));
     gx.Layout.Row=2; gx.Layout.Column=1;
     hold(gx,'on');
-    % Map source attribution remains displayed by geographic axes.
+    % An explicit axes colour is required because the desktop's light theme
+    % can otherwise leave near-white frame labels on a light/white surface.
+    gx.AxisColor = [0.92 0.95 0.98];
+    % MathWorks: if the map's own attribution is not readable, show it elsewhere on the figure. It was not
+    % visible on Mac R2026b, so the credit always sits in this footer, outside the map and any zoom level.
+    cg = uigridlayout(g,[3 1], 'RowHeight',{'1x',18,18}, 'ColumnWidth',{'1x'}, ...
+        'Padding',[2 0 2 0], 'RowSpacing',0,'BackgroundColor',[0.08 0.10 0.13]);
+    cg.Layout.Row=3; cg.Layout.Column=1;
+    credits = uilabel(cg,'Text',src.credit,'WordWrap','on', ...
+        'FontSize',10,'FontColor',[0.94 0.96 0.98], 'VerticalAlignment','center');
+    credits.Layout.Row=1; credits.Layout.Column=1;
+    statusLabel = uilabel(cg,'Text',src.status,'FontSize',10,'FontColor',[1 0.82 0.45]);
+    statusLabel.Layout.Row=2; statusLabel.Layout.Column=1;
+    creditLink = uihyperlink(cg,'Text',src.link_text,'URL',src.url, ...
+        'FontSize',11,'FontColor',[0.46 0.86 1.00]);
+    creditLink.Layout.Row=3; creditLink.Layout.Column=1;
     hBoundary = geoplot(gx,geoPoly(:,1),geoPoly(:,2),'-', ...
         'Color',[1 0.77 0.12], 'LineWidth',2);
     hRoute = geoplot(gx,geoRoute(:,1),geoRoute(:,2),'--', ...
@@ -67,6 +89,8 @@ try
     geolimits(gx,[latmin-dLat latmax+dLat],[lonmin-dLon lonmax+dLon]);
     fig.Visible=char(opts.Visible);
     out = struct('figure',fig,'axes',gx,'warning_label',lbl, ...
+        'attribution_label',credits,'attribution_link',creditLink,'status_label',statusLabel, ...
+        'basemap_status',src.status,'credit_source',src.credit_source, ...
         'boundary_line',hBoundary,'route_line',hRoute,'home_marker',hHome, ...
         'anchor_lla',opts.AnchorLLA,'route_lla',geoRoute, ...
         'boundary_lla',geoPoly,'home_lla',geoHome,'basemap_requested',opts.Basemap, ...
@@ -74,5 +98,37 @@ try
 catch ME
     if isvalid(fig), delete(fig); end
     rethrow(ME);
+end
+end
+
+function src = basemapSource(basemap)
+%BASEMAPSOURCE Provider credit and connection status for a basemap.
+%   satellite: tiles come from Esri World Imagery, which publishes its current credit as copyrightText; show it when
+%   the service answers, otherwise the text pinned below, as read from that service on 2026-11-02.
+%   topographic, streets-light: their sources are not a documented single service, so name no list here; the map draws
+%   its own credit for these basemaps. darkwater is installed with MATLAB and needs no network.
+if basemap == "darkwater"
+    src = struct('credit', "Basemap: darkwater, created using Natural Earth and installed with MATLAB. A display backdrop, not imagery.", ...
+        'status', "Local basemap: no internet needed. Live satellite tiles are not available in this mode.", 'credit_source', "MATHWORKS_DOCUMENTATION", ...
+        'link_text', "MathWorks basemap source information", 'url', "https://www.mathworks.com/help/matlab/ref/geobasemap.html");
+    return
+end
+service = "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer";
+pinned = "Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community";
+live = "";
+try
+    info = webread(service + "?f=json", weboptions('Timeout', 3, 'ContentType', 'json'));
+    live = string(info.copyrightText);
+    status = "Provider service answered when this window opened. Tiles load separately; blank areas mean tiles were not available.";
+catch
+    status = "Provider service did not answer when this window opened. Map may be blank or cached. After reconnecting, pan, zoom or reopen; offline, use the ENU mission map.";
+end
+if basemap == "satellite"
+    if strlength(live) > 0, credit = live; creditSource = "LIVE_SERVICE"; else, credit = pinned; creditSource = "PINNED_2026_11_02"; end
+    src = struct('credit', "Powered by Esri | " + credit, 'status', status, 'credit_source', creditSource, ...
+        'link_text', "Esri service page and source credits", 'url', service);
+else
+    src = struct('credit', "Powered by Esri | Data sources for this basemap are credited on the map and vary by area and zoom.", 'status', status, ...
+        'credit_source', "MAP_NATIVE", 'link_text', "MathWorks basemap source information", 'url', "https://www.mathworks.com/help/matlab/ref/geobasemap.html");
 end
 end

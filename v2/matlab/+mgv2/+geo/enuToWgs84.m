@@ -8,7 +8,7 @@ function lla = enuToWgs84(enu_m, anchor_lla)
 %   Base MATLAB; no Mapping Toolbox requirement. ECEF translation + iterative
 %   WGS84 geodetic inversion, NOT a spherical flat-earth map projection.
 %   Supports only short, user-anchored research survey visualization (<10 km).
-%   Rejects the project's [0 0 0] placeholder origin, polar and dateline
+%   Rejects anchors at or near the project's [0 0 0] placeholder, polar and dateline
 %   cases. Coordinates are for simulated geographic CONTEXT only.
 %
 %   This code MUST NOT be connected to detector target truth or clearance claims.
@@ -16,7 +16,7 @@ arguments
     enu_m (:,3) double {mustBeFinite}
     anchor_lla (1,3) double {mustBeFinite}
 end
-if isequal(anchor_lla, [0 0 0])
+if hypot(anchor_lla(1), anchor_lla(2)) < 0.01      % about 1 km: tiny offsets from the placeholder are not an explicit anchor
     error('mgv2:MissingGeographicAnchor', ...
         'The [0 0 0] virtual origin is a placeholder. Supply an explicit demo anchor.');
 end
@@ -25,9 +25,9 @@ if abs(lat0) >= 80 || abs(lon0) >= 179 || h0 < -500 || h0 > 9000
     error('mgv2:UnsupportedGeographicAnchor', ...
         'Preview anchor must be within 80 deg latitude, 179 deg longitude and -500..9000 m ellipsoid height.');
 end
-if ~isempty(enu_m) && any(hypot(enu_m(:,1), enu_m(:,2)) > 10000)
+if ~isempty(enu_m) && any(hypot(enu_m(:,1), enu_m(:,2)) > 10000 | abs(enu_m(:,3)) > 10000)
     error('mgv2:GeographicExtentTooLarge', ...
-        'The optional preview is restricted to locations within 10 km of its WGS84 anchor.');
+        'The optional preview is restricted to horizontal and vertical offsets within 10 km of its WGS84 anchor.');
 end
 if isempty(enu_m)
     lla = zeros(0,3);

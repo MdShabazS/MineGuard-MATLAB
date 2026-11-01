@@ -1,0 +1,17 @@
+batch 0 desktop 0 26.2.0.3433840 (R2026b) Update 1
+network check: MATLAB:webservices:ConnectionRefused
+cached-giza satellite: opened 7.61 s; credit_source PINNED_2026_11_02
+  credit Powered by Esri | Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community
+  status Provider service did not answer when this window opened. Map may be blank or cached. After reconnecting, pan, zoom or reopen; offline, use the ENU mission map.
+cached-giza darkwater: opened 0.55 s; credit_source MATHWORKS_DOCUMENTATION
+  credit Basemap: darkwater, created using Natural Earth and installed with MATLAB. A display backdrop, not imagery.
+  status Local basemap: no internet needed. Live satellite tiles are not available in this mode.
+uncached-eiffel satellite: opened 1.49 s; credit_source PINNED_2026_11_02
+  credit Powered by Esri | Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community
+  status Provider service did not answer when this window opened. Map may be blank or cached. After reconnecting, pan, zoom or reopen; offline, use the ENU mission map.
+uncached-eiffel darkwater: opened 0.51 s; credit_source MATHWORKS_DOCUMENTATION
+  credit Basemap: darkwater, created using Natural Earth and installed with MATLAB. A display backdrop, not imagery.
+  status Local basemap: no internet needed. Live satellite tiles are not available in this mode.
+offline ENU app: tick 400 phase SURVEY, 22.2 s, geoaxes 0, map status: OFFLINE LOCAL ENU | t=20.00 s | E -18.0 N -25.0 m | anomaly overlays: DETECTOR NOT CONNECTED
+figures 0 timers 0
+DONE
