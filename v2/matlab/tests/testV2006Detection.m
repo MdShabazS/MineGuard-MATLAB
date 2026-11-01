@@ -371,7 +371,7 @@ classdef testV2006Detection < matlab.unittest.TestCase
             x.temperature_K(:) = 290; tc.verifyEmpty(mgv2.detect.frameCandidates(x, w, cfg).u_px);   % flat frame: no forced hotspot
             r = tc.firstValid(tc.Demo.sensors, "RGB_NADIR"); y = r; y.image_rgb_uint8(:) = 120; y.valid_pixel_mask(:) = true;
             y.image_rgb_uint8 = y.image_rgb_uint8 + uint8(randi(RandStream('mrg32k3a', 'Seed', 1), [0 4], size(y.image_rgb_uint8)));
-            [U2, V2] = meshgrid(1:320, 1:240); d = hypot(U2 - 200, V2 - 120) <= 4;   % 0.5 m disc (box-mean halo stays below threshold)
+            [U2, V2] = meshgrid(1:320, 1:240); d = hypot(U2 - 200, V2 - 120) <= 4;   % small disc, about 0.6 m; larger discs: see d26
             for c = 1:3, ch = y.image_rgb_uint8(:,:,c); ch(d) = 40; y.image_rgb_uint8(:,:,c) = ch; end
             Cr = mgv2.detect.frameCandidates(y, w, cfg);
             tc.assertGreaterThanOrEqual(numel(Cr.u_px), 1); tc.verifyEqual(Cr.polarity(1), -1); tc.verifyGreaterThan(Cr.strength(1), cfg.rgb.z_threshold);
@@ -425,6 +425,51 @@ classdef testV2006Detection < matlab.unittest.TestCase
             tc.verifyTrue(all(isfinite(L.proc_ms) & L.proc_ms >= 0));
             g = groupsummary(L, 'sensor_id', 'median', 'proc_ms');
             fprintf('    detector median ms: %s\n', strjoin(g.sensor_id + "=" + compose("%.1f", g.median_proc_ms), ", "));
+        end
+
+        function d26_knownLimitationRgbLargeObjectHalo(tc)                   % KNOWN LIMITATION of the frozen detector
+            % Documents a weakness, not a desired behaviour: a dark disc whose true diameter is INSIDE the size
+            % limit is dropped, because the box-mean halo inflates its component past max_diameter_m. If the
+            % detector is ever changed so that this fails, the limitation and the evidence must be revisited.
+            cfg = mgv2.detect.defaultDetectorConfig(); w = tc.Demo.world;
+            F = jsondecode(fileread(fullfile(fileparts(fileparts(fileparts(fileparts(mfilename('fullpath'))))), 'v2', 'data', 'V2-006', 'detector_frozen.json')));
+            tc.assertEqual(cfg.parameter_hash, string(F.detector_fingerprint));  % the frozen detector, untuned
+            r = tc.firstValid(tc.Demo.sensors, "RGB_NADIR"); y = r; y.valid_pixel_mask(:) = true;
+            base = uint8(120 * ones(240, 320, 3)) + uint8(randi(RandStream('mrg32k3a', 'Seed', 1), [0 4], [240 320 3]));
+            diag = cfg; diag.size.max_diameter_m = 20; diag = mgv2.detect.validateDetectorConfig(diag);   % measurement only
+            [U, V] = meshgrid(1:320, 1:240); rad = [4 5 6 8 12]; nKept = zeros(size(rad)); meas = nan(size(rad)); gsd = NaN;
+            for k = 1:numel(rad)
+                d = hypot(U - 200, V - 120) <= rad(k); I = base;
+                for c = 1:3, ch = I(:,:,c); ch(d) = 40; I(:,:,c) = ch; end
+                y.image_rgb_uint8 = I;
+                C = mgv2.detect.frameCandidates(y, w, cfg); nKept(k) = nnz(hypot(C.u_px - 200, C.v_px - 120) <= rad(k) + 2);
+                M = mgv2.detect.frameCandidates(y, w, diag); [~, j] = max(M.area_px); meas(k) = M.diameter_m(j); gsd = M.gsd_m(j);
+                fprintf('    r %2d px: true diameter %.2f m | measured %.2f m | frozen detector keeps %d\n', rad(k), 2 * rad(k) * gsd, meas(k), nKept(k));
+            end
+            tc.verifyLessThanOrEqual(2 * rad(4) * gsd, cfg.size.max_diameter_m);  % 8 px disc: true size is inside the limit
+            tc.verifyEqual(nKept(1:2), [1 1]);                                 % small discs are kept (see also d22)
+            tc.verifyEqual(nKept(3:end), [0 0 0]);                             % larger discs are lost
+            tc.verifyGreaterThan(meas(3:4), cfg.size.max_diameter_m);          % because the halo inflates the measurement
+            tc.verifyGreaterThan(meas(3:4), 1.5 * 2 * rad(3:4) * gsd);
+        end
+
+        function d27_inspectorSelectsPublicEventId(tc)                       % demo selection uses public output only
+            before = findall(groot, 'Type', 'figure'); c = onCleanup(@() delete(setdiff(findall(groot, 'Type', 'figure'), before)));
+            R = mgv2.eval.evaluateEvents(tc.Demo.events, tc.DemoTruth);         % evaluator step of this test only
+            fixtureId = tc.Demo.events(R.matched_event_index).event_id;
+            tc.verifyEqual(fixtureId, "SUS-00296");
+            a = mgv2DetectionDemo(Run=tc.Demo, EventId="SUS-00296");
+            tc.verifyEqual(a.inspector.event_id, fixtureId); tc.verifyEqual(a.selected_by, "explicit public event id");
+            tc.verifyTrue(all([a.inspector.items.verified_against_sensor_log]));
+            tc.verifyTrue(contains(a.label, "SYNTHETIC DEMO FIXTURE") && contains(a.label, "not VALIDATION evidence"));
+            b = mgv2DetectionDemo(Run=tc.Demo);
+            tc.verifyEqual(b.selected_event_id, "SUS-00113");                  % default: strongest fused score ...
+            tc.verifyNotEqual(b.selected_event_id, fixtureId);                 % ... which is a false alarm here
+            tc.verifyError(@() mgv2DetectionDemo(Run=tc.Demo, EventId="SUS-99999"), 'mgv2:EventNotFound');
+            d = tempname; mkdir(d); cd2 = onCleanup(@() rmdir(d, 's')); fclose(fopen(fullfile(d, 'map-demo-fixture.png'), 'w'));
+            tc.verifyError(@() mgv2DetectionDemo(Run=tc.Demo, ShotDir=d), 'mgv2:EvidenceExists');
+            code = regexprep(fileread(which('mgv2DetectionDemo')), '%[^\n]*', '');   % no truth path in the demo
+            tc.verifyEmpty(regexp(code, 'TargetTruth|buildScenario|evaluateEvents|demo_fixture', 'once'));
         end
     end
 end

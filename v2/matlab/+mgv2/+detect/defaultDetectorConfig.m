@@ -1,9 +1,12 @@
 function cfg = defaultDetectorConfig()
 %DEFAULTDETECTORCONFIG Frozen interpretable baseline detector configuration (mg-v2-detector/1.0).
 %   cfg = mgv2.detect.defaultDetectorConfig()
-%   Feature forms and per-frame thresholds were chosen from TRAIN groups only; the event score thresholds
-%   (event.score_threshold per score mode) were selected on TRAIN and frozen before VAL was evaluated
-%   (v2/data/V2-006/tuning_log.csv, v2/evidence/V2-006.md). TEST groups were never run.
+%   Provenance differs by parameter group (v2/evidence/V2-006.md):
+%     Frame-level feature definitions and thresholds (rgb, thermal, size, lidar, association, timing, evidence)
+%       were fixed before the formal TRAIN study. No auditable tuning-selection record exists for them.
+%     Event score thresholds (event.score_threshold per score mode) were selected on TRAIN by a logged sweep and
+%       frozen before VAL was evaluated (v2/data/V2-006/tuning_log.csv, train_selection.csv, detector_frozen.json).
+%   TEST groups were never run.
 %   rgb      local colour contrast: per-channel residual from a masked w x w box mean, scaled by the frame's
 %            robust (MAD) residual spread; z = RMS over channels. Candidate pixels z > z_threshold.
 %   thermal  local apparent-temperature deviation dT = T - masked box mean (K). Candidate |dT| > dT_threshold_K.
