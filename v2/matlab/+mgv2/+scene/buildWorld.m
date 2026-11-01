@@ -58,6 +58,11 @@ F = [a(:) b(:) c(:); a(:) c(:) e(:)];                     % same diagonal everyw
 world = struct('schema_version', cfg.schema_version, 'scene_id', cfg.scene_id, 'seed', cfg.seed, ...
     'config', cfg, 'x', x, 'y', y, 'Z', Z, 'V', V, 'F', F, 'vertex_rgb', C, ...
     'units', "metres, ENU (x east, y north, z up above virtual datum)");
+% observable surface material weights per vertex (V2-005 thermal forward model; no rand calls added)
+mw = [(1 - soil(:) - dryw(:)), soil(:), dryw(:), zeros(numel(X), 1)];
+mw(pad, :) = repmat([0 0 0 1], nnz(pad), 1);
+world.material_names = ["grass","soil","dry_grass","concrete_pad"];
+world.material_weights = max(mw, 0) ./ sum(max(mw, 0), 2);
 world.landmarks = cfg.landmarks;
 for k = 1:numel(world.landmarks)
     world.landmarks(k).z = mgv2.scene.heightAt(world, world.landmarks(k).xy(1), world.landmarks(k).xy(2));
