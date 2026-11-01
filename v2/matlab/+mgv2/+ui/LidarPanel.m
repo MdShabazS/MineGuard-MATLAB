@@ -5,6 +5,7 @@ classdef LidarPanel < mgv2.ui.PanelBase
     end
     properties (Access = private)
         LastFrame = ""
+        Held = []        % axes limits now in use: they change only when a scan no longer fits them
     end
     methods
         function present(obj, view)
@@ -20,9 +21,26 @@ classdef LidarPanel < mgv2.ui.PanelBase
             P = s.points_enu_m(s.valid_ray_mask, :);
             if isempty(P), P = [NaN NaN NaN]; end
             set(obj.Points, 'XData', P(:, 1), 'YData', P(:, 2), 'ZData', P(:, 3), 'CData', P(:, 3));
-            if s.valid, obj.Overlay.String = ''; else, obj.Overlay.String = "NO VALID RETURNS: " + s.invalid_reason; end
+            obj.holdLimits(P);
+            if s.valid, obj.setOverlay(obj.Overlay, ''); else, obj.setOverlay(obj.Overlay, "NO VALID RETURNS: " + s.invalid_reason); end
         end
-        function resetDisplay(obj), obj.LastFrame = ""; end
+        function resetDisplay(obj)
+            obj.LastFrame = ""; obj.Held = []; set(obj.Points, 'XData', NaN, 'YData', NaN, 'ZData', NaN, 'CData', NaN);
+        end
+    end
+    methods (Access = private)
+        function holdLimits(obj, P)
+            %HOLDLIMITS Snap limits to a coarse grid and keep them until a scan leaves them or fills under 35% of them,
+            %   which avoids the tick and layout pass that automatic limits trigger on every scan.
+            if any(~isfinite(P(:))), return; end
+            lo = min(P, [], 1); hi = max(P, [], 1); span = max(hi(1:2) - lo(1:2));
+            if ~isempty(obj.Held) && all(lo >= obj.Held(1, :)) && all(hi <= obj.Held(2, :)) ...
+                    && span >= 0.35 * max(obj.Held(2, 1:2) - obj.Held(1, 1:2)), return; end
+            if span >= 20, g = [10 10 2]; else, g = [2 2 1]; end
+            L = [floor(lo ./ g) .* g; ceil(hi ./ g) .* g];
+            L(2, :) = max(L(2, :), L(1, :) + g);
+            obj.Held = L; set(obj.Axes, 'XLim', L(:, 1)', 'YLim', L(:, 2)', 'ZLim', L(:, 3)');
+        end
     end
     methods (Access = protected)
         function buildBody(obj)

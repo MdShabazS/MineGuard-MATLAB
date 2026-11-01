@@ -9,6 +9,7 @@ classdef ThermalPanel < mgv2.ui.PanelBase
     end
     properties (Access = private)
         LastFrame = ""
+        AppliedPalette = ""
     end
     methods
         function present(obj, view)
@@ -16,16 +17,16 @@ classdef ThermalPanel < mgv2.ui.PanelBase
             obj.setStatus(st.text, st.state);
             if isempty(s) || s.frame_id == obj.LastFrame, return; end
             obj.LastFrame = s.frame_id;
-            set(obj.Axes, 'XLim', [0.5 s.image_width + 0.5], 'YLim', [0.5 s.image_height + 0.5]);
-            obj.Overlay.Position(1:2) = [s.image_width / 2, s.image_height / 2];
             if any(s.valid_pixel_mask(:))
                 [obj.Image.CData, cm, lim] = mgv2.sensors.thermalPalette(s.temperature_K, obj.Palette, [s.display_min_K s.display_max_K]);
-                colormap(obj.Axes, cm); clim(obj.Axes, lim); obj.Colorbar.Visible = 'on';
+                if obj.AppliedPalette ~= obj.Palette, colormap(obj.Axes, cm); obj.AppliedPalette = obj.Palette; end
+                if ~isequal(clim(obj.Axes), lim), clim(obj.Axes, lim); end
+                if ~obj.Colorbar.Visible, obj.Colorbar.Visible = 'on'; end
             else
                 obj.Image.CData = uint8(64 * ones(s.image_height, s.image_width, 3));   % no numbers invented
-                obj.Colorbar.Visible = 'off';                                         % no stale temperature scale
+                if obj.Colorbar.Visible, obj.Colorbar.Visible = 'off'; end            % no stale temperature scale
             end
-            if s.valid, obj.Overlay.String = ''; else, obj.Overlay.String = "NO VALID TEMPERATURE: " + s.invalid_reason; end
+            if s.valid, obj.setOverlay(obj.Overlay, ''); else, obj.setOverlay(obj.Overlay, "NO VALID TEMPERATURE: " + s.invalid_reason); end
         end
         function resetDisplay(obj), obj.LastFrame = ""; end
     end

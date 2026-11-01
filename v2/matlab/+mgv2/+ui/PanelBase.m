@@ -36,11 +36,18 @@ classdef (Abstract) PanelBase < matlab.ui.componentcontainer.ComponentContainer
         function update(~)
         end
 
-        function ax = makeAxes(obj)
-            %MAKEAXES uiaxes in the body cell, without per-axes tools (the panels are display surfaces).
-            ax = uiaxes(obj.Grid, 'Color', mgv2.ui.theme().panel);
-            ax.Layout.Row = 3; ax.Layout.Column = [1 2];
+        function ax = makeAxes(obj, parent)
+            %MAKEAXES uiaxes in the body cell (or in parent), without per-axes tools: panels are display surfaces.
+            if nargin < 2, parent = obj.Grid; end
+            ax = uiaxes(parent, 'Color', mgv2.ui.theme().panel);
+            if parent == obj.Grid, ax.Layout.Row = 3; ax.Layout.Column = [1 2]; end
             ax.Toolbar.Visible = 'off'; disableDefaultInteractivity(ax);
+        end
+
+        function setOverlay(~, h, txt)
+            %SETOVERLAY Change a text object only when its string differs: a text change costs a layout pass.
+            c = char(txt);
+            if ~strcmp(char(h.String), c), h.String = c; end
         end
 
         function setStatus(obj, text, state)

@@ -6,7 +6,9 @@ classdef MissionControlApp < handle
     %
     %   One run loop lives inside the START/RESUME command and returns on pause, end or close. There is
     %   no timer. drawnow in the loop lets the other buttons interrupt it; re-entry is refused. Panels receive
-    %   only MissionSession views, and refresh is decimated by RenderEvery so that engine ticks are never skipped.
+    %   only MissionSession views, and refresh is decimated so that engine ticks are never skipped: the 3-D scene every
+    %   SceneEvery ticks, everything else every RenderEvery ticks. Paced runs drop a scene-only refresh when behind the
+    %   clock, and the drop is counted. Scene refreshes are update plus a synchronous drawnow, not measured screen FPS.
 
     properties (Constant)
         CompactWidth = 1100
@@ -16,8 +18,12 @@ classdef MissionControlApp < handle
         Figure; Session; Panels = struct(); Banner; Controls; Outer; Content
         LayoutMode = ""
         Running = false
-        RealTime; RenderEvery; MaxTicksPerRun
+        RealTime; RenderEvery; SceneEvery; MaxTicksPerRun
         Perf
+        StartupSeconds = NaN      % constructor including the first paint, kept apart from run statistics
+    end
+    properties (Access = private)
+        LastStamp = NaN; PerfClock
     end
     properties
         AfterRefreshFcn = []      % test and instrumentation hook: fcn(app) after each refresh
@@ -29,6 +35,7 @@ classdef MissionControlApp < handle
                 opts.Visible (1,1) string = "on"
                 opts.RealTime (1,1) double {mustBeNonnegative} = 1
                 opts.RenderEvery (1,1) double {mustBeInteger, mustBePositive} = 4
+                opts.SceneEvery (1,1) double {mustBeInteger, mustBePositive} = 2
                 opts.MaxTicksPerRun (1,1) double {mustBePositive} = inf
                 opts.Position double = []
                 opts.Palette (1,1) string = "IRONBOW"
@@ -37,7 +44,8 @@ classdef MissionControlApp < handle
                 opts.Environment struct = mgv2.sensors.defaultEnvironment()
                 opts.AnomalySource (1,1) mgv2.ui.AnomalySource = mgv2.ui.NullAnomalySource()
             end
-            app.RealTime = opts.RealTime; app.RenderEvery = opts.RenderEvery; app.MaxTicksPerRun = opts.MaxTicksPerRun;
+            t0 = tic; app.PerfClock = tic;
+            app.RealTime = opts.RealTime; app.RenderEvery = opts.RenderEvery; app.SceneEvery = opts.SceneEvery; app.MaxTicksPerRun = opts.MaxTicksPerRun;
             app.Session = mgv2.ui.MissionSession(MissionConfig=opts.MissionConfig, SensorConfig=opts.SensorConfig, ...
                 Environment=opts.Environment, AnomalySource=opts.AnomalySource);
             app.clearPerf();
@@ -64,6 +72,7 @@ classdef MissionControlApp < handle
             app.refresh();
             app.Figure.Visible = opts.Visible;
             drawnow;
+            app.StartupSeconds = toc(t0); app.clearPerf();
         end
 
         function delete(app)
@@ -87,9 +96,9 @@ classdef MissionControlApp < handle
                     if ismember(s.state(), ["ACTIVE","PAUSED"]), s.abortRun(); app.safeRefresh(); end
                 case "reset"
                     if ~app.Running && s.state() ~= "READY"
-                        s.reset(); app.clearPerf();
+                        s.reset();
                         for f = string(fieldnames(app.Panels))', app.Panels.(f).resetDisplay(); end
-                        app.safeRefresh();
+                        app.safeRefresh(); app.clearPerf();
                     end
                 otherwise
                     error('mgv2:InvalidCommand', 'Unknown command "%s".', string(cmd));
@@ -99,8 +108,10 @@ classdef MissionControlApp < handle
         function p = perfSummary(app)
             %PERFSUMMARY Measured wall-clock figures of this run so far. Not an acceptance result.
             P = app.Perf; p = struct('ticks', P.ticks, 'sim_s', P.sim_s, 'wall_s', P.wall_s, 'sim_to_wall', P.sim_s / max(P.wall_s, eps), 'late_ticks', P.late, ...
-                'refreshes', numel(P.present_ms), 'stalls_over_100ms', nnz(P.frame_ms > 100));
-            m = struct('step_ms', P.step_ms, 'present_ms', P.present_ms, 'drawnow_ms', P.drawnow_ms, 'frame_ms', P.frame_ms, 'scene_ms', P.panel_ms.scene, 'map_ms', P.panel_ms.map, ...
+                'refreshes', numel(P.present_ms), 'stalls_over_100ms', nnz(P.frame_ms > 100), ...
+                'skipped_scene', P.skipped, 'max_behind_s', P.max_behind, 'refresh_rate', numel(P.present_ms) / max(P.wall_s, eps), ...
+                'gaps_over_100ms', nnz(P.gap_ms > 100), 'gaps_over_250ms', nnz(P.gap_ms > 250), 'gaps_over_1s', nnz(P.gap_ms > 1000));
+            m = struct('step_ms', P.step_ms, 'present_ms', P.present_ms, 'drawnow_ms', P.drawnow_ms, 'frame_ms', P.frame_ms, 'gap_ms', P.gap_ms, 'scene_ms', P.panel_ms.scene, 'map_ms', P.panel_ms.map, ...
                 'rgb_ms', P.panel_ms.rgb, 'thermal_ms', P.panel_ms.thermal, 'lidar_ms', P.panel_ms.lidar, 'telemetry_ms', P.panel_ms.telemetry, 'events_ms', P.panel_ms.events);
             for f = string(fieldnames(m))'
                 v = sort(m.(f));
@@ -115,13 +126,14 @@ classdef MissionControlApp < handle
         function runLoop(app)
             %RUNLOOP Advance the engine until paused, terminal, the per-run budget, or window close.
             app.Running = true; guard = onCleanup(@() app.endRun()); %#ok<NASGU>
-            s = app.Session; ticks = 0; base = s.Engine.time(); tw = tic; simBefore = app.Perf.sim_s; wallBefore = app.Perf.wall_s;
+            app.LastStamp = NaN; s = app.Session; ticks = 0; base = s.Engine.time(); tw = tic; simBefore = app.Perf.sim_s; wallBefore = app.Perf.wall_s;
             while ticks < app.MaxTicksPerRun
                 if app.RealTime > 0
                     lag = (s.Engine.time() - base) / app.RealTime - toc(tw);
                     if lag > 0, pause(lag); if ~isvalid(app), return; end
                     elseif lag < -0.05, app.Perf.late = app.Perf.late + 1;
                     end
+                    app.Perf.max_behind = max(app.Perf.max_behind, -lag);
                 end
                 t0 = tic; advanced = s.step();
                 if ~advanced, break; end
@@ -129,6 +141,12 @@ classdef MissionControlApp < handle
                 app.Perf.sim_s = simBefore + s.Engine.time() - base; app.Perf.wall_s = wallBefore + toc(tw);
                 if mod(s.Engine.TickId, app.RenderEvery) == 0 || s.Engine.isTerminal()
                     app.refresh(); if ~isvalid(app), return; end
+                elseif mod(s.Engine.TickId, app.SceneEvery) == 0
+                    if app.RealTime > 0 && (s.Engine.time() - base) / app.RealTime - toc(tw) < -0.05
+                        app.Perf.skipped = app.Perf.skipped + 1;     % the clock has priority over an optional frame
+                    else
+                        app.refreshScene(); if ~isvalid(app), return; end
+                    end
                 end
             end
             app.Running = false;
@@ -153,15 +171,29 @@ classdef MissionControlApp < handle
                 t0 = tic; app.Panels.(f).present(v); app.Perf.panel_ms.(f)(end+1, 1) = 1e3 * toc(t0);
             end
             app.Controls.present(v, app.Running);
+            app.finishRefresh(tf);
+        end
+
+        function refreshScene(app)
+            %REFRESHSCENE 3-D scene only, between full refreshes.
+            tf = tic; p = app.Session.pose();
+            t0 = tic; app.Panels.scene.presentPose(p); app.Perf.panel_ms.scene(end+1, 1) = 1e3 * toc(t0);
+            app.finishRefresh(tf);
+        end
+
+        function finishRefresh(app, tf)
             app.Perf.present_ms(end+1, 1) = 1e3 * toc(tf);
             t0 = tic; drawnow; if ~isvalid(app), return; end
             app.Perf.drawnow_ms(end+1, 1) = 1e3 * toc(t0); app.Perf.frame_ms(end+1, 1) = 1e3 * toc(tf);
+            now = toc(app.PerfClock);
+            if ~isnan(app.LastStamp), app.Perf.gap_ms(end+1, 1) = 1e3 * (now - app.LastStamp); end
+            app.LastStamp = now;
             if ~isempty(app.AfterRefreshFcn), app.AfterRefreshFcn(app); end
         end
 
         function clearPerf(app)
             e = zeros(0, 1);
-            app.Perf = struct('ticks', 0, 'sim_s', 0, 'wall_s', 0, 'late', 0, 'step_ms', e, 'present_ms', e, 'drawnow_ms', e, 'frame_ms', e, ...
+            app.Perf = struct('ticks', 0, 'sim_s', 0, 'wall_s', 0, 'late', 0, 'skipped', 0, 'max_behind', 0, 'gap_ms', e, 'step_ms', e, 'present_ms', e, 'drawnow_ms', e, 'frame_ms', e, ...
                 'panel_ms', struct('scene', e, 'map', e, 'rgb', e, 'thermal', e, 'lidar', e, 'telemetry', e, 'events', e));
         end
 
@@ -173,11 +205,11 @@ classdef MissionControlApp < handle
             if mode == app.LayoutMode, return; end
             app.LayoutMode = mode; c = app.Content; P = app.Panels;
             if mode == "wide"
-                c.Scrollable = 'off'; c.ColumnWidth = repmat({'1x'}, 1, 6); c.RowHeight = {'2x', '1.35x', 160};
+                c.Scrollable = 'off'; c.ColumnWidth = repmat({'1x'}, 1, 6); c.RowHeight = {'2x', '1.35x', 178};
                 app.Outer.RowHeight{1} = 30;
                 L = {'scene', 1, [1 3]; 'map', 1, [4 6]; 'rgb', 2, [1 2]; 'thermal', 2, [3 4]; 'lidar', 2, [5 6]; 'telemetry', 3, [1 4]; 'events', 3, [5 6]};
             else
-                c.Scrollable = 'on'; c.ColumnWidth = {'1x', '1x'}; c.RowHeight = {300, 240, 240, 190, 170};
+                c.Scrollable = 'on'; c.ColumnWidth = {'1x', '1x'}; c.RowHeight = {300, 240, 240, 196, 170};
                 app.Outer.RowHeight{1} = 48;
                 L = {'scene', 1, 1; 'map', 1, 2; 'rgb', 2, 1; 'thermal', 2, 2; 'lidar', 3, [1 2]; 'telemetry', 4, [1 2]; 'events', 5, [1 2]};
             end
