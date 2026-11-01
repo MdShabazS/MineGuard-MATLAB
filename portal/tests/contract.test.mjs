@@ -20,13 +20,19 @@ test("Render guide portal has status, blockers, ownership and evidence sections"
  for(const id of ["doneCount","activeCount","blockedCount","readyCount","owners","taskRows","ciStatus","updates","pullRequests","activity"])assert.match(html,new RegExp('id="'+id+'"'));
 });
 
-test("unmerged V2 activity is labelled separately from authoritative GitHub task state",()=>{
+test("V2 engineering contributions do not override official GitHub task status or ownership",()=>{
   const journal=JSON.parse(fs.readFileSync(new URL("../../tasks/updates.json",import.meta.url),"utf8"));
   const notes=journal.updates.filter(entry=>["V2-006","V2-007"].includes(entry.task));
   assert.equal(notes.length,2);
-  assert.ok(notes.every(entry=>entry.summary.includes("not yet merged") || entry.summary.includes("not yet verified or merged")));
-  assert.match(app,/workNote && task\.displayState==="READY"/);
-  assert.match(app,/Local work reported · not yet merged into GitHub main/);
-  assert.match(app,/if\(v2Rows\.length\)showV2Tasks\(v2Rows\)/);
+  assert.deepEqual(notes.map(entry=>entry.owner),["Rahil","Shabaz"]);
+  assert.ok(notes.every(entry=>entry.summary.includes("not merged")));
+  assert.ok(notes.every(entry=>entry.pr_url?.startsWith("https://github.com/MdShabazS/MineGuard-MATLAB/pull/")));
+  assert.match(app,/const reported=workNote && \["READY","IN_PROGRESS"\]/);
+  assert.match(app,/Active contribution reported · not a DONE task/);
+  assert.match(app,/MATLAB contributor: /);
+  assert.match(app,/Parallel MATLAB development/);
+  assert.match(app,/if\(v2Rows\.length\)showV2Data\(v2Rows\)/);
   assert.match(app,/getJson\(RAW\+"v2\/tasks\/status\.json"\)/);
+  assert.match(html,/Both members develop and test MATLAB/);
+  assert.match(html,/Rahil remains the V2-007 task owner/);
 });
