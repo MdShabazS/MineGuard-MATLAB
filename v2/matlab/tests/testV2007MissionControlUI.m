@@ -93,10 +93,10 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             app = tc.open('MaxTicksPerRun', 60);
             % pressing during the run has to happen inside the run loop's refresh, which the framework warns about
             old = warning('off', 'MATLAB:uiautomation:Driver:WarnInHGCallbacks'); restore = onCleanup(@() warning(old)); %#ok<NASGU>
-            app.AfterRefreshFcn = @(a) tc.pressOnceAt(a, 16);
+            app.AfterRefreshFcn = @(a) tc.pressOnceAt(a, 17);
             tc.press(app.Controls.Buttons.start); drawnow;
             app.AfterRefreshFcn = [];
-            tc.verifyEqual(app.Session.Engine.TickId, 16, 'pause pressed during the run must stop at that tick');
+            tc.verifyEqual(app.Session.Engine.TickId, 17, 'pause pressed during the run must stop at that tick');
             tc.verifyEqual(app.Session.state(), "PAUSED");
             frame = app.Session.Sensors.latest("RGB_NADIR").frame_id; label = string(app.Panels.rgb.StatusLabel.Text);
             tc.verifyFalse(app.Session.step(), 'a paused engine executes no tick');
@@ -104,7 +104,7 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             tc.verifyEqual(app.Session.Sensors.latest("RGB_NADIR").frame_id, frame);
             tc.verifyEqual(string(app.Panels.rgb.StatusLabel.Text), label);
             tc.press(app.Controls.Buttons.resume); drawnow;
-            tc.verifyEqual(app.Session.Engine.TickId, 76);
+            tc.verifyEqual(app.Session.Engine.TickId, 77);
         end
 
         function abortAndResetAreDeterministic(tc)
@@ -353,13 +353,28 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             end
             tc.press(app.Controls.Buttons.start); drawnow;
             app.AfterRefreshFcn = [];
-            tc.verifyEqual(ticks(1:20), (2:2:40)', 'every second tick is a scene refresh');
+            tc.verifyEqual(ticks(1:20), (1:2:39)', 'every second tick is a scene refresh, off the sampling tick');
             tc.verifyEqual(pose, zeros(size(pose)), 'AbsTol', 1e-12, 'scene is never behind the pose it reports');
-            k = find(mod(ticks, 4) == 0, 1, 'last');
-            tc.verifySubstring(rgb(k), sprintf("tick %d |", ticks(k)));
-            odd = find(mod(ticks, 4) == 2, 1, 'last');
-            tc.verifySubstring(rgb(odd), sprintf("tick %d |", ticks(odd) - 2), 'sensor labels keep the sample own tick between frames');
+            k = find(mod(ticks, 4) == 1, 1, 'last');
+            tc.verifySubstring(rgb(k), sprintf("tick %d |", ticks(k) - 1));
+            odd = find(mod(ticks, 4) == 3, 1, 'last');
+            tc.verifySubstring(rgb(odd), sprintf("tick %d |", ticks(odd) - 3), 'sensor labels keep the sample own tick between frames');
             tc.verifyEqual(app.perfSummary().refreshes, numel(ticks));
+        end
+
+        function dashboardLooksTheSameInBothDesktopThemes(tc)
+            s = settings(); mt = s.matlab.appearance.MATLABTheme; c = onCleanup(@() mt.clearTemporaryValue());
+            seen = zeros(2, 3); desktops = ["Dark","Light"];
+            for k = 1:2
+                mt.TemporaryValue = desktops(k); t0 = tic; base = "";
+                while base ~= lower(desktops(k)) && toc(t0) < 15
+                    pause(0.25); ctl = figure('Visible', 'off'); base = string(ctl.Theme.BaseColorStyle); delete(ctl);
+                end
+                tc.assumeEqual(base, lower(desktops(k)), 'this host cannot switch the desktop theme');
+                app = tc.open(); tc.verifyEqual(string(app.Figure.Theme.BaseColorStyle), "dark");
+                seen(k, :) = app.Panels.events.Table.BackgroundColor(1, :); delete(app);
+            end
+            tc.verifyEqual(seen(1, :), seen(2, :), 'the event table must not turn white in a light desktop');
         end
 
         function panelWorkIsSplitAcrossFrames(tc)
@@ -370,9 +385,9 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             end
             tc.press(app.Controls.Buttons.start); drawnow; app.AfterRefreshFcn = [];
             at = @(n) rows(find(rows(:, 1) == string(n), 1), :);
-            r = at(4); tc.verifySubstring(r(2), "tick 4 |", 'the image and its label draw on the tick of their sample');
-            tc.verifySubstring(r(3), "t=0.10", 'telemetry waits for the status frame');
-            r = at(6); tc.verifySubstring(r(3), "t=0.30"); tc.verifySubstring(r(4), "tick 6 ");
+            r = at(5); tc.verifySubstring(r(2), "tick 4 |", 'the image and its label draw just after their sample');
+            tc.verifySubstring(r(3), "t=0.15", 'telemetry waits for the status frame');
+            r = at(7); tc.verifySubstring(r(3), "t=0.35"); tc.verifySubstring(r(4), "tick 7 ");
             tc.verifySubstring(r(2), "tick 4 |", 'an image label keeps its own sample tick');
             f = app.Session.Sensors.latest("RGB_NADIR");
             tc.verifySubstring(string(app.Panels.telemetry.StatusLabel.Text), "t=0.60", 'run end draws everything');

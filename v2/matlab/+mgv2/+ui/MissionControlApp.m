@@ -10,11 +10,13 @@ classdef MissionControlApp < handle
     %   SceneEvery ticks, everything else every RenderEvery ticks. Paced runs drop a scene-only refresh when behind the
     %   clock, and the drop is counted. Scene refreshes are update plus a synchronous drawnow, not measured screen FPS.
     %   Full-panel work is split across two frames so it does not pile up on the tick that also generates sensor
-    %   samples: images and map draw with their samples, telemetry and labels draw RenderEvery/2 ticks later.
+    %   samples: frames fall on odd ticks, leaving the sampling tick free of drawing. Images and map draw one tick after
+    %   their samples, telemetry and labels RenderEvery/2 ticks after that. Every label keeps its sample's own time.
 
     properties (Constant)
         CompactWidth = 1100
         CompactHeight = 720
+        FrameOffset = 1           % ticks between a sampling tick and its frame
     end
     properties (SetAccess = private)
         Figure; Session; Panels = struct(); Banner; Controls; Outer; Content
@@ -56,6 +58,7 @@ classdef MissionControlApp < handle
             t = mgv2.ui.theme();
             app.Figure = uifigure('Name', 'MineGuard V2 Mission Control (SIMULATION ONLY)', 'Position', pos, 'Color', t.bg, 'Visible', 'off', ...
                 'AutoResizeChildren', 'off', 'CloseRequestFcn', @(~, ~) delete(app), 'Tag', 'mgv2_mission_control');
+            theme(app.Figure, "dark");      % the layout is dark in any desktop theme, so its controls and table must match
             app.Outer = uigridlayout(app.Figure, [3 1], 'RowHeight', {30, 36, '1x'}, 'ColumnWidth', {'1x'}, 'Padding', [4 4 4 4], 'RowSpacing', 4, 'BackgroundColor', t.bg);
             app.Banner = mgv2.ui.SimulationBanner(app.Outer); app.Banner.Layout.Row = 1;
             app.Controls = mgv2.ui.ControlBar(app.Outer); app.Controls.Layout.Row = 2;
@@ -142,7 +145,7 @@ classdef MissionControlApp < handle
                 if ~advanced, break; end
                 app.Perf.step_ms(end+1, 1) = 1e3 * toc(t0); ticks = ticks + 1; app.Perf.ticks = app.Perf.ticks + 1;
                 app.Perf.sim_s = simBefore + s.Engine.time() - base; app.Perf.wall_s = wallBefore + toc(tw);
-                n = s.Engine.TickId; behind = app.RealTime > 0 && (s.Engine.time() - base) / app.RealTime - toc(tw) < -0.05;
+                n = s.Engine.TickId - app.FrameOffset; behind = app.RealTime > 0 && (s.Engine.time() - base) / app.RealTime - toc(tw) < -0.05;
                 if s.Engine.isTerminal() || mod(app.RenderEvery, 2) ~= 0 && mod(n, app.RenderEvery) == 0 || app.StatusDue && mod(n, app.RenderEvery) == 0
                     app.StatusDue = false; app.refresh();
                 elseif mod(n, app.RenderEvery) == 0
