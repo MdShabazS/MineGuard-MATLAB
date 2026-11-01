@@ -1,6 +1,10 @@
-function [ev, rejected] = toUiEvents(E, runId, det)
+function [ev, rejected] = toUiEvents(E, runId, det, memo)
 %TOUIEVENTS Map V2-006 events to the UI SuspectedEvent schema without changing the detector schema. SIMULATED.
 %   [ev, rejected] = mgv2.bridge.toUiEvents(E, runId, det)
+%   [ev, rejected] = mgv2.bridge.toUiEvents(E, runId, det, memo)
+%   memo      optional containers.Map (event_id -> event that passed validateEvent). An event identical to its
+%             entry skips only the costly contract scan. The run and evidence checks always run, and any field
+%             difference causes full validation, so the output never changes.
 %   E         event array from det.events()
 %   runId     run the UI session is showing
 %   det       the AnomalyDetector that produced E, used to confirm each evidence reference is retained
@@ -10,10 +14,11 @@ function [ev, rejected] = toUiEvents(E, runId, det)
 %   reference whose retained record is missing or differs.
 %   Mapping: t_s = last_t_s (latest sighting), confidence_kind = score_kind, modality_flags = detection_basis.
 %   The score stays an uncalibrated heuristic score, never a probability.
+if nargin < 4, memo = []; end
 ev = struct([]); rejected = strings(0, 1);
 for k = 1:numel(E)
     e = E(k);
-    if ~eventIsUsable(e, runId, det), rejected(end+1, 1) = string(e.event_id); continue; end %#ok<AGROW>
+    if ~eventIsUsable(e, runId, det, memo), rejected(end+1, 1) = string(e.event_id); continue; end %#ok<AGROW>
     x = struct('event_id', e.event_id, 'run_id', e.run_id, 't_s', e.last_t_s, 'x_est_m', e.x_est_m, 'y_est_m', e.y_est_m, ...
         'model_score', e.model_score, 'confidence_kind', e.score_kind, 'modality_flags', e.detection_basis, ...
         'evidence_refs', e.evidence_refs, 'uncertainty_m', e.uncertainty_m, 'status', e.status, 'detector_version', e.detector_version);
@@ -22,13 +27,16 @@ end
 mgv2.sensors.assertPublic(ev, "bridgeEvents");
 end
 
-function ok = eventIsUsable(e, runId, det)
-ok = false;
-try
-    mgv2.detect.validateEvent(e);
-catch err
-    if err.identifier == "mgv2:TruthLeak", rethrow(err); end
-    return
+function ok = eventIsUsable(e, runId, det, memo)
+ok = false; id = char(e.event_id);
+if isempty(memo) || ~isKey(memo, id) || ~isequaln(memo(id), e)
+    try
+        mgv2.detect.validateEvent(e);
+    catch err
+        if err.identifier == "mgv2:TruthLeak", rethrow(err); end
+        return
+    end
+    if ~isempty(memo), memo(id) = e; end %#ok<NASGU> handle object
 end
 if e.run_id ~= runId || isempty(e.evidence_refs), return; end
 for r = reshape(e.evidence_refs, 1, [])

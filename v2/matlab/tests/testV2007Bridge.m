@@ -259,5 +259,23 @@ classdef testV2007Bridge < matlab.unittest.TestCase
             app.command("start"); drawnow;
             tc.verifyEqual(numel(src.Map.Route.t_s), app.Session.Engine.TickId + 1);   % the reset run is followed
         end
+
+        function b20_validationMemoNeverChangesOutput(tc)                    % issue #76: skipped scan, same result
+            d = tc.Src.Detector; E = d.events(); memo = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            [a, ra] = mgv2.bridge.toUiEvents(E, d.RunId, d);
+            [b, rb] = mgv2.bridge.toUiEvents(E, d.RunId, d, memo);             % first pass fills the memo
+            [c, rc] = mgv2.bridge.toUiEvents(E, d.RunId, d, memo);             % second pass uses it
+            tc.verifyEqual(b, a); tc.verifyEqual(c, a); tc.verifyEqual(rb, ra); tc.verifyEqual(rc, ra);
+            tc.verifyEqual(memo.Count, numel(E));
+            x = E(1); x.status = "CONFIRMED"; [~, r1] = mgv2.bridge.toUiEvents(x, d.RunId, d, memo);
+            tc.verifyEqual(r1, x.event_id);                                    % a changed event is validated again and refused
+            y = E(1); y.label_text = "SAFE"; [~, r2] = mgv2.bridge.toUiEvents(y, d.RunId, d, memo);
+            tc.verifyEqual(r2, y.event_id);
+            [~, r3] = mgv2.bridge.toUiEvents(E(1), "OTHER-RUN", d, memo); tc.verifyEqual(r3, E(1).event_id);   % run check always applies
+            z = E(1); z.evidence_refs(1).ref_id = "OBS-99999999"; [~, r4] = mgv2.bridge.toUiEvents(z, d.RunId, d, memo);
+            tc.verifyEqual(r4, z.event_id);                                    % evidence check always applies
+            q = E(1); q.quality_note = struct('TargetTruth', 1);
+            tc.verifyError(@() mgv2.bridge.toUiEvents(q, d.RunId, d, memo), 'mgv2:TruthLeak');   % a leak still throws
+        end
     end
 end
