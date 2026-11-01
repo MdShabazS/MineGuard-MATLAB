@@ -61,3 +61,16 @@ A separately rendered section below the official ten-task V2 tracker shows the *
 - The enhancement view is fetched from GitHub **main** only, every ordinary portal refresh. It fails safely if missing/invalid. A passing CI gate does not prove MATLAB, satellite tile, Render deployment or physical detector validation.
 - The official V2 tracker, owners, journal and V1 historical archive are unaffected. One-time MATLAB satellite previews and locally tested display fixes are clearly reported as *unverified* or *not yet published*.
 - Guide-site deployment follows the existing Render auto-deploy-from-main workflow; **publishing a PR alone does not update the live portal**.
+
+### 2026-11-02: 11-entry enhancement roadmap and BITM campus demonstration
+
+The guide portal's **Mission Intelligence enhancement roadmap** now groups seven engineering enhancements (`ENH-001..007`) and four BITM/Ballari college presentation enhancements (`ENH-008..011`), preserving the original official V2 task counts.
+
+- Campus entries: [#78](https://github.com/MdShabazS/MineGuard-MATLAB/issues/78) for BITM simulated campus-context mode; [#79](https://github.com/MdShabazS/MineGuard-MATLAB/issues/79) for license-permitted offline imagery or fallback; [#80](https://github.com/MdShabazS/MineGuard-MATLAB/issues/80) for city-to-campus intro; [#81](https://github.com/MdShabazS/MineGuard-MATLAB/issues/81) for single-clock satellite/3-D synchronization.
+- Each card provides an evidence/issue link, owner, P1/P2 priority, reviewed progress category, description and explicit next acceptance gate. The status breakdown is **not** a fabricated completion percentage.
+- **Corrected engineering states:** ENH-002 is `TESTED_BLOCKED` because 7/7 Mac geographic tests and actual satellite imagery PASSED but attribution and light-theme readability FAILED; PR #75 is untested. ENH-007 is `MERGED_IN_BRANCH`, because the Mac correction was merged through PR #74 into PR #66's feature branch, **not** into `main`.
+- The bridge remains not accepted: Windows reported 143/143 tests but integrated GUI performance was 0.54× and the full UI evidence-click flow is missing; issue #76 tracks performance.
+- All ten original V2 statuses are still sourced independently from `v2/tasks/manifest.json` and `v2/tasks/status.json`. Enhancement categories and status labels are manually maintained by reviewed PRs, **not automatically synchronized** with GitHub issue states.
+- Campus geographic imagery is **presentation context only**, not measured UAV telemetry, real suspected-mine locations or real-world georegistration. Do not download/rehost basemap tiles without provider permission. See [BITM/Ballari demonstration roadmap](../v2/docs/V2_BITM_BALLARI_PRESENTATION_ROADMAP.md).
+- Portal refresh pulls only **GitHub `main`**. A PR needs Shabaz's merge and Render's redeploy before the guide-facing site displays its changes; actual live browser smoke test is a separate step.
+
