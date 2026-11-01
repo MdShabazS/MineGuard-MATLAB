@@ -28,7 +28,7 @@ test("V2 sensor contract includes distinct RGB, numerical thermal, LiDAR, GPS an
  }
  assert.match(sensor,/apparent-temperature/);
  assert.match(sensor,/NOT a calibrated IR camera/);
- assert.match(sensor,/no (?:valid|actual) buried/i);
+ assert.match(sensor,/cannot measure a buried object|not.*buried/i);
 });
 test("prespecified future checks remain numbered and comprehensive",()=>{
  const ids=[...verification.matchAll(/\|\s*(SC-\d{2})\s*\|/g)].map(m=>m[1]);
