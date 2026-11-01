@@ -21,11 +21,11 @@ while k < n && ses.step()
 end
 R = struct('ticks', k, 'phase', string(ses.Engine.Phase));
 if opts.Profiler
-    src.Detector.events(); src.Map.snapshot();                   % include one read of each in the profile
-    profile('off'); P = profile('info'); F = P.FunctionTable; self = zeros(numel(F), 1);
-    for q = 1:numel(F), self(q) = F(q).TotalTime - sum([F(q).Children.TotalTime]); end
-    [~, o] = sort(self, 'descend'); o = o(1:min(30, numel(o)));
-    R.top = table(string({F(o).FunctionName})', self(o), [F(o).TotalTime]', [F(o).NumCalls]', 'VariableNames', ["fn","self_s","total_s","calls"]);
+    profile('off'); R.top = topFunctions();                      % flight: step, sensors, ingest
+    d = src.Detector; E = d.events();
+    profile('clear'); profile('on', '-timer', 'performance');    % read path on the final state, five repeats
+    for q = 1:5, d.events(); mgv2.bridge.toUiEvents(E, d.RunId, d); src.Map.snapshot(); end
+    profile('off'); R.top_read = topFunctions();
 else
     rows(end+1, :) = checkpoint(src, ses, k);
     R.growth = cell2table(rows, 'VariableNames', ["tick","n_looks","n_obs","n_tracks","live","n_evidence","trackTable_ms","looks_loop_ms","track_scan_ms","lidar_ms","landmark_ms", ...
@@ -34,6 +34,13 @@ else
     R.ingest = g(:, ["sensor_id","GroupCount","median_proc_ms","max_proc_ms","sum_proc_ms"]);
     S = src.Stats; R.on_sample_total_s = S.on_sample_total_ms / 1e3; R.detector_ingest_total_s = sum(D.proc_ms) / 1e3;
 end
+end
+
+function T = topFunctions()
+P = profile('info'); F = P.FunctionTable; self = zeros(numel(F), 1);
+for q = 1:numel(F), self(q) = F(q).TotalTime - sum([F(q).Children.TotalTime]); end
+[~, o] = sort(self, 'descend'); o = o(1:min(30, numel(o)));
+T = table(string({F(o).FunctionName})', self(o), [F(o).TotalTime]', [F(o).NumCalls]', 'VariableNames', ["fn","self_s","total_s","calls"]);
 end
 
 function row = checkpoint(src, ses, k)
