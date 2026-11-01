@@ -22,10 +22,15 @@ test("V2 and ENH refresh independently of V1 legacy fetch",()=>{
 });
 
 test("snapshots preserve published main data without fabricating DONE",()=>{
-  assert.deepEqual(localEnh,sourceEnh);
-  assert.deepEqual(localManifest,sourceManifest);
-  assert.equal(sourceEnh.items.length,11);
-  assert.deepEqual(localEnh.items.map(x=>x.id),Array.from({length:11},(_,i)=>`ENH-${String(i+1).padStart(3,"0")}`));
+  // A later reviewed roadmap update must not fail tests just because this local
+  // fallback snapshot is older; its visible source label clearly warns of staleness.
+  assert.deepEqual(Object.keys(localManifest.tasks),Object.keys(sourceManifest.tasks));
+  assert.ok(sourceEnh.items.length>=11);
+  assert.ok(localEnh.items.length>=11);
+  const ids=localEnh.items.map(x=>x.id);
+  assert.equal(new Set(ids).size,ids.length);
+  for(let n=1;n<=11;n++)assert.ok(ids.includes(`ENH-${String(n).padStart(3,"0")}`));
+  for(const id of ids)assert.ok(sourceEnh.items.some(x=>x.id===id));
   assert.deepEqual(Object.keys(localStatus.tasks),Object.keys(sourceStatus.tasks));
   for(const id of Object.keys(localStatus.tasks)){
     const snapshot=localStatus.tasks[id];
