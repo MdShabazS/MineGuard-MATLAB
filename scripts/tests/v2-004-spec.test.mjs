@@ -39,10 +39,11 @@ test("prespecified future checks remain numbered and comprehensive",()=>{
  for(const id of ids)assert.match(verification,new RegExp(id.replace("-","-")));
 });
 test("evaluation protocol includes disjoint splits, falsification and original negative V1 evidence",()=>{
- for(const keyword of ["TRAIN","VALIDATION","HELD-OUT TEST","TargetTruth","counterfactual","TP 0, FP 26, TN 470, FN 4","one-time","undefined","SUSPECTED"]){
+ for(const keyword of ["TRAIN","VALIDATION","HELD-OUT TEST","TargetTruth","counterfactual","TP 0, FP 26, TN 470, FN 4","undefined","SUSPECTED"]){
   assert.ok(evaluation.includes(keyword),"Missing evaluation item "+keyword);
  }
  assert.match(evaluation,/not a V2 baseline/i);
+ assert.match(evaluation,/once after implementation freeze|one-time fresh held-out/i);
 });
 test("no V2 DOC claims MATLAB simulation tests were executed",()=>{
  assert.match(verification,/no MATLAB V2 sensor implementation tested/i);
