@@ -14,6 +14,7 @@ function out = mgv2SatelliteMapPreview(opts)
 %   Satellite tiles are served online by Esri; attribution stays visible in a footer outside the map.
 %   Online tiles have no failure signal: uncached areas are simply blank when offline. The footer reports
 %   whether the provider's service answered when the window opened, which does not prove tiles loaded.
+%   After a reconnect, tiles return on the next pan or zoom; the footer keeps describing the moment of opening.
 %   This standalone PREVIEW changes no mission engine, sensor or detector state.
 arguments
     opts.AnchorLLA (1,3) double = [NaN NaN NaN]
@@ -126,7 +127,7 @@ try
     status = "Provider service answered when this window opened. Tiles load separately; blank areas mean tiles were not available.";
 catch
     credit = pinned; creditSource = "PINNED_2026_11_02";
-    status = "NOT CONNECTED: provider service did not answer. Map may be blank or cached. Use the offline ENU mission map.";
+    status = "Provider service did not answer when this window opened. Map may be blank or cached. After reconnecting, pan, zoom or reopen; offline, use the ENU mission map.";
 end
 if ~startsWith(credit, "Source"), credit = "Sources: " + credit; end
 src = struct('credit', "Powered by Esri | " + credit, 'status', status, 'credit_source', creditSource, ...
