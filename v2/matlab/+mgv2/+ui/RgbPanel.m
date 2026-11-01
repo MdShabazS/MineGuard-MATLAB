@@ -13,9 +13,7 @@ classdef RgbPanel < mgv2.ui.PanelBase
             if isempty(s) || s.frame_id == obj.LastFrame, return; end
             obj.LastFrame = s.frame_id;
             obj.Image.CData = s.image_rgb_uint8;
-            set(obj.Axes, 'XLim', [0.5 s.image_width + 0.5], 'YLim', [0.5 s.image_height + 0.5]);
-            obj.Overlay.Position(1:2) = [s.image_width / 2, s.image_height / 2];
-            if s.valid, obj.Overlay.String = ''; else, obj.Overlay.String = "NO VALID IMAGE: " + s.invalid_reason; end
+            if s.valid, obj.setOverlay(obj.Overlay, ''); else, obj.setOverlay(obj.Overlay, "NO VALID IMAGE: " + s.invalid_reason); end
         end
         function resetDisplay(obj), obj.LastFrame = ""; end
     end

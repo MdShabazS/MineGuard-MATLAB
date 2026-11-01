@@ -28,8 +28,8 @@ classdef EventInspectorPanel < mgv2.ui.PanelBase
         function buildBody(obj)
             obj.TitleLabel.Text = 'EVENT INSPECTOR [SUSPECTED ONLY]';
             obj.StatusLabel.FontWeight = 'bold'; obj.StatusLabel.FontSize = 13;
-            obj.Table = uitable(obj.Grid, 'Data', cell(0, 7), 'ColumnName', {'event','t [s]','E est','N est','uncalibrated score','+/- [m]','status'}, ...
-                'ColumnWidth', {'1x', 48, 52, 52, 130, 56, '1x'}, 'RowName', {});
+            obj.Table = uitable(obj.Grid, 'Data', cell(0, 7), 'ColumnName', {'event','t [s]','E est','N est','uncalibrated score','unc. [m]','status'}, ...
+                'ColumnWidth', {'1x', 46, 50, 50, 132, 66, '1x'}, 'FontSize', 11, 'RowName', {});
             obj.Table.Layout.Row = 3; obj.Table.Layout.Column = [1 2];
         end
     end

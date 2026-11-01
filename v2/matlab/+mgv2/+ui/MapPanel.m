@@ -6,12 +6,12 @@ classdef MapPanel < mgv2.ui.PanelBase
         Axes; H = struct(); LayerHandles = struct(); LayerRevisions = struct()
     end
     properties (Access = private)
-        Flown; NFlown = 0; LastTick = -1
+        Flown; NFlown = 0; LastTick = -1; LastFootprint = ""
     end
     methods
         function bind(obj, world, cfg, route)
             ax = obj.Axes; hold(ax, 'on');
-            obj.H.terrain = image(ax, world.x, world.y, reshape(world.vertex_rgb, numel(world.y), numel(world.x), 3), 'Tag', 'map_terrain');
+            obj.H.terrain = image(ax, world.x, world.y, reshape(world.vertex_rgb, numel(world.y), numel(world.x), 3), 'AlphaData', 0.62, 'Tag', 'map_terrain');
             ax.YDir = 'normal'; axis(ax, 'equal');
             e = world.config.extent_enu_m; xlim(ax, e(1, :)); ylim(ax, e(2, :));
             P = [cfg.survey_polygon_enu_m; cfg.survey_polygon_enu_m(1, :)];
@@ -39,10 +39,13 @@ classdef MapPanel < mgv2.ui.PanelBase
                 set(obj.H.heading, 'XData', xy(1) + [0 6 * cos(p.yaw_rad)], 'YData', xy(2) + [0 6 * sin(p.yaw_rad)]);
             end
             s = view.samples.RGB_NADIR;
-            if ~isempty(s) && s.valid && size(s.footprint_enu_m, 1) >= 3
-                set(obj.H.footprint, 'XData', s.footprint_enu_m(:, 1), 'YData', s.footprint_enu_m(:, 2));
-            else
-                set(obj.H.footprint, 'XData', NaN, 'YData', NaN);
+            if ~isempty(s) && s.frame_id ~= obj.LastFootprint
+                obj.LastFootprint = s.frame_id;
+                if s.valid && size(s.footprint_enu_m, 1) >= 3
+                    set(obj.H.footprint, 'XData', s.footprint_enu_m(:, 1), 'YData', s.footprint_enu_m(:, 2));
+                else
+                    set(obj.H.footprint, 'XData', NaN, 'YData', NaN);
+                end
             end
             obj.drawLayers(view.layers);
             ov = "anomaly overlays: " + view.source.status_text;
@@ -50,7 +53,7 @@ classdef MapPanel < mgv2.ui.PanelBase
         end
 
         function resetDisplay(obj)
-            obj.NFlown = 0; obj.LastTick = -1; obj.Flown(:) = NaN;
+            obj.NFlown = 0; obj.LastTick = -1; obj.Flown(:) = NaN; obj.LastFootprint = "";
             set(obj.H.flown, 'XData', NaN, 'YData', NaN);
             f = fieldnames(obj.LayerHandles);
             for k = 1:numel(f), delete(obj.LayerHandles.(f{k})); end

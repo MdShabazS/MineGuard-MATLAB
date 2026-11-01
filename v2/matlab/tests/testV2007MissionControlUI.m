@@ -338,6 +338,125 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             tc.verifyEmpty(findall(app.Panels.map.Axes, 'Tag', 'layer_cov'));
         end
 
+        function startupPaintIsNotCountedAsRunStall(tc)
+            app = tc.open();
+            tc.verifyGreaterThan(app.StartupSeconds, 0);
+            tc.verifyEqual(app.perfSummary().refreshes, 0, 'the first paint is reported as startup, not as a mission frame');
+        end
+
+        function sceneRunsFasterThanSensorPanels(tc)
+            app = tc.open('MaxTicksPerRun', 40); ticks = zeros(0, 1); rgb = strings(0); pose = zeros(0, 3);
+            app.AfterRefreshFcn = @(a) note(a);
+            function note(a)
+                ticks(end+1, 1) = a.Session.Engine.TickId; rgb(end+1, 1) = a.Panels.rgb.StatusLabel.Text; %#ok<AGROW>
+                pose(end+1, :) = a.Panels.scene.Renderer.Handles.aircraft.Matrix(1:3, 4)' - a.Session.Engine.snapshot().position_enu_m; %#ok<AGROW>
+            end
+            tc.press(app.Controls.Buttons.start); drawnow;
+            app.AfterRefreshFcn = [];
+            tc.verifyEqual(ticks(1:20), (2:2:40)', 'every second tick is a scene refresh');
+            tc.verifyEqual(pose, zeros(size(pose)), 'AbsTol', 1e-12, 'scene is never behind the pose it reports');
+            k = find(mod(ticks, 4) == 0, 1, 'last');
+            tc.verifySubstring(rgb(k), sprintf("tick %d |", ticks(k)));
+            odd = find(mod(ticks, 4) == 2, 1, 'last');
+            tc.verifySubstring(rgb(odd), sprintf("tick %d |", ticks(odd) - 2), 'sensor labels keep the sample own tick between frames');
+            tc.verifyEqual(app.perfSummary().refreshes, numel(ticks));
+        end
+
+        function displayCadenceDoesNotChangeSimulation(tc)
+            w = mgv2.scene.buildWorld(); mc = mgv2.mission.defaultConfig();
+            sys = mgv2.sensors.SensorSystem(w, mc); eng = mgv2.engine.MissionEngine(mc, mgv2.scene.terrainProvider(w));
+            sys.attach(eng); eng.run(200);
+            app = tc.flown(200); L = app.Session.Sensors.Log;
+            tc.verifyEqual(L.checksum, sys.Log.checksum, 'samples must be identical to a headless run');
+            tc.verifyEqual(L.t_s, sys.Log.t_s);
+            tc.verifyEqual(app.Session.Engine.poseLog().position_enu_m, eng.poseLog().position_enu_m);
+        end
+
+        function pacedRunHoldsClockAndCountsDrops(tc)
+            app = tc.open('RealTime', 1, 'MaxTicksPerRun', 40); tc.press(app.Controls.Buttons.start); drawnow;
+            p = app.perfSummary();
+            tc.verifyEqual(p.sim_s, 2, 'AbsTol', 1e-9);
+            tc.verifyGreaterThanOrEqual(p.wall_s, 1.9, 'paced run must not run ahead of 1x');
+            app2 = mgv2MissionControl('RealTime', 100, 'MaxTicksPerRun', 40); cl = onCleanup(@() delete(app2)); %#ok<NASGU>
+            app2.command("start"); q = app2.perfSummary();
+            tc.verifyEqual(app2.Session.Engine.TickId, 40, 'dropping frames never drops ticks');
+            tc.verifyGreaterThan(q.skipped_scene, 0, 'scene frames dropped when behind are counted');
+            tc.verifySubstring(string(app2.Panels.rgb.StatusLabel.Text), "tick 40 |");
+        end
+
+        function sensorAspectAndLegendStayCorrect(tc)
+            app = tc.flown(120); P = app.Panels; s = app.Session.Sensors.latest("RGB_NADIR"); t = app.Session.Sensors.latest("THERMAL_LWIR");
+            tc.verifyEqual(P.rgb.Axes.DataAspectRatio, [1 1 1]); tc.verifyEqual(P.thermal.Axes.DataAspectRatio, [1 1 1]);
+            tc.verifyEqual([P.rgb.Axes.XLim P.rgb.Axes.YLim], [0.5 s.image_width + 0.5 0.5 s.image_height + 0.5]);
+            tc.verifyEqual([P.thermal.Axes.XLim P.thermal.Axes.YLim], [0.5 t.image_width + 0.5 0.5 t.image_height + 0.5]);
+            cb = P.thermal.Colorbar; cm = colormap(P.thermal.Axes);
+            tc.press(app.Controls.Buttons.resume); drawnow;
+            t = app.Session.Sensors.latest("THERMAL_LWIR");
+            tc.verifyTrue(isvalid(cb) && cb == P.thermal.Colorbar, 'the legend object is reused');
+            tc.verifyEqual(colormap(P.thermal.Axes), cm);
+            tc.verifyEqual(P.thermal.Colorbar.Limits, [t.display_min_K t.display_max_K], 'AbsTol', 1e-9);
+        end
+
+        function lidarLimitsContainEveryReturn(tc)
+            app = tc.open('MaxTicksPerRun', 200); ax = app.Panels.lidar.Axes; bad = 0;
+            app.AfterRefreshFcn = @(a) check(a);
+            function check(a)
+                h = a.Panels.lidar.Points; x = h.XData(:); y = h.YData(:); z = h.ZData(:); k = isfinite(x);
+                if any(k) && (min(x(k)) < ax.XLim(1) || max(x(k)) > ax.XLim(2) || min(y(k)) < ax.YLim(1) || max(y(k)) > ax.YLim(2) || min(z(k)) < ax.ZLim(1) || max(z(k)) > ax.ZLim(2))
+                    bad = bad + 1;
+                end
+            end
+            tc.press(app.Controls.Buttons.start); drawnow; app.AfterRefreshFcn = [];
+            tc.verifyEqual(bad, 0);
+            tc.press(app.Controls.Buttons.abort); tc.press(app.Controls.Buttons.reset); drawnow;
+            tc.verifyTrue(all(isnan(app.Panels.lidar.Points.XData)), 'reset shows the invalid pad sample, no old points');
+        end
+
+        function sceneHeaderSitsOutsideClippedViewport(tc)
+            app = tc.open(); S = app.Panels.scene; drawnow;
+            tc.verifyEqual(ancestor(S.Axes, 'uipanel'), S.Viewport);
+            tc.verifyNotEqual(S.TitleLabel.Parent, S.Viewport);
+            tc.verifyEqual(S.Viewport.Layout.Row, 3);
+        end
+
+        function eventHeadingsAreComplete(tc)
+            app = tc.open(); T = app.Panels.events.Table;
+            tc.verifyEqual(string(T.ColumnName'), ["event","t [s]","E est","N est","uncalibrated score","unc. [m]","status"]);
+            for s = {[60 60 1400 860], [60 60 900 600]}
+                app.Figure.Position = s{1}; tc.settle(@() abs(app.Banner.Position(3) - (s{1}(3) - 8)) <= 1); drawnow;
+                fixed = sum([T.ColumnWidth{2:6}]);
+                tc.verifyGreaterThan(T.Position(3) - fixed, 2 * 44, 'room for the flexible columns');
+            end
+        end
+
+        function cameraModeSurvivesResetAndWorksPaused(tc)
+            app = tc.flown(40); dd = app.Panels.scene.CameraDropdown; ax = app.Panels.scene.Axes;
+            c = ax.CameraPosition; tc.choose(dd, "topdown"); drawnow;
+            tc.verifyNotEqual(ax.CameraPosition, c, 'the camera moves while paused');
+            tc.verifyEqual(app.Session.Engine.TickId, 40, 'and the simulation does not');
+            tc.press(app.Controls.Buttons.abort); tc.press(app.Controls.Buttons.reset); drawnow;
+            tc.verifyEqual(app.Panels.scene.Renderer.CameraMode, "topdown");
+        end
+
+        function fullMissionCompletesWithResizeAndCameraChanges(tc)
+            app = tc.open(); done = struct('a', false, 'b', false);
+            app.AfterRefreshFcn = @(a) act(a);
+            function act(a)
+                t = a.Session.Engine.TickId;
+                if t >= 400 && ~done.a, done.a = true; a.Figure.Position = [60 60 960 640]; a.Panels.scene.Renderer.setCameraMode("chase"); end
+                if t >= 800 && ~done.b, done.b = true; a.Figure.Position = [60 60 1400 860]; a.Panels.scene.Renderer.setCameraMode("isometric"); end
+            end
+            tc.press(app.Controls.Buttons.start); drawnow; app.AfterRefreshFcn = [];
+            tc.verifyEqual(app.Session.Engine.Phase, "COMPLETE");
+            tc.verifySubstring(string(app.Controls.Readout.Text), "COMPLETE");
+            tc.verifySubstring(string(app.Panels.telemetry.FlightLabel.Text), "Phase: COMPLETE");
+            tc.verifyEqual(string(app.Controls.Buttons.reset.Enable), "on");
+            tc.verifyEqual(string(app.Controls.Buttons.pause.Enable), "off");
+            tc.assertWarningVisible(app);
+            tc.verifyEqual(string(app.Panels.events.StatusLabel.Text), "DETECTOR NOT CONNECTED");
+            tc.verifyEqual(height(app.Session.Sensors.Log), 3080, 'same sample count as the Stage 1 mission');
+        end
+
         function adapterSeamRejectsBadRecords(tc)
             D = @V2007TestDoubleSource.event; Lk = @V2007TestDoubleSource.layer;
             tc.verifyError(@() mgv2.ui.validateEvents(D('status', "CONFIRMED")), 'mgv2:InvalidEvent');
