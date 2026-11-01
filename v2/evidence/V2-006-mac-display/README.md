@@ -1,6 +1,6 @@
 # V2-006 Mac display correction (corrective record, not task completion)
 
-Task: V2-006 (owner Rahil; status unchanged). Local corrective branch `task/V2-006-mac-display-correction`, not pushed, for review.
+Task: V2-006 (owner Rahil; official status unchanged). Corrective branch `task/V2-006-mac-display-correction` was subsequently pushed without force and is proposed as a stacked review into PR #66 (not directly to `main`); no merge or task completion is claimed.
 Base: PR #66 head `684665c2ea337f0724fa5f9b678a7a1b9599c8c0`. Code under test: `bb52c0fb2a530af635ab75798f27677c3d56a3c0`.
 Executed by Claude Code (Opus 5.5) through the MathWorks MATLAB MCP Server on Shabaz's Mac (MACA64, R2026b Update 1); human review pending.
 SIMULATION ONLY. A software PASS says nothing about detection: the VALIDATION result remains negative and this fixture run has 77 false alarms in 78 events.
@@ -66,3 +66,7 @@ The map's plot and legend are laid out slightly differently between the two capt
 - White planned-route dashes are low contrast against the grey legend and light terrain, though visible.
 - Windows was not re-run on this correction; the theme call and test are not OS-specific, but this is unverified. d28 reports Incomplete, not Passed, on a host that cannot switch themes.
 - `v2/evidence/V2-006.md` still says Mac not tested and 99 tests, and the PR #66 title says 99/99. Those are Rahil's records and were not edited.
+
+## Publication note (2026-11-02)
+
+The Mac output originally stopped while the branch was local; it was subsequently published at `9b9e787e8db30ce4818bf5eae339e7113f7227ba` before this documentation-only update. The Mac MATLAB **test execution SHA remains** `bb52c0fb2a530af635ab75798f27677c3d56a3c0`, not the evidence-only later HEAD. PR #66 still requires review/merge of the stacked patch; the status and frozen science remain unchanged.
