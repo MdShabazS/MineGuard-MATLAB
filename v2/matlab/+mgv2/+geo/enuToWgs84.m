@@ -8,7 +8,7 @@ function lla = enuToWgs84(enu_m, anchor_lla)
 %   Base MATLAB; no Mapping Toolbox requirement. ECEF translation + iterative
 %   WGS84 geodetic inversion, NOT a spherical flat-earth map projection.
 %   Supports only short, user-anchored research survey visualization (<10 km).
-%   Rejects the project's [0 0 0] placeholder origin, polar and dateline
+%   Rejects anchors at or near the project's [0 0 0] placeholder, polar and dateline
 %   cases. Coordinates are for simulated geographic CONTEXT only.
 %
 %   This code MUST NOT be connected to detector target truth or clearance claims.
@@ -16,7 +16,7 @@ arguments
     enu_m (:,3) double {mustBeFinite}
     anchor_lla (1,3) double {mustBeFinite}
 end
-if abs(anchor_lla(1)) < 1e-6 && abs(anchor_lla(2)) < 1e-6
+if hypot(anchor_lla(1), anchor_lla(2)) < 0.01      % about 1 km: tiny offsets from the placeholder are not an explicit anchor
     error('mgv2:MissingGeographicAnchor', ...
         'The [0 0 0] virtual origin is a placeholder. Supply an explicit demo anchor.');
 end
