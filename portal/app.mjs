@@ -1,4 +1,5 @@
 import {REPO, BASE, buildTaskRows, summarize, fileUrl, githubLink, safeDate, findMainTaskGateRun} from "./core.mjs";
+import {validateEnhancements, enhancementLabel} from "./enhancements.mjs";
 const RAW="https://raw.githubusercontent.com/"+REPO+"/main/";
 const API="https://api.github.com/repos/"+REPO;
 let latestRows=[],filter="ALL",loading=false;
@@ -201,6 +202,36 @@ function showV2Data(rows) {
   }));
   showV2Tasks(rows);
 }
+/** Enhancement roadmap is editorial planning data, never official V2 completion. */
+function showEnhancements(data) {
+  const rows=validateEnhancements(data);
+  const cards=rows.map(item=>{
+    const card=make("article","enhancement-card");
+    const header=make("div","enhancement-head");
+    const meta=make("span","mini-id",item.id+" · "+item.priority);
+    const state=make("span","enhancement-state "+item.status.toLowerCase().replaceAll("_","-"),enhancementLabel(item.status));
+    header.append(meta,state);
+    card.append(header,make("h4","enhancement-title",item.title));
+    card.append(make("p","enhancement-owner",item.owner));
+    card.append(make("p","enhancement-detail",item.detail));
+    card.append(make("p","enhancement-dependency","Next gate: "+item.dependency));
+    const url=githubLink(item.url);
+    if(url)card.append(nodeLink(item.urlLabel,url,"tiny-link"));
+    return card;
+  });
+  replace("roadmapItems",cards);
+  el("roadmapStatus").textContent=rows.length+" enhancement entries · source: GitHub main · updated "+String(data.asOf || "date unavailable")+" · not included in official V2 progress";
+}
+async function refreshEnhancements() {
+  try {
+    const data=await getJson(RAW+"v2/roadmap/enhancements.json");
+    showEnhancements(data);
+  }catch(error) {
+    replace("roadmapItems",[make("p","muted","Enhancement roadmap unavailable from GitHub main. Review the repository roadmap file; no completion is assumed.")]);
+    el("roadmapStatus").textContent="Enhancement roadmap unavailable: "+error.message;
+  }
+}
+
 async function refreshV2() {
   try {
     const [manifest,status]=await Promise.all([
@@ -233,6 +264,7 @@ async function refresh() {
     el("lastChecked").textContent=new Date().toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"});
     alert("");
     await refreshV2();
+    await refreshEnhancements();
     const extras=await Promise.allSettled([
       getJson(API+"/pulls?state=all&per_page=10"),
       getJson(API+"/actions/runs?per_page=10"),
