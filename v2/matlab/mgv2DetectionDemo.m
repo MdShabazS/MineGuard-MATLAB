@@ -9,6 +9,7 @@ function out = mgv2DetectionDemo(opts)
 %   EventId is looked up only in the public detector output. This function never reads scenario truth, so
 %   it cannot tell whether the selected event matches the fixture: that is an evaluator statement, recorded
 %   in the evidence. Without EventId, the strongest fused event is shown, which may be a false alarm.
+%   Both figures use the light MATLAB theme whatever the desktop theme, so their labels stay readable on white.
 arguments
     opts.ShotDir (1,1) string = ""
     opts.Run = []          % reuse a previous out.run (redraw only)
@@ -16,8 +17,10 @@ arguments
 end
 label = "SYNTHETIC DEMO FIXTURE, not VALIDATION evidence";
 if isempty(opts.Run), o = mgv2.eval.runScenario(mgv2.eval.demoFixtureGroup(), KeepFrames=4000); else, o = opts.Run; end
-f1 = figure('Name', 'V2-006 mission map (SIMULATED)', 'Position', [60 60 900 820], 'Color', 'w');
+f1 = lightFigure('V2-006 mission map (SIMULATED)', [60 60 900 820]);
 ax = axes(f1); mgv2.map.MapView(ax, o.world, o.map);
+% mid-grey legend: the map's white planned route and black actual route both have to show in their key
+set(findobj(f1, 'Type', 'legend'), 'Color', [0.68 0.69 0.71], 'TextColor', 'k', 'EdgeColor', 'k');
 cv = o.map.snapshot().coverage;
 annotation(f1, 'textbox', [0.01 0.005 0.98 0.04], 'String', sprintf(['%s | %s | %d SUSPECTED events (uncalibrated, frozen detector %s) | ' ...
     'valid RGB %.0f%%, thermal %.0f%%, LiDAR %.0f%% of planned cells (evidence acquisition, not accuracy)'], ...
@@ -34,7 +37,7 @@ else
 end
 e = E(k);
 ins = mgv2.detect.inspectEvent(e, o.detector, o.sensors.Log);
-f2 = figure('Name', 'V2-006 evidence inspector (SIMULATED)', 'Position', [80 80 1400 720], 'Color', 'w');
+f2 = lightFigure('V2-006 evidence inspector (SIMULATED)', [80 80 1400 720]);
 tl = tiledlayout(f2, 2, 5, 'TileSpacing', 'compact', 'Padding', 'compact');
 n = 0;
 for it = ins.items
@@ -62,6 +65,10 @@ if strlength(opts.ShotDir) > 0
 end
 out = struct('run', o, 'inspector', ins, 'selected_event_id', e.event_id, 'selected_by', how, 'label', label, ...
     'map_figure', f1, 'inspector_figure', f2);
+end
+
+function f = lightFigure(name, pos)
+f = figure('Name', name, 'Position', pos); theme(f, "light"); f.Color = 'w';
 end
 
 function v = ternary(c, a, b), if c, v = a; else, v = b; end, end

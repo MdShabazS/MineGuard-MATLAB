@@ -43,6 +43,21 @@ classdef testV2006Detection < matlab.unittest.TestCase
             d = mgv2.detect.AnomalyDetector(pub.world, pub.mission); sys.attach(eng);
             if nargin > 0, eng.run(nTicks); end
         end
+        function r = contrast(a, b)
+            l = @(c) sum([0.2126 0.7152 0.0722] .* ((c <= 0.03928) .* c / 12.92 + (c > 0.03928) .* ((c + 0.055) / 1.055) .^ 2.4));
+            v = sort([l(a) l(b)], 'descend'); r = (v(1) + 0.05) / (v(2) + 0.05);
+        end
+        function r = worstTextContrast(f)
+            % WCAG contrast of every text colour against the surface it is drawn on (axes, colorbars, legends, annotations)
+            C = @testV2006Detection.contrast; w = [1 1 1]; r = inf;
+            for h = findall(f, 'Type', 'textboxshape')', r = min(r, C(h.Color, w)); end
+            for h = findall(f, 'Type', 'colorbar')', r = min([r C(h.Color, w) C(h.Label.Color, w)]); end
+            for h = findall(f, 'Type', 'legend')', r = min(r, C(h.TextColor, h.Color)); end
+            for ax = findall(f, 'Type', 'axes')'
+                r = min([r C(ax.XColor, w) C(ax.YColor, w) C(ax.Title.Color, w) C(ax.XLabel.Color, w) C(ax.YLabel.Color, w)]);
+                for h = findall(ax, 'Type', 'text')', if ~isempty(h.String), r = min(r, C(h.Color, w)); end, end
+            end
+        end
         function E = eventsAsTable(E)
             E = table([E.event_id]', [E.x_est_m]', [E.y_est_m]', [E.model_score]', [E.n_observations]', ...
                 'VariableNames', ["id","x","y","score","n"]);
@@ -470,6 +485,28 @@ classdef testV2006Detection < matlab.unittest.TestCase
             tc.verifyError(@() mgv2DetectionDemo(Run=tc.Demo, ShotDir=d), 'mgv2:EvidenceExists');
             code = regexprep(fileread(which('mgv2DetectionDemo')), '%[^\n]*', '');   % no truth path in the demo
             tc.verifyEmpty(regexp(code, 'TargetTruth|buildScenario|evaluateEvents|demo_fixture', 'once'));
+        end
+
+        function d28_demoLabelsReadableInBothDesktopThemes(tc)               % UI-13: SIMULATED/SUSPECTED stay visible
+            s = settings(); mt = s.matlab.appearance.MATLABTheme;
+            c = onCleanup(@() mt.clearTemporaryValue());
+            before = findall(groot, 'Type', 'figure'); c2 = onCleanup(@() delete(setdiff(findall(groot, 'Type', 'figure'), before)));
+            for desktop = ["Dark","Light"]
+                mt.TemporaryValue = desktop; t0 = tic; base = "";              % the switch applies asynchronously
+                while base ~= lower(desktop) && toc(t0) < 15
+                    pause(0.25); ctl = figure('Visible', 'off'); base = string(ctl.Theme.BaseColorStyle); delete(ctl);
+                end
+                tc.assumeEqual(base, lower(desktop), 'this host cannot switch the desktop theme');
+                a = mgv2DetectionDemo(Run=tc.Demo, EventId="SUS-00296");
+                for f = [a.map_figure a.inspector_figure]
+                    tc.verifyEqual(string(f.Theme.BaseColorStyle), "light", desktop + " desktop: " + f.Name);
+                    tc.verifyEqual(f.Color, [1 1 1]);
+                    tc.verifyGreaterThanOrEqual(testV2006Detection.worstTextContrast(f), 4.5, desktop + " desktop: " + f.Name);
+                end
+                txt = lower(strjoin(string(get(findall(a.inspector_figure, 'Type', 'textboxshape'), 'String'))));
+                tc.verifyTrue(contains(txt, "simulated") && contains(txt, "synthetic demo fixture"));
+                delete([a.map_figure a.inspector_figure]);
+            end
         end
     end
 end
