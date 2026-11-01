@@ -272,6 +272,22 @@
       "summary": "Built the V2 3-D scene in MATLAB: seeded triangulated terrain with relief, soil/grass albedo, seated rocks/bushes/markers and calibration landmarks; height queries on exactly the drawn triangles; scaled F450-class quadrotor; renderer with sun/fill lighting, shadow, trail, SIMULATION HUD and five operator cameras (isometric, follow, chase, top-down, orbit); RGB/thermal/LiDAR mounting aligned to the frozen V2-004 mg-v2-sensors/1.0 defaults with projection, terrain ray intersection, footprints, a scene-sampled raster and UAV Toolbox mesh export (LiDAR range = AGL). Live V2-002 engine drove the scene at 1x (COMPLETE, ~10 FPS). 44/44 MATLAB tests (V2-002 22 + V2-003 22) in a clean clone on Windows R2026b; macOS NOT TESTED.",
       "next": "Shabaz review of V2-003 start and implementation PRs (stacked on V2-002); Mac run; separate V2-003 DONE PR after merge; V2-005 additionally needs V2-004",
       "evidence": "v2/evidence/V2-003.md"
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Rahil",
+      "task": "V2-005",
+      "summary": "Implemented time-synchronised synthetic RGB (320x240, 5 Hz), apparent-temperature thermal in Kelvin (160x120, 5 Hz), LiDAR (2 Hz) and virtual GNSS/INS (10 Hz) on the V2-002 clock and V2-003 world, conforming to mg-v2-sensors/1.0: exact envelope, pose/tick/t_s copied from immutable poses, independent seeded streams, explicit invalid masks/reasons, truth-firewall scans. Exact z-buffer rasterization of the shared triangles (equal to ray casting) made the cameras fast enough for near-real-time. 67/67 MATLAB tests (V2-002 22, V2-003 22, V2-005 23) in a clean clone on Windows R2026b; full mission with all sensors at 1x pacing measured x0.917-0.949 (not quite real time); Mac NOT TESTED.",
+      "next": "Shabaz review of the implementation PR and Mac acceptance run (commands in the evidence); separate V2-005 DONE PR after merge",
+      "evidence": "v2/evidence/V2-005.md"
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Rahil",
+      "task": "V2-005",
+      "summary": "Addressed PR #62 review: LiDAR effective range now comes only from SensorConfig.valid_range_m (applied and reported; mount range fields rejected), and every channel's parameter_hash is a deterministic FNV-1a-64 fingerprint recomputed from its effective parameters at validation. 5 new regression tests; clean clone eac6440: 72/72 MATLAB tests pass. Benchmark at 1x pacing with contract sensor rates: SceneEvery 2 x0.936, 4 x0.999, 8 x1.000 (no screenshots), 4 with screenshots x0.950; all meet the 0.8x presentation requirement. Mac NOT TESTED.",
+      "next": "Shabaz re-review of PR #62 and Mac acceptance; separate V2-005 DONE PR after merge",
+      "evidence": "v2/evidence/V2-005.md"
     }
   ]
 }
