@@ -293,8 +293,8 @@
       "date": "2026-11-01",
       "owner": "Rahil",
       "task": "V2-006",
-      "summary": "Development reported in Rahil's local V2-006 worktree: detector, suspected-anomaly mapping and uncertainty analysis have five unpushed commits; 97/97 Windows MATLAB software tests were reported. TRAIN/VALIDATION detection performance is negative. Work is not yet merged or accepted.",
-      "next": "Correct V2 status-gate metadata, commit detailed evidence and regression log, push and open the implementation PR for Shabaz; preserve original negative evaluation and sealed TEST.",
+      "summary": "Rahil submitted V2-006 detector, mapping, uncertainty and evidence in GitHub implementation PR #66, not yet merged. Windows MATLAB clean-clone software regression reports 97/97 pass; frozen synthetic VALIDATION is negative (0/4 targets detected in G07; many false alarms). The task is not officially completed.",
+      "next": "Shabaz reviews PR #66, requests evidence/code corrections where needed and independently runs MATLAB on Mac; after implementation merge, a separate V2-006 DONE PR is required.",
       "evidence": null
     },
     {
