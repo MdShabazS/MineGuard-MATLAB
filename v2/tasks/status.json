@@ -39,10 +39,12 @@
     },
     "V2-005": {
       "owner": "Rahil",
-      "state": "IN_PROGRESS",
-      "evidence": null,
+      "state": "DONE",
+      "evidence": "v2/evidence/V2-005.md",
       "startedBy": "Rahil",
-      "startedOn": "2026-11-01"
+      "startedOn": "2026-11-01",
+      "completedBy": "Rahil",
+      "completedOn": "2026-11-01"
     },
     "V2-006": {
       "owner": "Rahil",
