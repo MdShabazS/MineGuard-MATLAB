@@ -28,15 +28,15 @@ mgv2.sensors.assertPublic(ev, "bridgeEvents");
 end
 
 function ok = eventIsUsable(e, runId, det, memo)
-ok = false; id = char(e.event_id);
-if isempty(memo) || ~isKey(memo, id) || ~isequaln(memo(id), e)
+ok = false; id = char(e.event_id); hasMemo = isa(memo, 'containers.Map');   % isempty is true for an empty Map
+if ~hasMemo || ~isKey(memo, id) || ~isequaln(memo(id), e)
     try
         mgv2.detect.validateEvent(e);
     catch err
         if err.identifier == "mgv2:TruthLeak", rethrow(err); end
         return
     end
-    if ~isempty(memo), memo(id) = e; end %#ok<NASGU> handle object
+    if hasMemo, memo(id) = e; end %#ok<NASGU> handle object
 end
 if e.run_id ~= runId || isempty(e.evidence_refs), return; end
 for r = reshape(e.evidence_refs, 1, [])

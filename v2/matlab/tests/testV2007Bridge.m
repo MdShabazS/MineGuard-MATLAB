@@ -266,7 +266,7 @@ classdef testV2007Bridge < matlab.unittest.TestCase
             [b, rb] = mgv2.bridge.toUiEvents(E, d.RunId, d, memo);             % first pass fills the memo
             [c, rc] = mgv2.bridge.toUiEvents(E, d.RunId, d, memo);             % second pass uses it
             tc.verifyEqual(b, a); tc.verifyEqual(c, a); tc.verifyEqual(rb, ra); tc.verifyEqual(rc, ra);
-            tc.verifyEqual(memo.Count, numel(E));
+            tc.verifyEqual(double(memo.Count), numel(E));
             x = E(1); x.status = "CONFIRMED"; [~, r1] = mgv2.bridge.toUiEvents(x, d.RunId, d, memo);
             tc.verifyEqual(r1, x.event_id);                                    % a changed event is validated again and refused
             y = E(1); y.label_text = "SAFE"; [~, r2] = mgv2.bridge.toUiEvents(y, d.RunId, d, memo);
