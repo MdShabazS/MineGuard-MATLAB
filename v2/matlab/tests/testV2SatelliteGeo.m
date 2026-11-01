@@ -1,8 +1,12 @@
 function tests = testV2SatelliteGeo
 %TESTV2SATELLITEGEO Pure-math tests for optional preview, base MATLAB.
-%   Requires: addpath('v2/matlab')
+%   Sets its own path, like the other V2 suites.
 %   Does NOT contact satellite tile servers or run any scientific study.
 tests = functiontests(localfunctions);
+end
+
+function setupOnce(tc)
+tc.applyFixture(matlab.unittest.fixtures.PathFixture(fileparts(fileparts(mfilename('fullpath')))));
 end
 
 function testZeroOffsetIsExplicitAnchor(tc)
@@ -103,4 +107,16 @@ verifySubstring(tc,lower(txt),"gis user community");
 verifyTrue(tc,ismember(o.credit_source,["LIVE_SERVICE","PINNED_2026_11_02"]));
 verifySubstring(tc,string(o.attribution_link.URL),"World_Imagery");
 verifyNotEmpty(tc,char(o.status_label.Text));
+end
+
+function testOtherEsriBasemapsNameNoGuessedSourceList(tc)
+for bm = ["topographic","streets-light"]
+    o = mgv2SatelliteMapPreview(AnchorLLA=[29.97917 31.13417 80],Basemap=bm,Visible="off");
+    c = onCleanup(@() delete(o.figure));
+    txt = string(o.attribution_label.Text);
+    verifySubstring(tc,txt,"Powered by Esri");
+    verifyFalse(tc,contains(txt,"HERE") || contains(txt,"Vantor"),bm);
+    verifyEqual(tc,o.credit_source,"MAP_NATIVE");
+    clear c
+end
 end

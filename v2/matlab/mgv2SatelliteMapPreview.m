@@ -102,34 +102,33 @@ end
 end
 
 function src = basemapSource(basemap)
-%BASEMAPSOURCE Provider credit for a basemap. Esri services publish their current credit as copyrightText, so read
-%   it when the service answers; otherwise show the text pinned below, as read from those services on 2026-11-02.
-root = "https://services.arcgisonline.com/ArcGIS/rest/services/";
-switch basemap
-    case "satellite"
-        service = "World_Imagery"; pinned = "Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community";
-    case "topographic"
-        service = "World_Topo_Map"; pinned = "Sources: Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), (c) OpenStreetMap contributors, and the GIS User Community";
-    case "streets-light"
-        service = "Canvas/World_Light_Gray_Base"; pinned = "Sources: Esri, HERE, Garmin, (c) OpenStreetMap contributors, and the GIS user community";
-    otherwise   % darkwater is installed with MATLAB and needs no network
-        src = struct('credit', "Basemap: darkwater, created using Natural Earth and installed with MATLAB. A display backdrop, not imagery.", ...
-            'status', "Local basemap: no internet needed. Live satellite tiles are not available in this mode.", 'credit_source', "MATHWORKS_DOCUMENTATION", ...
-            'link_text', "MathWorks basemap source information", 'url', "https://www.mathworks.com/help/matlab/ref/geobasemap.html");
-        return
+%BASEMAPSOURCE Provider credit and connection status for a basemap.
+%   satellite: tiles come from Esri World Imagery, which publishes its current credit as copyrightText; show it when
+%   the service answers, otherwise the text pinned below, as read from that service on 2026-11-02.
+%   topographic, streets-light: their sources are not a documented single service, so name no list here; the map draws
+%   its own credit for these basemaps. darkwater is installed with MATLAB and needs no network.
+if basemap == "darkwater"
+    src = struct('credit', "Basemap: darkwater, created using Natural Earth and installed with MATLAB. A display backdrop, not imagery.", ...
+        'status', "Local basemap: no internet needed. Live satellite tiles are not available in this mode.", 'credit_source', "MATHWORKS_DOCUMENTATION", ...
+        'link_text', "MathWorks basemap source information", 'url', "https://www.mathworks.com/help/matlab/ref/geobasemap.html");
+    return
 end
-url = root + service + "/MapServer";
+service = "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer";
+pinned = "Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community";
+live = "";
 try
-    info = webread(url + "?f=json", weboptions('Timeout', 3, 'ContentType', 'json'));
+    info = webread(service + "?f=json", weboptions('Timeout', 3, 'ContentType', 'json'));
     live = string(info.copyrightText);
-    if strlength(live) == 0, error('mgv2:EmptyCredit', 'The service returned no credit.'); end
-    credit = live; creditSource = "LIVE_SERVICE";
     status = "Provider service answered when this window opened. Tiles load separately; blank areas mean tiles were not available.";
 catch
-    credit = pinned; creditSource = "PINNED_2026_11_02";
     status = "Provider service did not answer when this window opened. Map may be blank or cached. After reconnecting, pan, zoom or reopen; offline, use the ENU mission map.";
 end
-if ~startsWith(credit, "Source"), credit = "Sources: " + credit; end
-src = struct('credit', "Powered by Esri | " + credit, 'status', status, 'credit_source', creditSource, ...
-    'link_text', "Esri service page and source credits", 'url', url);
+if basemap == "satellite"
+    if strlength(live) > 0, credit = live; creditSource = "LIVE_SERVICE"; else, credit = pinned; creditSource = "PINNED_2026_11_02"; end
+    src = struct('credit', "Powered by Esri | " + credit, 'status', status, 'credit_source', creditSource, ...
+        'link_text', "Esri service page and source credits", 'url', service);
+else
+    src = struct('credit', "Powered by Esri | Data sources for this basemap are credited on the map and vary by area and zoom.", 'status', status, ...
+        'credit_source', "MAP_NATIVE", 'link_text', "MathWorks basemap source information", 'url', "https://www.mathworks.com/help/matlab/ref/geobasemap.html");
+end
 end
