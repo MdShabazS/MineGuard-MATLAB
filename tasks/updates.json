@@ -256,6 +256,14 @@
       "summary": "Implemented the V2 live mission engine in MATLAB: deterministic fixed-step clock (dt 0.05 s, no wall clock), convex lawnmower survey planner, continuous transit/survey/return route, bounded point-mass flight model with thrust lag, drag, seeded wind and differential-flatness attitude, terrain following, explicit CLEARANCE/TERRAIN_COLLISION/GEOFENCE/TIMEOUT/PREFLIGHT/ABORT outcomes, pause/resume/reset and per-tick PoseSample snapshots. 22/22 MATLAB tests pass in a clean clone on Windows R2026b; macOS NOT TESTED.",
       "next": "Shabaz review of start PR and implementation PR; Mac run of the listed commands; separate V2-002 DONE PR after merge",
       "evidence": "v2/evidence/V2-002.md"
+    },
+    {
+      "date": "2026-11-01",
+      "owner": "Rahil",
+      "task": "V2-003",
+      "summary": "Built the V2 3-D scene in MATLAB: seeded triangulated terrain with relief, soil/grass albedo, seated rocks/bushes/markers and calibration landmarks; height queries on exactly the drawn triangles; scaled F450-class quadrotor; renderer with sun/fill lighting, shadow, trail, SIMULATION HUD and five operator cameras (isometric, follow, chase, top-down, orbit); provisional RGB/thermal/LiDAR mounting with projection, terrain ray intersection, footprints, a scene-sampled raster and UAV Toolbox mesh export (LiDAR range = AGL). Live V2-002 engine drove the scene at 1x (COMPLETE, ~10 FPS). 41/41 MATLAB tests (V2-002 22 + V2-003 19) in a clean clone on Windows R2026b; macOS NOT TESTED.",
+      "next": "Shabaz review of V2-003 start and implementation PRs (stacked on V2-002); Mac run; separate V2-003 DONE PR after merge; V2-005 additionally needs V2-004",
+      "evidence": "v2/evidence/V2-003.md"
     }
   ]
 }
