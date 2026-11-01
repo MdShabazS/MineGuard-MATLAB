@@ -2,7 +2,7 @@ import {REPO, BASE, buildTaskRows, summarize, fileUrl, githubLink, safeDate, fin
 const RAW="https://raw.githubusercontent.com/"+REPO+"/main/";
 const API="https://api.github.com/repos/"+REPO;
 let latestRows=[],filter="ALL",loading=false;
-let v2Rows=[],v2Filter="ALL";
+let v2Rows=[],v2Filter="ALL",v2WorkNotes=new Map();
 const el=id=>document.getElementById(id);
 function make(tag,cls,text) {
   const node=document.createElement(tag);
@@ -103,6 +103,12 @@ function showChecks(data) {
 
 function showUpdates(data) {
   const entries=Array.isArray(data?.updates)?data.updates:[];
+  const notes=new Map();
+  for(const entry of [...entries].reverse()){
+    if(/^V2-\d{3}$/.test(entry.task) && !notes.has(entry.task))notes.set(entry.task,entry);
+  }
+  v2WorkNotes=notes;
+  if(v2Rows.length)showV2Tasks(v2Rows);
   const sorted=[...entries].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8);
   replace("updates",sorted.length?sorted.map(entry=>{
     const card=make("div","feed-item");
@@ -129,6 +135,11 @@ function showV2Tasks(rows) {
   const entries=filtered.map(task=>{
     const tr=make("tr"),info=make("td"),state=make("td"),detail=make("td");
     info.append(make("div","task-name",task.id+" · "+task.title),make("div","task-kind",task.kind));
+    const workNote=v2WorkNotes.get(task.id);
+    if(workNote && task.displayState==="READY"){
+      info.append(make("div","subtext","Local work reported · not yet merged into GitHub main"));
+      detail.append(make("div","subtext",workNote.summary));
+    }
     state.append(statusNode(task.displayState));
     if(task.displayState==="BLOCKED")detail.append(make("span","warning","Waiting: "+task.unfinished.join(", ")));
     else if(task.displayState==="DONE" && task.evidence){
