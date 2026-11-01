@@ -51,3 +51,13 @@ No notifications, approvals, or access-controlled student dashboard. No backgrou
 - `MG-020`: guide-facing Render Static Site with real URL and first actual fetch evidence, after MG-000 foundation merged.
 - `MG-021`: test the real HTTPS site on desktop and phone, verify filters, source-of-truth main, warnings, PR and CI feeds and screenshot/log proof. No false claim of deployment or QA before evidence.
 - CI on the portal must select the latest `main`-branch Task Gate run, not report a successful unmerged PR check as main's status.
+
+## Optional V2 Mission Intelligence enhancement roadmap
+
+A separately rendered section below the official ten-task V2 tracker shows the **non-authoritative** enhancement work in `v2/roadmap/enhancements.json`. It includes the evidence explorer/integration, optional satellite preview, Focus Mode, 3-D realism, replay/debrief, sensor input hardening and Mac demo theme fix.
+
+- Enhancement identifiers are `ENH-001` etc., not new official V2 tasks. **Never add them to `v2/tasks/manifest.json` or infer a new official completion percentage from them.** V2 remains 5/10 DONE until accepted, task-gated merges alter the authoritative status.
+- An entry may be marked `ACTIVE_UNMERGED`, `DRAFT_UNVERIFIED`, `PLANNED`, `BLOCKED` or `LOCAL_UNPUBLISHED`; **none means DONE**. For each update, verify associated issue/PR/test evidence and update the JSON on a reviewed branch. The portal does not auto-read unmerged PR status into roadmap state.
+- The enhancement view is fetched from GitHub **main** only, every ordinary portal refresh. It fails safely if missing/invalid. A passing CI gate does not prove MATLAB, satellite tile, Render deployment or physical detector validation.
+- The official V2 tracker, owners, journal and V1 historical archive are unaffected. One-time MATLAB satellite previews and locally tested display fixes are clearly reported as *unverified* or *not yet published*.
+- Guide-site deployment follows the existing Render auto-deploy-from-main workflow; **publishing a PR alone does not update the live portal**.
