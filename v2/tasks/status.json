@@ -19,8 +19,10 @@
     },
     "V2-003": {
       "owner": "Rahil",
-      "state": "TODO",
-      "evidence": null
+      "state": "IN_PROGRESS",
+      "evidence": null,
+      "startedBy": "Rahil",
+      "startedOn": "2026-11-01"
     },
     "V2-004": {
       "owner": "Shabaz",
