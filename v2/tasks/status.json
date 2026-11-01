@@ -22,10 +22,12 @@
     },
     "V2-004": {
       "owner": "Shabaz",
-      "state": "IN_PROGRESS",
-      "evidence": null,
+      "state": "DONE",
+      "evidence": "v2/evidence/V2-004.md",
       "startedBy": "Shabaz",
-      "startedOn": "2026-11-01"
+      "startedOn": "2026-11-01",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-11-01"
     },
     "V2-005": {
       "owner": "Rahil",
