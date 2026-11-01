@@ -251,6 +251,14 @@
     },
     {
       "date": "2026-11-01",
+      "owner": "Shabaz",
+      "task": "V2-004",
+      "summary": "Completed research-backed documentation drafts for virtual RGB camera, numerical LWIR thermal Kelvin imagery, terrain LiDAR and virtual GNSS/INS: versioned sensor envelope, ENU/pose timing, invalid-data contract, private-truth firewall, new grouped TRAIN/VAL/fresh TEST methodology, 30 downstream verification checks and evidence. V2-004 proposed IN_PROGRESS; no MATLAB sensor code or live feeds claimed.",
+      "next": "Review and merge V2-004 specification/start PR after CI; prepare separate IN_PROGRESS-to-DONE completion PR after the evidence is authoritative on main. V2-005 remains blocked until V2-002, V2-003 and V2-004 are all DONE.",
+      "evidence": "v2/evidence/V2-004.md"
+    },
+    {
+      "date": "2026-11-01",
       "owner": "Rahil",
       "task": "V2-002",
       "summary": "Implemented the V2 live mission engine in MATLAB: deterministic fixed-step clock (dt 0.05 s, no wall clock), convex lawnmower survey planner, continuous transit/survey/return route, bounded point-mass flight model with thrust lag, drag, seeded wind and differential-flatness attitude, terrain following, explicit CLEARANCE/TERRAIN_COLLISION/GEOFENCE/TIMEOUT/PREFLIGHT/ABORT outcomes, pause/resume/reset and per-tick PoseSample snapshots. 22/22 MATLAB tests pass in a clean clone on Windows R2026b; macOS NOT TESTED.",
