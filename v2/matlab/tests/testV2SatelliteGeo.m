@@ -55,7 +55,9 @@ verifyError(tc,@() mgv2SatelliteMapPreview(Visible="off"), ...
 end
 
 function testNearNullGeographicAnchorRejected(tc)
-for a = [0 0 1e-9; 1e-9 0 0; 0 0 5]
+anchors = [0 0 1e-9; 1e-9 0 0; 0 0 5];
+for i = 1:size(anchors,1)
+    a = anchors(i,:);
     verifyError(tc,@() mgv2.geo.enuToWgs84([0 0 0],a), ...
         'mgv2:MissingGeographicAnchor');
 end
