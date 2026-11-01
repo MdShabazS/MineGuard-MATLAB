@@ -109,7 +109,7 @@ function showUpdates(data) {
   }
   v2WorkNotes=notes;
   if(v2Rows.length)showV2Tasks(v2Rows);
-  const sorted=[...entries].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8);
+  const sorted=[...entries].map((entry,index)=>({...entry,index})).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")) || b.index-a.index).slice(0,8);
   replace("updates",sorted.length?sorted.map(entry=>{
     const card=make("div","feed-item");
     card.append(make("div","feed-meta",safeDate(entry.date)+" · "+(entry.owner||"Unknown")+" · "+(entry.task||"Task not recorded")));
