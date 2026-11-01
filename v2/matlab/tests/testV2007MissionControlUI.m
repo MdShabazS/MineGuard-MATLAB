@@ -362,6 +362,36 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             tc.verifyEqual(app.perfSummary().refreshes, numel(ticks));
         end
 
+        function panelWorkIsSplitAcrossFrames(tc)
+            app = tc.open('MaxTicksPerRun', 12); rows = strings(0, 4);
+            app.AfterRefreshFcn = @(a) note(a);
+            function note(a)
+                rows(end+1, :) = [string(a.Session.Engine.TickId), string(a.Panels.rgb.StatusLabel.Text), string(a.Panels.telemetry.StatusLabel.Text), string(a.Controls.Readout.Text)]; %#ok<AGROW>
+            end
+            tc.press(app.Controls.Buttons.start); drawnow; app.AfterRefreshFcn = [];
+            at = @(n) rows(find(rows(:, 1) == string(n), 1), :);
+            r = at(4); tc.verifySubstring(r(2), "tick 4 |", 'the image and its label draw on the tick of their sample');
+            tc.verifySubstring(r(3), "t=0.10", 'telemetry waits for the status frame');
+            r = at(6); tc.verifySubstring(r(3), "t=0.30"); tc.verifySubstring(r(4), "tick 6 ");
+            tc.verifySubstring(r(2), "tick 4 |", 'an image label keeps its own sample tick');
+            f = app.Session.Sensors.latest("RGB_NADIR");
+            tc.verifySubstring(string(app.Panels.telemetry.StatusLabel.Text), "t=0.60", 'run end draws everything');
+            tc.verifyEqual(app.Panels.map.H.footprint.XData(:), f.footprint_enu_m(:, 1));
+        end
+
+        function behindClockDefersStatusWithoutLosingIt(tc)
+            app = tc.open('RealTime', 100, 'MaxTicksPerRun', 24); ticks = zeros(0, 1);
+            app.AfterRefreshFcn = @(a) note(a);
+            function note(a)
+                if contains(string(a.Controls.Readout.Text), sprintf("tick %d ", a.Session.Engine.TickId)), ticks(end+1, 1) = a.Session.Engine.TickId; end %#ok<AGROW>
+            end
+            tc.press(app.Controls.Buttons.start); drawnow; app.AfterRefreshFcn = [];
+            tc.verifyEqual(app.Session.Engine.TickId, 24, 'no tick is dropped');
+            tc.verifyGreaterThan(app.perfSummary().skipped_scene, 0);
+            tc.verifyGreaterThanOrEqual(numel(ticks), 5, 'a dropped status frame returns on the next sensor frame');
+            tc.verifyLessThanOrEqual(max(diff(ticks)), 6, 'status is late by at most half a period');
+        end
+
         function displayCadenceDoesNotChangeSimulation(tc)
             w = mgv2.scene.buildWorld(); mc = mgv2.mission.defaultConfig();
             sys = mgv2.sensors.SensorSystem(w, mc); eng = mgv2.engine.MissionEngine(mc, mgv2.scene.terrainProvider(w));

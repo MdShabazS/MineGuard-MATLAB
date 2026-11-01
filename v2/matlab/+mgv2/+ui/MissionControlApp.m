@@ -9,6 +9,8 @@ classdef MissionControlApp < handle
     %   only MissionSession views, and refresh is decimated so that engine ticks are never skipped: the 3-D scene every
     %   SceneEvery ticks, everything else every RenderEvery ticks. Paced runs drop a scene-only refresh when behind the
     %   clock, and the drop is counted. Scene refreshes are update plus a synchronous drawnow, not measured screen FPS.
+    %   Full-panel work is split across two frames so it does not pile up on the tick that also generates sensor
+    %   samples: images and map draw with their samples, telemetry and labels draw RenderEvery/2 ticks later.
 
     properties (Constant)
         CompactWidth = 1100
@@ -24,6 +26,7 @@ classdef MissionControlApp < handle
     end
     properties (Access = private)
         LastStamp = NaN; PerfClock
+        StatusDue = false         % a status frame was dropped: the next sensor frame draws everything
     end
     properties
         AfterRefreshFcn = []      % test and instrumentation hook: fcn(app) after each refresh
@@ -139,15 +142,17 @@ classdef MissionControlApp < handle
                 if ~advanced, break; end
                 app.Perf.step_ms(end+1, 1) = 1e3 * toc(t0); ticks = ticks + 1; app.Perf.ticks = app.Perf.ticks + 1;
                 app.Perf.sim_s = simBefore + s.Engine.time() - base; app.Perf.wall_s = wallBefore + toc(tw);
-                if mod(s.Engine.TickId, app.RenderEvery) == 0 || s.Engine.isTerminal()
-                    app.refresh(); if ~isvalid(app), return; end
-                elseif mod(s.Engine.TickId, app.SceneEvery) == 0
-                    if app.RealTime > 0 && (s.Engine.time() - base) / app.RealTime - toc(tw) < -0.05
-                        app.Perf.skipped = app.Perf.skipped + 1;     % the clock has priority over an optional frame
-                    else
-                        app.refreshScene(); if ~isvalid(app), return; end
-                    end
+                n = s.Engine.TickId; behind = app.RealTime > 0 && (s.Engine.time() - base) / app.RealTime - toc(tw) < -0.05;
+                if s.Engine.isTerminal() || mod(app.RenderEvery, 2) ~= 0 && mod(n, app.RenderEvery) == 0 || app.StatusDue && mod(n, app.RenderEvery) == 0
+                    app.StatusDue = false; app.refresh();
+                elseif mod(n, app.RenderEvery) == 0
+                    app.refreshSensors();
+                elseif mod(app.RenderEvery, 2) == 0 && mod(n, app.RenderEvery) == app.RenderEvery / 2
+                    if behind, app.StatusDue = true; app.Perf.skipped = app.Perf.skipped + 1; else, app.refreshStatus(); end
+                elseif mod(n, app.SceneEvery) == 0
+                    if behind, app.Perf.skipped = app.Perf.skipped + 1; else, app.refreshScene(); end   % the clock has priority
                 end
+                if ~isvalid(app), return; end
             end
             app.Running = false;
             if s.state() == "ACTIVE", s.pauseRun(); end     % budget used: hold the clock, RESUME continues the sequence
@@ -168,6 +173,27 @@ classdef MissionControlApp < handle
             v.perf = struct('sim_to_wall', app.Perf.sim_s / max(app.Perf.wall_s, eps));
             if app.Perf.wall_s == 0, v.perf.sim_to_wall = NaN; end
             for f = string(fieldnames(app.Panels))'
+                t0 = tic; app.Panels.(f).present(v); app.Perf.panel_ms.(f)(end+1, 1) = 1e3 * toc(t0);
+            end
+            app.Controls.present(v, app.Running);
+            app.finishRefresh(tf);
+        end
+
+        function refreshSensors(app)
+            %REFRESHSENSORS Scene, images and map: everything tied to the samples of this tick.
+            tf = tic; v = app.Session.view();
+            t0 = tic; app.Panels.scene.presentPose(v.pose); app.Perf.panel_ms.scene(end+1, 1) = 1e3 * toc(t0);
+            for f = ["rgb", "thermal", "map"]
+                t0 = tic; app.Panels.(f).present(v); app.Perf.panel_ms.(f)(end+1, 1) = 1e3 * toc(t0);
+            end
+            app.finishRefresh(tf);
+        end
+
+        function refreshStatus(app)
+            %REFRESHSTATUS Scene plus telemetry, LiDAR, events and the labels and commands of the clock readout.
+            tf = tic; v = app.Session.view();
+            v.perf = struct('sim_to_wall', app.Perf.sim_s / max(app.Perf.wall_s, eps));
+            for f = ["scene", "lidar", "telemetry", "events"]
                 t0 = tic; app.Panels.(f).present(v); app.Perf.panel_ms.(f)(end+1, 1) = 1e3 * toc(t0);
             end
             app.Controls.present(v, app.Running);
