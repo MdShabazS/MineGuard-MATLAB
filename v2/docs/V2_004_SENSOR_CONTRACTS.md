@@ -50,7 +50,7 @@ Each observation is a MATLAB struct or typed table row with exact following fiel
 | t_s | finite double seconds; equals referenced pose time |
 | simulated | logical true; NEVER false on virtual channels |
 | valid | logical scalar; missing cannot be masqueraded as real zero |
-| invalid_reason | string scalar, empty iff valid; controlled reason codes below |
+| invalid_reason | string scalar, exactly NONE when valid; otherwise one enumerated failure reason below |
 | sensor_model_version | nonempty string, method and parameter-set hash retained in manifest |
 | frame_id | unique sample-frame identifier; enables event evidence selection |
 | coordinate_frame | "sensor" / "ENU"; for numeric output fields make frame unambiguous |
@@ -60,7 +60,7 @@ Each observation is a MATLAB struct or typed table row with exact following fiel
 | quality | struct with finite model-estimate values and explicit unavailable flags, no fabricated calibrated probability |
 | units | modality-specific machine-readable units metadata |
 
-Required invalid_reason enumeration: NONE (valid), NOT_SCHEDULED (no sample record should usually be emitted), SENSOR_DROPOUT, OUT_OF_RANGE, NO_INTERSECTION, OCCLUDED, CAMERA_OUT_OF_VIEW, INVALID_POSE, INVALID_GEOMETRY, NUMERIC_ERROR, STALE_DATA, UNSUPPORTED_MODEL, UNAVAILABLE_TOOLBOX. For invalid sample, **numeric fields use NaN with separate validity masks**, image pixels may use typed empty or per-pixel masks and must not display as true zero-valued observations.
+Required invalid_reason enumeration: NONE (valid), NOT_SCHEDULED (no sample record should usually be emitted), SENSOR_DROPOUT, OUT_OF_RANGE, NO_INTERSECTION, OCCLUDED, CAMERA_OUT_OF_VIEW, INVALID_POSE, INVALID_GEOMETRY, NUMERIC_ERROR, STALE_DATA, UNSUPPORTED_MODEL, UNAVAILABLE_TOOLBOX. For invalid sample, **numeric fields use NaN with separate validity masks**; RGB uint8 arrays cannot encode NaN and MUST instead carry a per-pixel valid mask or be typed empty, with an explicit unavailable visual overlay rather than a fake zero observation.
 
 ### 2.3 Canonical configuration
 
@@ -94,7 +94,7 @@ Default target: 160x120 double **temperature_K** [120,160], 5 Hz, 45-degree nomi
 3. Invert the stated synthetic response model only if mathematically valid; otherwise return **apparent_temperature_K**, not surface ground-truth temperature. Document eps/tau assumptions, additive NETD-like temperature noise, blur/PSF, FOV/downsampling, saturation and missing pixels.
 4. Spectral 8–14 µm bandpass / real detector counts / field calibration are out of scope until separately modeled and validated against external data. Report assumptions rather than assigning arbitrary military-grade sensitivity.
 
-ThermalFrame required: temperature_K [H,W] finite for valid pixels, NaN for invalid; apparent_temperature_K versus surface_temperature_K labels must be distinguished, simulated_temperature_uncertainty_K (assumption), emissivity_assumed, atmosphere_transmittance_assumed, reflected_temperature_K, ambient_temperature_K, display_min_K, display_max_K (visual-only), palette_id, valid_pixel_mask, intrinsics, T_world_sensor, footprint_enu_m. A raw Kelvin tensor never changes when GUI palette changes. No mandatory "hotspot detector" event if conditions produce no distinguishable contrast.
+ThermalFrame required: temperature_K [H,W] is explicitly the **simulated apparent-temperature** raster in Kelvin (not ground-truth surface temperature), finite for valid pixels and NaN for invalid; if an internal surface_temperature_K exists it is private to forward model and must NOT be exported in the public sample; apparent-versus-surface labels must be distinguished, simulated_temperature_uncertainty_K (assumption), emissivity_assumed, atmosphere_transmittance_assumed, reflected_temperature_K, ambient_temperature_K, display_min_K, display_max_K (visual-only), palette_id, valid_pixel_mask, intrinsics, T_world_sensor, footprint_enu_m. A raw Kelvin tensor never changes when GUI palette changes. No mandatory "hotspot detector" event if conditions produce no distinguishable contrast.
 
 ### 2.6 LiDAR contract (LIDAR_TERRAIN)
 
@@ -113,7 +113,7 @@ Default target 10 Hz, measured-like reported ENU pose, velocity, yaw/roll/pitch 
 ### 2.8 Validity and missing-data rules
 
 - Invalid sensor data is **not** a numerical zero and is not proof of a clear field. For thermal, invalid array pixels are NaN and mask=false; for LiDAR, invalid rays NaN and mask=false; for RGB, use valid mask and explicit placeholder on unavailable frames.
-- A sensor with invalid pose, pointing above horizon without ground intersection, out-of-range ground or fully blocked optical path returns a valid=false sample or explicit invalid mask, *not* copied frames with a fresh timestamp.
+- A sensor with invalid pose, pointing above horizon without ground intersection, out-of-range ground or fully blocked optical path returns a valid=false sample or explicit invalid mask, *not* copied frames with a fresh timestamp. A sample with some invalid pixels may retain valid=true only if its documented minimum-valid-pixel threshold is met, and those pixels remain masked.
 - If two modalities absent, detector emits no fused event; a single valid modality may emit an explicitly **single-modality SUSPECTED** observation only under a trained/validation-defined policy; absent channels must not be imputed from hidden labels.
 - Exports preserve invalidity, sample provenance and sensor model versions; UI displays SIMULATED and STALE/INVALID indicators. "Covered" means **sensor footprint observed validly**, not SAFE.
 
