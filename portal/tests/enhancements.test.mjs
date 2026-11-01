@@ -39,7 +39,7 @@ test("proposal and local display fix cannot inflate authoritative V2 percent", (
   assert.deepEqual(Object.keys(status.tasks), Object.keys(manifest.tasks));
   assert.ok(!Object.keys(status.tasks).some(x=>x.startsWith("ENH-")));
   assert.match(app, /const s=summarize\(rows\)/);
-  assert.match(app, /await refreshEnhancements\(\)/);
+  assert.match(app, /const independent=Promise\.allSettled\(\[refreshV2\(\),refreshEnhancements\(\)\]\)/);
 });
 
 test("portal has a separate roadmap section, linked only to merged main roadmap data", () => {
