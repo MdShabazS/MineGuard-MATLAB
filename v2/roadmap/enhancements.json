@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "phase": "V2-ENHANCEMENTS",
   "asOf": "2026-11-02",
-  "source": "GitHub main; milestone statuses are curated plans and do not replace v2/tasks/status.json",
-  "completionPolicy": "None of these enhancement entries affect the official V2 10-task completion percentage; unmerged or locally tested work is never DONE.",
+  "source": "Maintained GitHub main roadmap; statuses reflect verified/reported evidence and reviewed PR/issue gates, not an automated live status feed",
+  "completionPolicy": "All 11 ENH entries are separate from the ten official V2 tasks; no enhancement counts toward V2 completion and no unmerged or locally tested implementation may be shown as DONE.",
   "items": [
     {
       "id": "ENH-001",
@@ -11,21 +11,23 @@
       "owner": "Rahil (Windows Claude), Shabaz (UI)",
       "status": "ACTIVE_UNMERGED",
       "priority": "P1",
-      "detail": "Adapter and event click-through will correlate actual synthetic RGB/thermal evidence with map position, provenance and uncalibrated uncertainty. Integration has not passed end-to-end testing.",
-      "dependency": "Rahil's isolated bridge issue #68; review PR #66 and draft UI PR #67",
+      "detail": "Rahil's detector-to-UI adapter is published for review. Windows reported 143/143 tests but the visible integrated app ran at only 0.54× and event-click evidence inspection is not yet implemented.",
+      "dependency": "Review issue #68, resolve measured performance/equivalence gate #76 and complete accepted V2-006/V2-007 integration; no task DONE claim",
       "url": "https://github.com/MdShabazS/MineGuard-MATLAB/issues/68",
-      "urlLabel": "Integration issue #68"
+      "urlLabel": "Integration issue #68",
+      "category": "engineering"
     },
     {
       "id": "ENH-002",
       "title": "Optional real satellite mission-map preview",
       "owner": "Shabaz + ChatGPT; Mac Claude verification",
-      "status": "DRAFT_UNVERIFIED",
+      "status": "TESTED_BLOCKED",
       "priority": "P1",
-      "detail": "Draft MATLAB prototype for simulated route/boundary/home over online satellite imagery. Unit tests and actual tile loading remain unverified; offline ENU map stays primary.",
-      "dependency": "Mac MATLAB acceptance and explicit demo WGS84 anchor; not part of the live UI yet",
+      "detail": "Original PR #72 Mac verification: 7/7 coordinate tests PASS and actual online satellite imagery loaded. Required Esri attribution was absent and light-theme axis text failed contrast; PR #75 correction is still untested.",
+      "dependency": "Run PR #75 expanded tests and visual/provider checks on Mac, test Windows and offline failure, then review stacked merges",
       "url": "https://github.com/MdShabazS/MineGuard-MATLAB/pull/72",
-      "urlLabel": "Draft PR #72"
+      "urlLabel": "Draft PR #72",
+      "category": "engineering"
     },
     {
       "id": "ENH-003",
@@ -36,7 +38,8 @@
       "detail": "A clearer map/3-D hierarchy, expandable sensor/evidence panels, mission-stage ribbon and legible presentation-friendly controls.",
       "dependency": "Stable integrated V2-007 baseline and separate performance-reviewed UI branch",
       "url": "https://github.com/MdShabazS/MineGuard-MATLAB/pull/71",
-      "urlLabel": "Design PR #71"
+      "urlLabel": "Design PR #71",
+      "category": "engineering"
     },
     {
       "id": "ENH-004",
@@ -47,7 +50,8 @@
       "detail": "Higher-fidelity quadrotor, more natural deterministic terrain and footprints/LiDAR overlays tied to actual public sensor geometry, with quality fallback.",
       "dependency": "Measured integrated 1× performance; V2-003/V2-005 geometry tests must stay consistent",
       "url": "https://github.com/MdShabazS/MineGuard-MATLAB/pull/71",
-      "urlLabel": "Design PR #71"
+      "urlLabel": "Design PR #71",
+      "category": "engineering"
     },
     {
       "id": "ENH-005",
@@ -58,7 +62,8 @@
       "detail": "Timestamp-consistent replay, deterministic fault scenarios and evidence-based exports that show false alarms and the negative validation findings.",
       "dependency": "Official V2-006 and V2-007 DONE before starting V2-008 implementation",
       "url": "https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/v2/tasks/manifest.json",
-      "urlLabel": "Official V2 dependencies"
+      "urlLabel": "Official V2 dependencies",
+      "category": "engineering"
     },
     {
       "id": "ENH-006",
@@ -69,18 +74,68 @@
       "detail": "Enforce strict nested public quality metadata allowlists. A missing allowlist was found; this is not demonstrated detector truth leakage.",
       "dependency": "Issue #69 review; preserve published sensor contract and scientific datasets",
       "url": "https://github.com/MdShabazS/MineGuard-MATLAB/issues/69",
-      "urlLabel": "Hardening issue #69"
+      "urlLabel": "Hardening issue #69",
+      "category": "engineering"
     },
     {
       "id": "ENH-007",
       "title": "Mac dark/light-theme detector-demo correction",
       "owner": "Shabaz (Mac Claude); Rahil PR owner",
-      "status": "LOCAL_UNPUBLISHED",
+      "status": "MERGED_IN_BRANCH",
       "priority": "P1",
-      "detail": "Mac reported 100/100 tests and readable demo text after a local-only correction; original PR #66 still needs the patch published and re-reviewed.",
-      "dependency": "Push local Mac corrective branch, review the exact GitHub commit and verify PR #66 before merge",
-      "url": "https://github.com/MdShabazS/MineGuard-MATLAB/pull/66",
-      "urlLabel": "Current PR #66"
+      "detail": "Mac reported 100/100 tests PASS for the dark/light display correction. PR #74 merged into PR #66's feature branch, but V2-006 implementation has not merged into main or been marked DONE.",
+      "dependency": "Review updated PR #66 HEAD, refresh stale Mac/99-test evidence and verify Windows before official V2-006 acceptance",
+      "url": "https://github.com/MdShabazS/MineGuard-MATLAB/pull/74",
+      "urlLabel": "Merged stacked PR #74",
+      "category": "engineering"
+    },
+    {
+      "id": "ENH-008",
+      "category": "campus",
+      "title": "BITM campus satellite demonstration mode",
+      "owner": "Shabaz (Mac Claude); Rahil geometry review",
+      "status": "PLANNED",
+      "priority": "P1",
+      "detail": "Optional recognizable BITM campus imagery behind a clearly labelled simulated planned flight route, with no real-campus anomaly markers or mine/clearance inference.",
+      "dependency": "Satellite PR #72/#75 acceptance, approved campus WGS84 anchor/bounds, provider credits and offline ENU fallback",
+      "url": "https://github.com/MdShabazS/MineGuard-MATLAB/issues/78",
+      "urlLabel": "Campus demo issue #78"
+    },
+    {
+      "id": "ENH-009",
+      "category": "campus",
+      "title": "Offline BITM campus backdrop and licensing verification",
+      "owner": "Shabaz (licensing); Rahil (MATLAB fallback)",
+      "status": "BLOCKED",
+      "priority": "P1",
+      "detail": "Prepare a small legal offline campus-context image only if source terms permit download, public reuse and redistribution; otherwise use licensed imagery or a synthetic schematic.",
+      "dependency": "Verify exact imagery provider permission, credits, approved campus extent and offline failure tests; no tiles downloaded or committed",
+      "url": "https://github.com/MdShabazS/MineGuard-MATLAB/issues/79",
+      "urlLabel": "Offline imagery issue #79"
+    },
+    {
+      "id": "ENH-010",
+      "category": "campus",
+      "title": "Ballari-to-BITM location introduction for guide demo",
+      "owner": "Shabaz (Mac Claude)",
+      "status": "PLANNED",
+      "priority": "P2",
+      "detail": "A short Ballari city-to-campus geographic intro leading into the separate synthetic 3-D UAV simulation, with visible attribution and offline-safe fallback.",
+      "dependency": "Approved campus location and display rights; choose a lightweight static or animated intro after measuring startup/zoom cost",
+      "url": "https://github.com/MdShabazS/MineGuard-MATLAB/issues/80",
+      "urlLabel": "Presentation intro issue #80"
+    },
+    {
+      "id": "ENH-011",
+      "category": "campus",
+      "title": "Synchronize campus satellite context with synthetic 3-D UAV",
+      "owner": "Shabaz (UI); Rahil (pose/mission contracts)",
+      "status": "BLOCKED",
+      "priority": "P2",
+      "detail": "Use exactly one public simulation clock and trajectory to show matching virtual aircraft positions in the satellite-context view and 3-D scene; no second route or real-world hazard claims.",
+      "dependency": "Accepted V2-006/V2-007, issue #76 performance gate, campus anchor approval and geometric consistency tests",
+      "url": "https://github.com/MdShabazS/MineGuard-MATLAB/issues/81",
+      "urlLabel": "Simulation-sync issue #81"
     }
   ]
 }
