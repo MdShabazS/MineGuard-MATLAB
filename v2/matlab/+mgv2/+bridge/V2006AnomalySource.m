@@ -165,6 +165,7 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
             obj.AsOfTick = -1; obj.AsOfTime = NaN;
             obj.RawEvents = []; obj.UiEvents = struct([]); obj.Layers = struct([]); obj.Rejected = strings(0, 1);
             obj.CoverageKey = []; obj.EventKey = []; obj.ValidatedEvents = []; obj.BoundGeneration = NaN;
+            obj.LayerRevision = 0; obj.CoverageRev = 0; obj.EventRev = 0;     % a same-seed run gives identical layers
         end
 
         function c = evidenceContext(obj)
@@ -220,7 +221,7 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
             E = d.events(); t1 = tic;
             [ev, rej] = mgv2.bridge.toUiEvents(E, d.RunId, d, obj.ValidatedEvents);
             ev = mgv2.ui.validateEvents(ev, d.RunId);
-            if isempty(rej), obj.RawEvents = E; else, obj.RawEvents = E(~ismember([E.event_id], rej)); end
+            if isempty(rej), raw = E; else, raw = E(~ismember([E.event_id], rej)); end
             ms2 = 1e3 * toc(t1); t2 = tic;
             S = obj.Map.snapshot();
             key = S.cell_state; if ~isequal(key, obj.CoverageKey), obj.CoverageKey = key; obj.LayerRevision = obj.LayerRevision + 1; obj.CoverageRev = obj.LayerRevision; end
@@ -228,7 +229,7 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
             L = mgv2.bridge.toMapLayers(S, ev, obj.CoverageRev, obj.EventRev);
             L = mgv2.ui.validateMapLayers(L);
             ms3 = 1e3 * toc(t2);
-            obj.UiEvents = ev; obj.Layers = L; obj.Rejected = rej;
+            obj.RawEvents = raw; obj.UiEvents = ev; obj.Layers = L; obj.Rejected = rej;   % all or nothing, so inspect matches the list
             obj.AsOfTick = obj.clockTick(); obj.AsOfTime = obj.AsOfTick * d.Dt; obj.Dirty = false;
             st = obj.Stats; st.rebuilds = st.rebuilds + 1; n = st.rebuilds;
             st.rebuild_ms(n, 1) = 1e3 * toc(t0); st.rebuild_tick(n, 1) = obj.AsOfTick; st.rebuild_events(n, 1) = numel(ev);

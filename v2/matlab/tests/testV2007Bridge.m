@@ -554,6 +554,16 @@ classdef testV2007Bridge < matlab.unittest.TestCase
             tc.verifyError(@() src.inspect("SUS-00001"), 'mgv2:EvidenceLogUnavailable');
         end
 
+        function b42_sameSeedGivesIdenticalLayersAndAClosedAppFreesTheSource(tc)
+            [src, ses] = testV2007Bridge.flown(120); ses.pauseRun(); a = ses.view();
+            ses.reset(); ses.start(); testV2007Bridge.advance(ses, 120); ses.pauseRun(); b = ses.view();
+            tc.verifyEqual(b.layers, a.layers); tc.verifyEqual(b.events, a.events); delete(ses);
+            one = mgv2.bridge.V2006AnomalySource();
+            app = mgv2.ui.MissionControlApp(Visible="off", RealTime=0, MaxTicksPerRun=10, AnomalySource=one); delete(app);
+            app = mgv2.ui.MissionControlApp(Visible="off", RealTime=0, MaxTicksPerRun=10, AnomalySource=one); c = onCleanup(@() delete(app));
+            tc.verifyEqual(one.Detector.RunId, string(app.Session.MissionConfig.run_id)); tc.verifyEqual(src.Stats.resets, 1);
+        end
+
         function b20_validationMemoNeverChangesOutput(tc)                    % issue #76: skipped scan, same result
             d = tc.Src.Detector; E = d.events(); memo = containers.Map('KeyType', 'char', 'ValueType', 'any');
             [a, ra] = mgv2.bridge.toUiEvents(E, d.RunId, d);
