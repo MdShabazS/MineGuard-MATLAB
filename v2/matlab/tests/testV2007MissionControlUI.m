@@ -782,15 +782,15 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             L = ses.Sensors.Log; r = L(L.tick_id > 0 & L.sensor_id == "RGB_NADIR", :); r = r(end, :);
             old = src.Inspection; old.items = old.items(1); old.items.frame_id = r.frame_id; old.items.sample_checksum = r.checksum; old.items.tick_id = r.tick_id;
             src.Inspection = old; src.StampFromLog = false;
-            tc.verifyEqual(ses.inspect("T-1").items.frame_id, r.frame_id);
+            tc.verifyEqual(ses.inspectCurrentRun("T-1").items.frame_id, r.frame_id);
             app.command("abort"); app.command("reset");
             tc.verifyEqual(E.SelectedId, "");
-            tc.verifyError(@() ses.inspect("T-1"), 'mgv2:EvidenceMismatch', 'that frame is not in the new run yet');
+            tc.verifyError(@() ses.inspectCurrentRun("T-1"), 'mgv2:EvidenceMismatch', 'that frame is not in the new run yet');
             app.selectEvent("T-1"); tc.verifySubstring(string(E.DetailText.Text), "EVIDENCE NOT AVAILABLE"); tc.verifyEmpty(findall(E.RgbAxes, 'Type', 'image'));
             app.configure("Overcast", 77); ses.start(); for k = 1:40, ses.step(); end
-            tc.verifyError(@() ses.inspect("T-1"), 'mgv2:EvidenceMismatch', 'another scenario has other frames');
+            tc.verifyError(@() ses.inspectCurrentRun("T-1"), 'mgv2:EvidenceMismatch', 'another scenario has other frames');
             bad = old; L = ses.Sensors.Log; r = L(find(L.sensor_id == "RGB_NADIR", 1), :); bad.items.frame_id = r.frame_id; bad.items.tick_id = r.tick_id; bad.items.sample_checksum = "tampered"; src.Inspection = bad;
-            tc.verifyError(@() ses.inspect("T-1"), 'mgv2:EvidenceMismatch', 'an altered checksum');
+            tc.verifyError(@() ses.inspectCurrentRun("T-1"), 'mgv2:EvidenceMismatch', 'an altered checksum');
         end
 
         function adapterSeamRejectsBadRecords(tc)

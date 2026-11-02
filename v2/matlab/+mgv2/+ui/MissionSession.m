@@ -77,13 +77,6 @@ classdef MissionSession < handle
         function ins = inspect(ses, eventId)
             %INSPECT Verified evidence of one public event from the source. It errors rather than substitute anything.
             ins = mgv2.ui.validateInspection(ses.Source.inspect(string(eventId)), eventId);
-            L = ses.Sensors.Log;
-            for it = reshape(ins.items, 1, [])
-                k = find(L.frame_id == string(it.frame_id));
-                if ~isscalar(k) || L.checksum(k) ~= string(it.sample_checksum) || L.tick_id(k) ~= it.tick_id
-                    error('mgv2:EvidenceMismatch', 'Evidence %s does not match the sensor log of the current run.', string(it.ref_id));
-                end
-            end
         end
 
         function c = evidenceContext(ses)
@@ -99,6 +92,17 @@ classdef MissionSession < handle
             elseif ses.Engine.isTerminal(), s = "ENDED";
             elseif ses.Engine.Paused, s = "PAUSED";
             else, s = "ACTIVE";
+            end
+        end
+
+        function ins = inspectCurrentRun(ses, eventId)
+            %INSPECTCURRENTRUN inspect, then refuse evidence that this run's sensor log does not hold, whatever the source says.
+            ins = ses.inspect(eventId); L = ses.Sensors.Log;
+            for it = reshape(ins.items, 1, [])
+                k = find(L.frame_id == string(it.frame_id));
+                if ~isscalar(k) || L.checksum(k) ~= string(it.sample_checksum) || L.tick_id(k) ~= it.tick_id
+                    error('mgv2:EvidenceMismatch', 'Evidence %s does not match the sensor log of the current run.', string(it.ref_id));
+                end
             end
         end
 

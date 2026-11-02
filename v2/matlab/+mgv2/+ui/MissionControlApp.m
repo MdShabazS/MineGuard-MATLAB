@@ -145,7 +145,7 @@ classdef MissionControlApp < handle
             if isscalar(k), P.map.setSelected(ev(k).x_est_m, ev(k).y_est_m); else, P.map.setSelected(NaN, NaN); end
             if app.Expanded ~= "events", app.toggleExpand("events"); end
             try
-                P.events.showInspection(app.Session.inspect(eventId));
+                P.events.showInspection(app.Session.inspectCurrentRun(eventId));
             catch err
                 P.events.showInspectionError(eventId, err.message);
                 if startsWith(err.identifier, "MATLAB:"), rethrow(err); end
