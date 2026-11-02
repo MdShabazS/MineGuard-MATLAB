@@ -96,7 +96,7 @@ classdef testV2007Bridge < matlab.unittest.TestCase
 
         function b06_noDuplicateSubscriptions(tc)                            % every sample and pose exactly once
             src = tc.Src; ses = tc.Ses;
-            tc.verifyEqual(src.Stats.pose_subscriptions, 1);
+            tc.verifyEqual(src.Stats.binds, 1);
             tc.verifyEqual(height(src.Detector.Log), height(ses.Sensors.Log));
             tc.verifyEqual(src.Detector.Log.frame_id, ses.Sensors.Log.frame_id);
             tc.verifyEqual(numel(src.Map.Route.t_s), ses.Engine.TickId + 1);
@@ -115,7 +115,7 @@ classdef testV2007Bridge < matlab.unittest.TestCase
             ses.start(); testV2007Bridge.advance(ses, 200);
             tc.verifyEqual(ses.Sensors.Log.checksum, L1);
             E2 = src.Detector.events(); tc.verifyEqual(E2, E1);               % same seed gives identical events
-            tc.verifyEqual(src.Stats.pose_subscriptions, 2);                  % one per engine, none duplicated
+            tc.verifyEqual(src.Stats.binds, 2);                               % one per engine, none duplicated
             tc.verifyEqual(numel(src.Map.Route.t_s), 201);                    % poses of the new run only
             [src3, ~] = testV2007Bridge.flown(200); tc.verifyEqual(src3.Detector.events(), E1);
         end
@@ -124,21 +124,59 @@ classdef testV2007Bridge < matlab.unittest.TestCase
             src = mgv2.bridge.V2006AnomalySource(); ses = mgv2.ui.MissionSession(AnomalySource=src);
             other = mgv2.bridge.V2006AnomalySource();
             tc.verifyError(@() other.bindSession(ses), 'mgv2:BridgeWrongSession');
+            tc.verifyEqual(src.Map.Route.x(1), ses.Engine.snapshot().position_enu_m(1));   % bound by the session itself
+            tc.verifyEqual(src.Detector.RunId, string(ses.MissionConfig.run_id));
+            tc.verifyEqual(height(src.Detector.Log), height(ses.Sensors.Log));   % tick-0 samples arrived through the seam
             src.bindSession(ses);
             tc.verifyError(@() src.bindSession(ses), 'mgv2:BridgeAlreadyBound');
             late = mgv2.bridge.V2006AnomalySource(); s2 = mgv2.ui.MissionSession(AnomalySource=late); s2.start(); s2.step();
-            tc.verifyError(@() late.bindSession(s2), 'mgv2:BridgeLateBind');
-            tc.verifyEqual(src.Map.Route.x(1), ses.Engine.snapshot().position_enu_m(1));   % the session's own engine
-            tc.verifyEqual(src.Detector.RunId, string(ses.MissionConfig.run_id));
-            tc.verifyEqual(height(src.Detector.Log), height(ses.Sensors.Log));   % held tick-0 samples were replayed
+            late.bindSession(s2);                                              % the log can be attached at any tick
+            tc.verifyEqual(late.Stats.binds, 1); tc.verifyEqual(late.Stats.poses, s2.Engine.TickId + 1);
         end
 
         function b09_unboundFailsClosed(tc)                                  % never invents output
-            src = mgv2.bridge.V2006AnomalySource(); ses = mgv2.ui.MissionSession(AnomalySource=src);
-            v = ses.view();
-            tc.verifyFalse(v.source.connected); tc.verifyEmpty(v.events); tc.verifyEmpty(v.layers);
-            tc.verifyEqual(v.source.status_text, "DETECTOR BRIDGE NOT BOUND");
+            src = mgv2.bridge.V2006AnomalySource(); i = src.sourceInfo();
+            tc.verifyFalse(i.connected); tc.verifyEmpty(src.suspectedEvents()); tc.verifyEmpty(src.mapLayers());
+            tc.verifyEqual(i.status_text, "DETECTOR BRIDGE NOT BOUND");
             tc.verifyError(@() src.inspect("SUS-00001"), 'mgv2:BridgeNotBound');
+            s = mgv2.ui.MissionSession().Sensors.latest("RGB_NADIR"); src.onSample(s); src.onPose(mgv2.ui.MissionSession().pose());
+            tc.verifyEqual(src.Stats.samples, 0); tc.verifyEqual(src.Stats.samples_unbound, 1); tc.verifyEqual(src.Stats.poses, 0);
+        end
+
+        function b23_plainLaunchWorksThroughTheSeam(tc)                      % no manual bind; unverifiable evidence is refused
+            src = mgv2.bridge.V2006AnomalySource(); ses = mgv2.ui.MissionSession(AnomalySource=src); ses.start();
+            testV2007Bridge.advance(ses, tc.N);
+            tc.verifyEqual(height(src.Detector.Log), height(ses.Sensors.Log));
+            tc.verifyEqual(src.Stats.poses, ses.Engine.TickId + 1);
+            v = ses.view(); tc.assertNotEmpty(v.events); tc.verifyEqual(v.overlay_error, "");
+            tc.verifyEqual(v.overlay_key, double(v.source.events_as_of_tick));
+            id = v.events(1).event_id;
+            tc.verifyError(@() ses.inspect(id), 'mgv2:EvidenceLogUnavailable');
+            src.bindSession(ses); ins = ses.inspect(id);                       % passes the UI's own validateInspection
+            tc.verifyTrue(all([ins.items.verified_against_sensor_log]));
+            tc.verifyEqual(ins.event_id, id); tc.verifyTrue(ins.simulated);
+        end
+
+        function b24_scenarioChangeStartsANewRun(tc)                         % new run id; nothing carried over
+            src = mgv2.bridge.V2006AnomalySource(); ses = mgv2.ui.MissionSession(AnomalySource=src); src.bindSession(ses); first = src.Detector;
+            ses.configure("Thermal dropout", 77);
+            tc.verifyTrue(src.Detector ~= first); tc.verifyEqual(src.Detector.RunId, string(ses.MissionConfig.run_id));
+            tc.verifyEqual(src.Stats.binds, 2); tc.verifyEqual(src.Stats.poses, 2);   % tick 0 of each engine, once
+            ses.start(); testV2007Bridge.advance(ses, 300);
+            tc.verifyEqual(height(src.Detector.Log), height(ses.Sensors.Log));
+            v = ses.view(); tc.verifyEqual(v.overlay_error, "");
+            L = src.Detector.Log; tc.verifyGreaterThan(nnz(L.outcome == "INVALID_SAMPLE"), 0);   % the dropout stays visible
+            for e = reshape(v.events, 1, []), tc.verifyEqual(e.run_id, string(ses.MissionConfig.run_id)); end
+        end
+
+        function b25_freshnessTickChangesWithContent(tc)                     % the UI skips redraws while the tick is unchanged
+            [src, ses] = testV2007Bridge.flown(40, RefreshTicks=1000);
+            v1 = ses.view(); k1 = v1.overlay_key; testV2007Bridge.advance(ses, 5);
+            ses.view(); tc.verifyEqual(src.sourceInfo().events_as_of_tick, k1);   % ACTIVE: held by the budget
+            ses.pauseRun(); v2 = ses.view();
+            tc.verifyGreaterThan(v2.overlay_key, k1);                          % new content arrives with a new tick
+            tc.verifyEqual(v2.source.stale_ticks, 0);
+            a = src.Stats.rebuilds; ses.view(); ses.view(); tc.verifyEqual(src.Stats.rebuilds, a);   % nothing new: no rebuild
         end
 
         function b10_wrongRunSampleRefused(tc)
