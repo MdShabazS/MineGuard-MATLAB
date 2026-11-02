@@ -191,7 +191,12 @@ classdef MissionControlApp < handle
                     end
                     app.Perf.max_behind = max(app.Perf.max_behind, -lag);
                 end
-                t0 = tic; advanced = s.step();
+                t0 = tic;
+                try
+                    advanced = s.step();
+                catch err
+                    s.abortOnFault(err.message); advanced = false;      % shown in telemetry; a resume could not recover the lost samples
+                end
                 if ~advanced, break; end
                 app.Perf.step_ms(end+1, 1) = 1e3 * toc(t0); ticks = ticks + 1; app.Perf.ticks = app.Perf.ticks + 1;
                 app.Perf.sim_s = simBefore + s.Engine.time() - base; app.Perf.wall_s = wallBefore + toc(tw);
@@ -228,8 +233,18 @@ classdef MissionControlApp < handle
             for f = string(fieldnames(app.Panels))'
                 t0 = tic; app.Panels.(f).present(v); app.Perf.panel_ms.(f)(end+1, 1) = 1e3 * toc(t0);
             end
-            app.Controls.present(v, app.Running);
+            app.syncSelection(v); app.Controls.present(v, app.Running);
             app.finishRefresh(tf);
+        end
+
+        function syncSelection(app, v)
+            %SYNCSELECTION The ring follows the selected event's current estimate, and goes when the event is no longer listed.
+            id = app.Panels.events.SelectedId; x = NaN; y = NaN;
+            if strlength(id) > 0 && ~isempty(v.events)
+                k = find(string({v.events.event_id}) == id);
+                if isscalar(k), x = v.events(k).x_est_m; y = v.events(k).y_est_m; end
+            end
+            app.Panels.map.setSelected(x, y);
         end
 
         function refreshSensors(app)
@@ -249,7 +264,7 @@ classdef MissionControlApp < handle
             for f = ["scene", "lidar", "telemetry", "events"]
                 t0 = tic; app.Panels.(f).present(v); app.Perf.panel_ms.(f)(end+1, 1) = 1e3 * toc(t0);
             end
-            app.Controls.present(v, app.Running);
+            app.syncSelection(v); app.Controls.present(v, app.Running);
             app.finishRefresh(tf);
         end
 

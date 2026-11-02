@@ -6,10 +6,14 @@ classdef V2007TestDoubleSource < mgv2.ui.AnomalySource
         Events = struct([]); Layers = struct([]); Seen = strings(0); Resets = 0
         Binds = 0; BoundWorld = []; BoundMission = []; Poses = zeros(0, 1); Reads = 0; Info = struct()
         ReadError = ""; Inspection = []; InspectError = ""; EvidenceFcn = []; EvidenceBinds = 0
+        SampleError = ""; BindFailure = ""
         StampFromLog = true     % inspect fills the frame references from the bound log; false returns Inspection as set
     end
     methods
-        function onSample(obj, s), obj.Seen(end+1) = s.frame_id; end
+        function onSample(obj, s)
+            if strlength(obj.SampleError) > 0, error('mgv2:TestFault', '%s', obj.SampleError); end
+            obj.Seen(end+1) = s.frame_id;
+        end
         function ev = suspectedEvents(obj)
             %SUSPECTEDEVENTS The placeholder run "r" stands for the run this double is bound to.
             obj.Reads = obj.Reads + 1; ev = obj.Events;
@@ -22,7 +26,10 @@ classdef V2007TestDoubleSource < mgv2.ui.AnomalySource
             for f = string(fieldnames(obj.Info))', i.(f) = obj.Info.(f); end
         end
         function reset(obj), obj.Resets = obj.Resets + 1; obj.Seen = strings(0); obj.Poses = zeros(0, 1); end
-        function bindRun(obj, world, cfg), obj.Binds = obj.Binds + 1; obj.BoundWorld = world; obj.BoundMission = cfg; end
+        function bindRun(obj, world, cfg)
+            if strlength(obj.BindFailure) > 0, error('mgv2:TestFault', '%s', obj.BindFailure); end
+            obj.Binds = obj.Binds + 1; obj.BoundWorld = world; obj.BoundMission = cfg;
+        end
         function bindEvidence(obj, f), obj.EvidenceFcn = f; obj.EvidenceBinds = obj.EvidenceBinds + 1; end
         function onPose(obj, p), obj.Poses(end+1, 1) = double(p.tick_id); end
         function ins = inspect(obj, ~)
@@ -34,6 +41,7 @@ classdef V2007TestDoubleSource < mgv2.ui.AnomalySource
                 r = L(find(L.sensor_id == ins.items(k).sensor_id, 1), :);
                 if isempty(r), continue; end
                 ins.items(k).frame_id = r.frame_id; ins.items(k).sample_checksum = r.checksum; ins.items(k).tick_id = r.tick_id;
+                ins.items(k).pose_id = r.pose_id; ins.items(k).t_s = r.t_s;
             end
         end
     end

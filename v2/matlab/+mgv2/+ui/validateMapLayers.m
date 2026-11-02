@@ -14,7 +14,7 @@ if ~isempty(miss), error(id, 'Layer is missing field "%s".', miss(1)); end
 mgv2.sensors.assertPublic(L, "mapLayer");
 for k = 1:numel(L)
     if ~ismember(string(L(k).kind), ["points","polyline","polygon","raster"]), error(id, 'Unknown layer kind "%s".', string(L(k).kind)); end
-    if ~isempty(regexp(char(L(k).display_name), '\<(SAFE|CLEARED|CONFIRMED)\>', 'once', 'ignorecase'))
+    if ~isempty(regexp(char(L(k).display_name), '\<(SAFE|CLEARED|CONFIRMED|DETECTED|VERIFIED)\>', 'once', 'ignorecase'))
         error(id, 'Layer name "%s" uses a forbidden claim.', string(L(k).display_name));
     end
     if string(L(k).kind) == "raster"

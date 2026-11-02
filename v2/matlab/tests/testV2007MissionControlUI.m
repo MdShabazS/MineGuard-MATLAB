@@ -802,6 +802,45 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             tc.verifySubstring(string(app.Panels.map.StatusLabel.Text), "anomaly overlays failed");
         end
 
+        function aFaultInATickEndsTheRunAndIsShown(tc)
+            src = V2007TestDoubleSource(); src.SampleError = "injected test fault";
+            app = tc.flown(40, 'AnomalySource', src); s = app.Session;
+            tc.verifyEqual(s.state(), "ENDED"); tc.verifyEqual(s.pose().fault_code, "SOFTWARE_FAULT");
+            tc.verifySubstring(s.view(false).fault_message, "injected test fault");
+            tc.verifyFalse(app.Running); tc.verifyEqual(string(app.Controls.Buttons.resume.Enable), "off");
+        end
+
+        function theRingFollowsTheEstimateAndGoesWithTheEvent(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event(); src.Inspection = V2007TestDoubleSource.inspection();
+            app = tc.flown(40, 'AnomalySource', src); r = app.Panels.map.H.selected;
+            app.selectEvent("T-1"); tc.verifyEqual([r.XData r.YData], [2 3]);
+            src.Events = V2007TestDoubleSource.event('x_est_m', 7, 'y_est_m', 8); app.command("resume");
+            tc.verifyEqual([r.XData r.YData], [7 8]);
+            src.Events = struct([]); app.command("abort"); tc.verifyEqual(r.XData, NaN);
+        end
+
+        function aSourceThatRefusesTheRunLeavesTheMissionFlying(tc)
+            src = V2007TestDoubleSource(); app = tc.open('AnomalySource', src, 'MaxTicksPerRun', 40); s = app.Session;
+            src.BindFailure = "injected bind fault"; s.configure("Overcast", s.MissionConfig.seed);
+            v = s.view(); tc.verifySubstring(v.overlay_error, "injected bind fault"); tc.verifyEmpty(v.events);
+            tc.verifyEqual(s.Scenario, "Overcast");
+            before = numel(src.Seen); s.start(); for k = 1:40, s.step(); end
+            tc.verifyGreaterThan(height(s.Sensors.Log), 0, 'the sensors still run'); tc.verifyEqual(numel(src.Seen), before);
+        end
+
+        function rejectedEventsAreNotShownInTheValidColour(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event(); src.Info = struct('rejected_events', 2);
+            app = tc.flown(40, 'AnomalySource', src); E = app.Panels.events; E.present(app.Session.view());
+            tc.verifyEqual(E.StatusLabel.FontColor, mgv2.ui.theme().invalid);
+        end
+
+        function evidenceIsRefusedWhenItsTimeDiffersFromTheLog(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event(); src.Inspection = V2007TestDoubleSource.inspection();
+            app = tc.flown(40, 'AnomalySource', src); ins = src.inspect("T-1");
+            ins.items(1).t_s = ins.items(1).t_s + 1; src.StampFromLog = false; src.Inspection = ins;
+            tc.verifyError(@() app.Session.inspectCurrentRun("T-1"), 'mgv2:EvidenceMismatch');
+        end
+
         function evidenceContextDescribesTheCurrentRunOnly(tc)
             src = V2007TestDoubleSource(); app = tc.flown(20, 'AnomalySource', src); ses = app.Session;
             tc.verifyEqual(src.EvidenceBinds, 1); f = src.EvidenceFcn; c = f(); g = c.generation;

@@ -29,6 +29,7 @@ classdef EventInspectorPanel < mgv2.ui.PanelBase
                     age = view.pose.t_s - view.source.events_as_of_t_s; txt = sprintf("%s | age %.1f s", txt, age);
                     if age > obj.MaxEventAge_s, state = "STALE"; end
                 end
+                if isfield(view.source, 'rejected_events') && view.source.rejected_events > 0, state = "INVALID"; end
                 obj.setStatus(txt, state);
             else
                 obj.setStatus(view.source.status_text, "INVALID");
@@ -45,7 +46,12 @@ classdef EventInspectorPanel < mgv2.ui.PanelBase
             obj.Table.Data = D;
             if strlength(obj.SelectedId) > 0
                 r = []; if n > 0, r = find(string({ev.event_id}) == obj.SelectedId); end
-                if isscalar(r), obj.Table.Selection = r; else, obj.Table.Selection = []; obj.setDetail(obj.SelectedId + " is no longer in the current detector output. Tracks can merge, which removes an event id. Select another event."); obj.clearCrops(); end
+                if isscalar(r), obj.Table.Selection = r; else
+                    obj.Table.Selection = []; obj.clearCrops();
+                    if strlength(view.overlay_error) > 0, obj.setDetail(obj.SelectedId + " cannot be shown: the anomaly output was rejected. " + view.overlay_error);
+                    else, obj.setDetail(obj.SelectedId + " is no longer in the current detector output. Tracks can merge, which removes an event id. Select another event.");
+                    end
+                end
             end
         end
         function resetDisplay(obj)

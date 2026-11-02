@@ -22,6 +22,7 @@ classdef MissionSession < handle
         Launch            % configurations the session was created with
         Overlay           % last validated source output: see clearOverlay
         Generation = 0    % engine/sensor pairs built so far: tells apart two runs with the same run id
+        BindError = ""    % why the source refused this run; the mission flies without it and the error stays displayed
     end
 
     methods
@@ -44,6 +45,10 @@ classdef MissionSession < handle
         function resumeRun(ses), ses.Engine.resume(); end
         function abortRun(ses), ses.Engine.abort("operator abort from mission control"); end
         function advanced = step(ses), advanced = ses.Engine.step(); end
+        function abortOnFault(ses, message)
+            %ABORTONFAULT A tick threw part-way, so its samples are incomplete: the run ends and cannot be resumed.
+            ses.Engine.abort("software fault during a tick: " + string(message), "SOFTWARE_FAULT");
+        end
 
         function p = pose(ses)
             %POSE Current PoseSample alone, for a scene-only refresh.
@@ -70,8 +75,14 @@ classdef MissionSession < handle
                 m.run_id = sprintf("V2RUN-UI-%s-%04d", upper(regexprep(scenario, '[^A-Za-z0-9]+', '_')), seed);
             end
             m.seed = seed; mgv2.mission.validateConfig(m);      % refused before anything changes
+            was = {ses.Scenario, ses.MissionConfig, ses.SensorConfig, ses.Environment};
             ses.Scenario = scenario; ses.MissionConfig = m; ses.SensorConfig = c; ses.Environment = e;
-            ses.reset();
+            try
+                ses.reset();
+            catch err
+                [ses.Scenario, ses.MissionConfig, ses.SensorConfig, ses.Environment] = was{:}; ses.reset();
+                rethrow(err);
+            end
         end
 
         function ins = inspect(ses, eventId)
@@ -100,7 +111,8 @@ classdef MissionSession < handle
             ins = ses.inspect(eventId); L = ses.Sensors.Log;
             for it = reshape(ins.items, 1, [])
                 k = find(L.frame_id == string(it.frame_id));
-                if ~isscalar(k) || L.checksum(k) ~= string(it.sample_checksum) || L.tick_id(k) ~= it.tick_id
+                if ~isscalar(k) || L.checksum(k) ~= string(it.sample_checksum) || L.tick_id(k) ~= it.tick_id ...
+                        || L.sensor_id(k) ~= string(it.sensor_id) || L.pose_id(k) ~= it.pose_id || L.t_s(k) ~= it.t_s
                     error('mgv2:EvidenceMismatch', 'Evidence %s does not match the sensor log of the current run.', string(it.ref_id));
                 end
             end
@@ -123,11 +135,16 @@ classdef MissionSession < handle
             eng = mgv2.engine.MissionEngine(ses.MissionConfig, mgv2.scene.terrainProvider(ses.World));
             ses.Sensors = sys; ses.Engine = eng; ses.Generation = ses.Generation + 1;   % both built, then swapped together
             src = ses.Source;
-            src.bindRun(ses.World, ses.MissionConfig);
-            src.onPose(ses.Engine.snapshot());
-            ses.Engine.subscribe(@(p) src.onPose(p));       % before the sensors: a sample's pose is always known first
-            ses.Sensors.subscribe(@(s) src.onSample(s));
-            ses.Sensors.attach(ses.Engine);
+            ses.BindError = "";
+            try
+                src.bindRun(ses.World, ses.MissionConfig);
+                src.onPose(ses.Engine.snapshot());
+                ses.Engine.subscribe(@(p) src.onPose(p));   % before the sensors: a sample's pose is always known first
+                ses.Sensors.subscribe(@(s) src.onSample(s));
+            catch err
+                ses.BindError = string(err.message);
+            end
+            ses.Sensors.attach(ses.Engine);                 % the sensors never depend on the source
         end
 
         function clearOverlay(ses)
@@ -139,6 +156,10 @@ classdef MissionSession < handle
             %READOVERLAY Ask the source. Validation and panel redraws are skipped while its freshness tick is unchanged.
             %   Any failure in reading or validating shows no overlays and displays the error; the run itself continues.
             src = ses.Source; o = ses.Overlay;
+            if strlength(ses.BindError) > 0
+                o.key = NaN; o.events = struct([]); o.layers = struct([]); o.error = "source refused this run: " + ses.BindError;
+                ses.Overlay = o; return;
+            end
             try
                 ev = src.suspectedEvents(); L = src.mapLayers(); o.source = src.sourceInfo();
                 key = NaN; if isfield(o.source, 'events_as_of_tick'), key = double(o.source.events_as_of_tick); end
