@@ -7,6 +7,7 @@ classdef MissionSession < handle
     %   The authoritative clock and sensor state live here, never in a visual component. There is no timer.
     %   The session binds and subscribes the source once per engine/sensor pair. V2-005 has no reset or unsubscribe,
     %   so reset() replaces both objects with the same seed and configuration.
+    %   L = ses.readSensorLog(generation)  read-only log copy of that run; a source gets it as a bound function.
     %   A source output that fails validation is not shown: the events and layers are empty and the error is displayed.
 
     properties (Constant)
@@ -17,6 +18,7 @@ classdef MissionSession < handle
         World; MissionConfig; SensorConfig; Environment
         Engine; Sensors; Source
         Scenario = "As launched"
+        RunGeneration = 0     % increases with every new engine, also when run id and seed stay the same
     end
     properties (Access = private)
         Launch            % configurations the session was created with
@@ -75,6 +77,19 @@ classdef MissionSession < handle
         function ins = inspect(ses, eventId)
             %INSPECT Verified evidence of one public event from the source. It errors rather than substitute anything.
             ins = mgv2.ui.validateInspection(ses.Source.inspect(string(eventId)), eventId);
+            L = ses.Sensors.Log;
+            for it = reshape(ins.items, 1, [])
+                k = find(L.frame_id == string(it.frame_id));
+                if ~isscalar(k) || L.checksum(k) ~= string(it.sample_checksum) || L.tick_id(k) ~= it.tick_id
+                    error('mgv2:EvidenceMismatch', 'Evidence %s does not match the sensor log of the current run.', string(it.ref_id));
+                end
+            end
+        end
+
+        function L = readSensorLog(ses, generation)
+            %READSENSORLOG The table is a value, so the caller's copy cannot change the session's log.
+            if generation ~= ses.RunGeneration, error('mgv2:StaleSensorLog', 'This sensor log accessor belongs to a replaced run.'); end
+            L = ses.Sensors.Log;
         end
 
         function s = state(ses)
@@ -101,8 +116,9 @@ classdef MissionSession < handle
         function build(ses)
             ses.Sensors = mgv2.sensors.SensorSystem(ses.World, ses.MissionConfig, SensorConfig=ses.SensorConfig, Environment=ses.Environment);
             ses.Engine = mgv2.engine.MissionEngine(ses.MissionConfig, mgv2.scene.terrainProvider(ses.World));
-            src = ses.Source;
+            src = ses.Source; ses.RunGeneration = ses.RunGeneration + 1; g = ses.RunGeneration;
             src.bindRun(ses.World, ses.MissionConfig);
+            src.bindSensorLog(@() ses.readSensorLog(g));
             src.onPose(ses.Engine.snapshot());
             ses.Engine.subscribe(@(p) src.onPose(p));       % before the sensors: a sample's pose is always known first
             ses.Sensors.subscribe(@(s) src.onSample(s));

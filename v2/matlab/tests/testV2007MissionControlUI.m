@@ -762,6 +762,37 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             end
         end
 
+        function sensorLogAccessorIsTiedToTheCurrentRun(tc)
+            src = V2007TestDoubleSource(); app = tc.flown(20, 'AnomalySource', src); ses = app.Session;
+            tc.verifyEqual(src.LogBinds, 1); first = src.LogFcn; L = first();
+            tc.verifyEqual(L, ses.Sensors.Log);
+            L.checksum(:) = "changed"; tc.verifyNotEqual(ses.Sensors.Log.checksum(1), "changed", 'a copy cannot change the log');
+            app.command("abort"); app.command("reset");
+            tc.verifyEqual(src.LogBinds, 2);
+            tc.verifyError(first, 'mgv2:StaleSensorLog');
+            tc.verifyEqual(src.LogFcn(), ses.Sensors.Log);
+            second = src.LogFcn; app.configure("Overcast", 77);
+            tc.verifyEqual(src.LogBinds, 3); tc.verifyError(second, 'mgv2:StaleSensorLog');
+            tc.verifyEqual(src.LogFcn().tick_id(1), ses.Sensors.Log.tick_id(1));
+        end
+
+        function evidenceFromAReplacedRunIsNeverShown(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event(); src.Inspection = V2007TestDoubleSource.inspection();
+            app = tc.flown(40, 'AnomalySource', src); E = app.Panels.events; ses = app.Session;
+            L = ses.Sensors.Log; r = L(L.tick_id > 0 & L.sensor_id == "RGB_NADIR", :); r = r(end, :);
+            old = src.Inspection; old.items = old.items(1); old.items.frame_id = r.frame_id; old.items.sample_checksum = r.checksum; old.items.tick_id = r.tick_id;
+            src.Inspection = old; src.StampFromLog = false;
+            tc.verifyEqual(ses.inspect("T-1").items.frame_id, r.frame_id);
+            app.command("abort"); app.command("reset");
+            tc.verifyEqual(E.SelectedId, "");
+            tc.verifyError(@() ses.inspect("T-1"), 'mgv2:EvidenceMismatch', 'that frame is not in the new run yet');
+            app.selectEvent("T-1"); tc.verifySubstring(string(E.DetailText.Text), "EVIDENCE NOT AVAILABLE"); tc.verifyEmpty(findall(E.RgbAxes, 'Type', 'image'));
+            app.configure("Overcast", 77); ses.start(); for k = 1:40, ses.step(); end
+            tc.verifyError(@() ses.inspect("T-1"), 'mgv2:EvidenceMismatch', 'another scenario has other frames');
+            bad = old; L = ses.Sensors.Log; r = L(find(L.sensor_id == "RGB_NADIR", 1), :); bad.items.frame_id = r.frame_id; bad.items.tick_id = r.tick_id; bad.items.sample_checksum = "tampered"; src.Inspection = bad;
+            tc.verifyError(@() ses.inspect("T-1"), 'mgv2:EvidenceMismatch', 'an altered checksum');
+        end
+
         function adapterSeamRejectsBadRecords(tc)
             D = @V2007TestDoubleSource.event; Lk = @V2007TestDoubleSource.layer;
             tc.verifyError(@() mgv2.ui.validateEvents(D('status', "CONFIRMED")), 'mgv2:InvalidEvent');
