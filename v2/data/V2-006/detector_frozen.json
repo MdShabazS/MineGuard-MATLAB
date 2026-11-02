@@ -1,0 +1,15 @@
+{
+  "task": "V2-006",
+  "frozen_on": "2026-11-01",
+  "detector_id": "MG-V2-INTERPRETABLE-BASELINE",
+  "detector_version": "1.0.0",
+  "detector_fingerprint": "fnv1a64:d6d364f988f04bb4",
+  "score_thresholds": {
+    "FUSED": 0.3,
+    "RGB_ONLY": 0.95,
+    "THERMAL_ONLY": 0.8
+  },
+  "selected_on": "TRAIN groups only (max F1 per score mode, ties to the higher threshold)",
+  "split_manifest_sha256": "550af3d4cd4dbca16ee294d29148c084141fe2b1864ead54d31d0a529dd77d16",
+  "val_policy": "VAL evaluated once with this fingerprint; TEST not run"
+}

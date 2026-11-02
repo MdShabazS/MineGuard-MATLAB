@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "project": "MineGuard Advanced V2 - MATLAB High-Fidelity Simulation",
+  "phase": "V2",
+  "deadline": null,
+  "enforcement": "dependency-dag",
+  "notes": "V1 task history remains authoritative in tasks/manifest.json and tasks/status.json. V2 tasks are independent; all statuses on first publication are TODO. A local graphical prototype is not an accepted completed task.",
+  "tasks": {
+    "V2-001": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [],
+      "title": "Freeze Advanced V2 requirements, system architecture, MATLAB capabilities and demo acceptance criteria",
+      "evidence": "v2/evidence/V2-001.md"
+    },
+    "V2-002": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V2-001"
+      ],
+      "title": "Develop synchronized live UAV mission engine: takeoff, survey, return and landing",
+      "evidence": "v2/evidence/V2-002.md"
+    },
+    "V2-003": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V2-001"
+      ],
+      "title": "Build 3-D terrain, aircraft model, lighting and operator camera views",
+      "evidence": "v2/evidence/V2-003.md"
+    },
+    "V2-004": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "V2-001"
+      ],
+      "title": "Define virtual sensor contracts, synthetic-truth isolation, anomaly limits and evaluation plan",
+      "evidence": "v2/evidence/V2-004.md"
+    },
+    "V2-005": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V2-002",
+        "V2-003",
+        "V2-004"
+      ],
+      "title": "Integrate time-synchronized synthetic RGB, thermal and LiDAR observations",
+      "evidence": "v2/evidence/V2-005.md"
+    },
+    "V2-006": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V2-004",
+        "V2-005"
+      ],
+      "title": "Implement suspected-anomaly mapping, uncertainty and evidence-aware analysis",
+      "evidence": "v2/evidence/V2-006.md"
+    },
+    "V2-007": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V2-002",
+        "V2-003",
+        "V2-005"
+      ],
+      "title": "Build integrated live mission-control dashboard with flight and sensor views",
+      "evidence": "v2/evidence/V2-007.md"
+    },
+    "V2-008": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V2-006",
+        "V2-007"
+      ],
+      "title": "Verify export, replay, fault cases and macOS simulation performance",
+      "evidence": "v2/evidence/V2-008.md"
+    },
+    "V2-009": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "V2-008"
+      ],
+      "title": "Audit V2 evidence, scientific limitations, regression and acceptance criteria",
+      "evidence": "v2/evidence/V2-009.md"
+    },
+    "V2-010": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [
+        "V2-009"
+      ],
+      "title": "Prepare final guide demonstration, engineering report and V2 handover",
+      "evidence": "v2/evidence/V2-010.md"
+    }
+  }
+}
