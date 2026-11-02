@@ -2,7 +2,60 @@
 
 SIMULATION ONLY. Outputs are suspected anomalies with an uncalibrated score. This is not a completed-dashboard claim, not field detection, and V2-007 stays IN_PROGRESS. G07 VALIDATION 0/4 remains a negative result; nothing here reruns TRAIN selection, VALIDATION or TEST.
 
-## Current record: code SHA `081cecbc38fef725374ea4f7f1f22cc0231fe070`
+## Latest record: code SHA `4ca2ead11d8c19281e8001c43a1c1288b5f3e2fe`
+
+Bridge-owned corrections after the Mac integration report. No benchmark matrix was run. **Integration result: INCOMPLETE.** The UI correction to `bindEvidence` was not published on #67 when this was recorded (head `5a4147f`).
+
+### Integration root cause
+
+| Interface | Where | Identity check |
+|---|---|---|
+| `bindSensorLog` / `readSensorLog(generation)` | #67 (`ef09959`), UI-owned | `RunGeneration` |
+| `bindEvidence` / `evidenceContext()` | #91 (`942aa08`), a UI edit carried on the bridge branch | `Generation` |
+
+Two implementations were made for one seam. Decision: keep `bindEvidence` and exactly one `evidenceContext`.
+
+- The published heads merge without a text conflict and give one `evidenceContext`, so the reported duplicate was **not reproduced from them**. The merged class loads with both seams and both generation counters.
+- Any UI correction that adds its own `evidenceContext` next to the copy from `942aa08` can create the duplicate, depending on how the merge resolves. A duplicate placed by hand in a disposable tree raised `MATLAB:class:DuplicateMethod`, and `MissionSession` would not load. The exact Mac tree was not available to confirm this was its cause.
+
+### Corrections in `4ca2ead`
+
+- `bindRun` clears the detector and map if the session refuses the run or gives no usable context.
+- `bindEvidence` refuses a second session only while the first provider still answers, so a deleted session frees the source.
+- New tests: b38 one evidence interface, b39 failed binding and deleted session, b40 RGB and thermal crops equal to the pixels of their referenced frames, b41 no window or timer left, and no evidence after the session is deleted.
+
+### Tests
+
+Files: `regression_4ca2ead_first5.txt`, `regression_4ca2ead_bridge.txt`, `regression_integrated_905d2ae.txt`.
+
+| Tree | Suites | Result |
+|---|---|---|
+| #91 `4ca2ead` | V2-002 22, V2-003 22, V2-005 28, V2-006 28, UI 60, bridge 41 | **201 of 201 PASS**, 0 incomplete |
+| Disposable merge `905d2ae` (`4ca2ead` + #67 `5a4147f`) | V2-006 28, UI 62, bridge 41 | **130 of 131**, 0 incomplete |
+
+- The #91 result comes from two desktop sessions at the same clean SHA: the first five suites, then the bridge suite, after a pause requested by the operator.
+- **The single failure is `b38` at "the replaced seam must be gone", because #67 still has `bindSensorLog` and `readSensorLog`.** It is the intended check for the open dependency, and it stays FAIL until the UI correction lands.
+- `905d2ae` was never pushed. It uses the #67 test double, so the UI tests there still exercise `bindSensorLog`.
+- Checkcode, both trees: 0 messages on code files, 2 harmless messages in the bridge test file.
+
+### Preservation
+
+One headless full mission on each tree gave COMPLETE, 2799 ticks, 3080 samples, 3 invalid, 84 events, and the same hashes as `081cecb` and `2bca2f8`: sample `01696119`, pose `e649b54c`, event `1e14af2e`, fingerprint `fnv1a64:d6d364f988f04bb4`. Files under `+detect`, `v2/data`, task status and V2-006 evidence are unchanged since `43da051`.
+
+Speeds from these two missions are not comparable: x0.590 with median rebuild 1210 ms on `4ca2ead`, x1.682 with 263 ms on `905d2ae`. Host load was not logged for these two runs. They only supply hashes.
+
+### RGB and thermal evidence
+
+On the real detector, default scene, 43 events at tick 1400 were all verified: 68 RGB and 149 thermal records (disposable merge of `0f32e71` and `5a4147f`). b40 checks at tick 1000 that every crop equals the pixels of its referenced frame. These 84 default-scene events are false-alarm behaviour already on record, not correct detections.
+
+### Remaining
+
+- **UI-owned:** publish `bindEvidence` as the only seam and update the test double and `UI_INTEGRATION_CONTRACT.md`. `MissionSession.view` lets an error from `suspectedEvents` escape, because that read sits outside its `try`, while the contract says the UI shows the error and continues. The 5-second stale colour can flicker at 100 ticks, as the Mac record notes.
+- **Bridge-owned, not changed:** rebuild cost is mostly `Detector.events()`: 53 of 263 ms is conversion and 16 ms is layers. Reducing the rest needs the separate science review.
+- **For the reviewer:** `mgv2DetectorEquivalence` and `mgv2PerfProfile` came with #85 and sit in the operational folder. They are not on the app path and were not changed.
+- `RefreshTicks` stays configurable with a provisional default of 20. 100 ticks is under consideration for the demonstration and is not hardcoded.
+
+## Earlier record: code SHA `081cecbc38fef725374ea4f7f1f22cc0231fe070`
 
 Clean tree, MATLAB 26.2.0.3433840 (R2026b) Update 1, Windows desktop session. Later commits on this branch add evidence files only. Windows results are diagnostic. Mac paced 1× is the primary target, and it has not been run at this SHA.
 

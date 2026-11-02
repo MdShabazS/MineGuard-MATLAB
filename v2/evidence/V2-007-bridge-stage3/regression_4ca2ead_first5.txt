@@ -1,0 +1,7 @@
+SESSION SHA 4ca2ead11d8c19281e8001c43a1c1288b5f3e2fe clean=1 desktop=1 26.2.0.3433840 (R2026b) Update 1
+testV2002MissionEngine run=22 pass=22 fail=0 incomplete=0 time=4.9
+testV2003Scene run=22 pass=22 fail=0 incomplete=0 time=43.1
+testV2005Sensors run=28 pass=28 fail=0 incomplete=0 time=151.6
+testV2006Detection run=28 pass=28 fail=0 incomplete=0 time=606.6
+testV2007MissionControlUI run=60 pass=60 fail=0 incomplete=0 time=689.8
+Session stopped at the user's request during testV2007Bridge, which is recorded separately.
