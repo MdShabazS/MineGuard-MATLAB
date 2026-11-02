@@ -2,6 +2,8 @@ classdef SensorSystem < handle
     %SENSORSYSTEM Time-synchronised virtual RGB / thermal / LiDAR / GNSS-INS on the V2-002 clock. SIMULATED.
     %   sys = mgv2.sensors.SensorSystem(world, missionCfg)
     %   sys = mgv2.sensors.SensorSystem(world, missionCfg, SensorConfig=cfg, Environment=env, KeepFrames=8)
+    %   sys = mgv2.sensors.SensorSystem(..., SurfaceFeatures=F)   PRIVATE flat surface features for the RGB/thermal
+    %         forward models (V2-006 scenario hook; mgv2.sensors.validateSurfaceFeatures). Default none = V2-005.
     %   sys.attach(engine)      samples the engine's tick-0 pose (if not started) and subscribes to every
     %                           EXECUTED tick; a paused engine executes no tick, so no sample is emitted.
     %   S = sys.latest("RGB_NADIR");  L = sys.Log;  sys.samplesAt(tick)
@@ -40,6 +42,7 @@ classdef SensorSystem < handle
                 opts.SensorConfig struct = mgv2.sensors.defaultSensorConfig()
                 opts.Environment struct = mgv2.sensors.defaultEnvironment()
                 opts.KeepFrames (1,1) double {mustBeInteger, mustBePositive} = 8
+                opts.SurfaceFeatures = []
             end
             mgv2.sensors.assertPublic(rmfield(world, intersect(fieldnames(world), {'V','F','Z','vertex_rgb','material_weights','x','y'})), "world");
             mgv2.sensors.assertPublic(missionCfg, "missionConfig");
@@ -55,7 +58,7 @@ classdef SensorSystem < handle
                 end
                 sys.Period.(id) = N; sys.Seq.(id) = 0;
             end
-            sys.Scene = mgv2.sensors.buildSensorScene(world, opts.Environment);
+            sys.Scene = mgv2.sensors.buildSensorScene(world, opts.Environment, opts.SurfaceFeatures);
             sys.KeepFrames = opts.KeepFrames;
             sys.History = containers.Map(cellstr(sys.Order), repmat({{}}, 1, numel(sys.Order)));
             sys.Log = table('Size', [0 10], 'VariableTypes', ["string","uint64","uint64","uint64","double","logical","string","double","string","string"], ...

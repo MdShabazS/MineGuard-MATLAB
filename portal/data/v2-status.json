@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "tasks": {
+    "V2-001": {
+      "owner": "Shabaz",
+      "state": "DONE",
+      "evidence": "v2/evidence/V2-001.md",
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-01",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-11-01"
+    },
+    "V2-002": {
+      "owner": "Rahil",
+      "state": "DONE",
+      "evidence": "v2/evidence/V2-002.md",
+      "startedBy": "Rahil",
+      "startedOn": "2026-11-01",
+      "completedBy": "Rahil",
+      "completedOn": "2026-11-01"
+    },
+    "V2-003": {
+      "owner": "Rahil",
+      "state": "DONE",
+      "evidence": "v2/evidence/V2-003.md",
+      "startedBy": "Rahil",
+      "startedOn": "2026-11-01",
+      "completedBy": "Rahil",
+      "completedOn": "2026-11-01"
+    },
+    "V2-004": {
+      "owner": "Shabaz",
+      "state": "DONE",
+      "evidence": "v2/evidence/V2-004.md",
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-01",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-11-01"
+    },
+    "V2-005": {
+      "owner": "Rahil",
+      "state": "DONE",
+      "evidence": "v2/evidence/V2-005.md",
+      "startedBy": "Rahil",
+      "startedOn": "2026-11-01",
+      "completedBy": "Rahil",
+      "completedOn": "2026-11-01"
+    },
+    "V2-006": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-007": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-008": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-009": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V2-010": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    }
+  }
+}

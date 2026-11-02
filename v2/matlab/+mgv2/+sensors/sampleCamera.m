@@ -26,6 +26,7 @@ if reason == "NONE"
         alb = zeros(numel(k), 3);
         alb(ter, :) = vertexInterp(sc, hit, k, ter, sc.world.vertex_rgb, @(Q) mgv2.scene.albedoAt(sc.world, Q(:,1), Q(:,2)));
         alb = paintLandmarks(sc.world, P, alb);
+        if ~isempty(sc.features), alb(ter, :) = featureAlbedo(sc.features, P(ter, :), alb(ter, :)); end
         if any(~ter), rgbM = vertcat(sc.objects.rgb); alb(~ter, :) = rgbM(obj(~ter), :); end
         light = prm.ambient_fraction + (1 - prm.ambient_fraction) * env.irradiance_W_m2 / 850 * inc;
         dn = 255 * prm.exposure_proxy * alb .* light;
@@ -42,6 +43,7 @@ if reason == "NONE"
         Ts(ter) = vertexInterp(sc, hit, k, ter, th.vertex_T_K, @(Q) terrainThermal(sc, Q));
         ep(ter) = vertexInterp(sc, hit, k, ter, th.vertex_eps, @(Q) terrainEps(sc, Q));
         ep = paintEmissivity(sc, P, ep);
+        if ~isempty(sc.features), [Ts(ter), ep(ter)] = featureThermal(sc.features, P(ter, :), Ts(ter), ep(ter)); end
         for ob = unique(obj(~ter))'                       % temperature of the exact face that was hit
             j = find(~ter & obj == ob); Tf = th.object_face_T_K{ob};
             Ts(j) = Tf(fc(j)); ep(j) = th.object_eps(ob);
@@ -131,6 +133,29 @@ end
 end
 
 function A = fillmissing0(A), A(isnan(A)) = 0; end
+
+function w = featureWeight(f, P)
+% smooth disc weight: 1 inside radius - edge/2, 0 outside radius + edge/2 (smoothstep)
+d = hypot(P(:,1) - f.center_enu_m(1), P(:,2) - f.center_enu_m(2));
+u = min(max((f.radius_m + f.edge_m / 2 - d) / f.edge_m, 0), 1); w = u .^ 2 .* (3 - 2 * u);
+end
+
+function alb = featureAlbedo(F, P, alb)
+% PRIVATE forward model (V2-006 hook): flat surface features blend the terrain albedo (terrain pixels only)
+for q = 1:numel(F)
+    w = F(q).albedo_mix * featureWeight(F(q), P); j = w > 0;
+    alb(j, :) = (1 - w(j)) .* alb(j, :) + w(j) .* F(q).albedo_rgb;
+end
+end
+
+function [Ts, ep] = featureThermal(F, P, Ts, ep)
+% PRIVATE forward model (V2-006 hook): surface temperature change and optional emissivity of flat features
+for q = 1:numel(F)
+    w = featureWeight(F(q), P); j = w > 0;
+    Ts(j) = Ts(j) + w(j) * F(q).delta_T_K;
+    if ~isnan(F(q).emissivity), ep(j) = (1 - w(j)) .* ep(j) + w(j) * F(q).emissivity; end
+end
+end
 
 function [reason, T_ws] = framePrecheck(cfg, pose, rs)
 reason = "NONE"; T_ws = nan(4);

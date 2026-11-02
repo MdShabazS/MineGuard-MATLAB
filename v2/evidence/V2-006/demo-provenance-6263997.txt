@@ -1,0 +1,4 @@
+DEMO FIXTURE (excluded from accuracy) at 6263997d0c2e1f61bdf580b5759b88e89fbac9a1: events 78, TP 1, FP 77, FN 0
+fixture-matched event SUS-00296 at (5.435, 3.202), error 0.081 m, score 0.859, sigma 0.184
+demo inspector selects strongest fused event SUS-00113 at (-15.466, -5.364), score 1.000, sigma 0.108, is fixture match: 0, known landmark rows: LM-1,LM-1,LM-1,LM-2,LM-2,LM-2,LM-2,LM-1,LM-1,LM-1,LM-1
+landmark errors m: [0.1712 0.0978]

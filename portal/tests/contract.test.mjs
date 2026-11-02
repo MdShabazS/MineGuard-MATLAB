@@ -22,8 +22,8 @@ test("Render guide portal has status, blockers, ownership and evidence sections"
 
 test("V2 engineering contributions do not override official GitHub task status or ownership",()=>{
   const journal=JSON.parse(fs.readFileSync(new URL("../../tasks/updates.json",import.meta.url),"utf8"));
-  const notes=journal.updates.filter(entry=>["V2-006","V2-007"].includes(entry.task));
-  assert.equal(notes.length,2);
+  const latest=task=>journal.updates.filter(entry=>entry.task===task).at(-1); // the portal shows the newest note per task
+  const notes=["V2-006","V2-007"].map(latest);
   assert.deepEqual(notes.map(entry=>entry.owner),["Rahil","Shabaz"]);
   assert.ok(notes.every(entry=>entry.summary.includes("not merged")));
   assert.ok(notes.every(entry=>entry.pr_url?.startsWith("https://github.com/MdShabazS/MineGuard-MATLAB/pull/")));
@@ -32,7 +32,8 @@ test("V2 engineering contributions do not override official GitHub task status o
   assert.match(app,/MATLAB contributor: /);
   assert.match(app,/Parallel MATLAB development/);
   assert.match(app,/if\(v2Rows\.length\)showV2Data\(v2Rows\)/);
-  assert.match(app,/getJson\(RAW\+"v2\/tasks\/status\.json"\)/);
+  assert.match(app,/\["v2\/tasks\/manifest\.json","v2\/tasks\/status\.json"\]/);
+  assert.match(app,/getPublishedWithFallback\(/);
   assert.match(html,/Both members develop and test MATLAB/);
   assert.match(html,/Rahil remains the V2-007 task owner/);
 });

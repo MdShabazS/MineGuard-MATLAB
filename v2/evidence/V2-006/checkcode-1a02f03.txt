@@ -1,0 +1,33 @@
+checkcode (-id) at 1a02f03887054372eb65bddaedd2255ba95b83dd on 27 MATLAB files changed relative to origin/main
+v2/matlab/+mgv2/+detect/AnomalyDetector.m: 0
+v2/matlab/+mgv2/+detect/assertNoBannedWords.m: 0
+v2/matlab/+mgv2/+detect/contract.m: 0
+v2/matlab/+mgv2/+detect/defaultDetectorConfig.m: 0
+v2/matlab/+mgv2/+detect/frameCandidates.m: 0
+v2/matlab/+mgv2/+detect/georegisterRays.m: 0
+v2/matlab/+mgv2/+detect/inspectEvent.m: 0
+v2/matlab/+mgv2/+detect/labelComponents.m: 0
+v2/matlab/+mgv2/+detect/selectEvents.m: 0
+v2/matlab/+mgv2/+detect/validateDetectorConfig.m: 0
+v2/matlab/+mgv2/+detect/validateEvent.m: 0
+v2/matlab/+mgv2/+eval/buildScenario.m: 0
+v2/matlab/+mgv2/+eval/demoFixtureGroup.m: 0
+v2/matlab/+mgv2/+eval/evaluateEvents.m: 0
+v2/matlab/+mgv2/+eval/runScenario.m: 0
+v2/matlab/+mgv2/+eval/scenarioGroups.m: 0
+v2/matlab/+mgv2/+eval/sha256.m: 0
+v2/matlab/+mgv2/+eval/splitManifest.m: 0
+v2/matlab/+mgv2/+map/MapView.m: 0
+v2/matlab/+mgv2/+map/MissionMap.m: 1
+  L134 [MSNU] A Code Analyzer message was once suppressed here, but the message is no longer generated.
+v2/matlab/+mgv2/+sensors/SensorSystem.m: 0
+v2/matlab/+mgv2/+sensors/buildSensorScene.m: 0
+v2/matlab/+mgv2/+sensors/sampleCamera.m: 0
+v2/matlab/+mgv2/+sensors/validateSurfaceFeatures.m: 0
+v2/matlab/mgv2DetectionDemo.m: 0
+v2/matlab/mgv2DetectorStudy.m: 0
+v2/matlab/tests/testV2006Detection.m: 3
+  L61 [MSNU] A Code Analyzer message was once suppressed here, but the message is no longer generated.
+  L82 [MSNU] A Code Analyzer message was once suppressed here, but the message is no longer generated.
+  L280 [FNDSB] For array or cell array, performance can be improved using logical indexing instead of 'find'.
+TOTAL messages: 4

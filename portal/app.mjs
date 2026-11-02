@@ -1,8 +1,9 @@
 import {REPO, BASE, buildTaskRows, summarize, fileUrl, githubLink, safeDate, findMainTaskGateRun} from "./core.mjs";
+import {validateEnhancements, enhancementLabel} from "./enhancements.mjs";
 const RAW="https://raw.githubusercontent.com/"+REPO+"/main/";
 const API="https://api.github.com/repos/"+REPO;
 let latestRows=[],filter="ALL",loading=false;
-let v2Rows=[],v2Filter="ALL",v2WorkNotes=new Map();
+let v2Rows=[],v2Filter="ALL",v2WorkNotes=new Map(),v2SourceLabel="GitHub main";
 const el=id=>document.getElementById(id);
 function make(tag,cls,text) {
   const node=document.createElement(tag);
@@ -164,14 +165,15 @@ function showV2Tasks(rows) {
   }
   replace("v2TaskRows",entries);
 }
-function showV2Data(rows) {
+function showV2Data(rows, sourceLabel=v2SourceLabel) {
+  v2SourceLabel=sourceLabel;
   const s=summarize(rows);
   v2Rows=rows;
   el("v2Percent").textContent=s.percentage+"%";
   el("v2Done").textContent=s.counts.DONE+" / "+s.total+" tasks DONE";
   el("v2TaskTotal").textContent="("+s.total+")";
   for(const [id,value] of [["v2DoneCount",s.counts.DONE],["v2ActiveCount",s.counts.IN_PROGRESS],["v2ReadyCount",s.counts.READY],["v2BlockedCount",s.counts.BLOCKED]])el(id).textContent=value;
-  el("v2SourceStatus").textContent="GitHub main · Published tasks · "+s.counts.DONE+" DONE, "+s.counts.IN_PROGRESS+" IN PROGRESS";
+  el("v2SourceStatus").textContent=sourceLabel+" · "+s.counts.DONE+" DONE, "+s.counts.IN_PROGRESS+" IN PROGRESS";
   const active=rows.filter(t=>t.displayState==="IN_PROGRESS");
   const ready=rows.filter(t=>t.displayState==="READY");
   const now=[];
@@ -201,15 +203,91 @@ function showV2Data(rows) {
   }));
   showV2Tasks(rows);
 }
+/** Enhancement roadmap is editorial planning data, never official V2 completion. */
+function showEnhancements(data, sourceLabel="GitHub main") {
+  const rows=validateEnhancements(data);
+  const groups=[
+    {id:"engineering",title:"Engineering enhancements",subtitle:"Detector integration, satellite prototype, mission UI, 3-D realism and scientific safeguards"},
+    {id:"campus",title:"BITM / Ballari college presentation",subtitle:"Recognizable geographic context, offline backup and synthetic-to-satellite visualization"}
+  ];
+  const sections=groups.map(group=>{
+    const items=rows.filter(item=>item.category===group.id);
+    if(!items.length)return null;
+    const section=make("section","enhancement-group");
+    const heading=make("div","enhancement-group-heading");
+    heading.append(make("h4","",group.title),
+      make("span","enhancement-count",items.length+" planned/tracked entries"));
+    section.append(heading,make("p","enhancement-group-subtitle",group.subtitle));
+    const grid=make("div","enhancement-group-grid");
+    for(const item of items){
+      const card=make("article","enhancement-card");
+      const header=make("div","enhancement-head");
+      const meta=make("span","mini-id",item.id+" · "+item.priority);
+      const state=make("span","enhancement-state "+item.status.toLowerCase().replaceAll("_","-"),enhancementLabel(item.status));
+      header.append(meta,state);
+      card.append(header,make("h5","enhancement-title",item.title));
+      card.append(make("p","enhancement-owner","Owner: "+item.owner));
+      card.append(make("p","enhancement-detail",item.detail));
+      card.append(make("p","enhancement-dependency","Next gate: "+item.dependency));
+      const url=githubLink(item.url);
+      if(url)card.append(nodeLink(item.urlLabel,url,"tiny-link"));
+      grid.append(card);
+    }
+    section.append(grid);
+    return section;
+  }).filter(Boolean);
+  replace("roadmapItems",sections);
+  const counts=Object.fromEntries(["ACTIVE_UNMERGED","TESTED_BLOCKED","MERGED_IN_BRANCH","PLANNED","BLOCKED"]
+    .map(key=>[key,rows.filter(item=>item.status===key).length]));
+  el("roadmapBreakdown").textContent=
+    counts.ACTIVE_UNMERGED+" in development · "+
+    counts.TESTED_BLOCKED+" tested, blocked · "+
+    counts.MERGED_IN_BRANCH+" merged in a feature branch · "+
+    counts.PLANNED+" planned · "+counts.BLOCKED+" blocked";
+  el("roadmapStatus").textContent=rows.length+
+    " tracked enhancements · "+rows.filter(x=>x.category==="campus").length+
+    " campus-specific · source: "+sourceLabel+" · reviewed "+String(data.asOf || "date unavailable")+
+    " · status notes are curated, not live PR automation · excluded from official V2 progress";
+}
+/**
+ * A public main-branch fetch is preferred. The bundled snapshot is the exact
+ * main-branch data at this portal build, marked as potentially outdated if used.
+ * Never treat an unmerged PR or stale fallback as current task completion.
+ */
+async function getPublishedWithFallback(remotePaths, localPaths) {
+  try {
+    return {data:await Promise.all(remotePaths.map(p=>getJson(RAW+p))),source:"GitHub main (live read)"};
+  }catch(remoteError) {
+    try {
+      return {data:await Promise.all(localPaths.map(p=>getJson(p))),
+        source:"deployed GitHub-main snapshot (live read unavailable; may be outdated)"};
+    }catch(localError){
+      throw Error("Live GitHub read failed ("+remoteError.message+
+        "); deployment snapshot failed ("+localError.message+")");
+    }
+  }
+}
+async function refreshEnhancements() {
+  try {
+    const result=await getPublishedWithFallback(
+      ["v2/roadmap/enhancements.json"],["./data/enhancements.json"]);
+    showEnhancements(result.data[0],result.source);
+  }catch(error) {
+    replace("roadmapItems",[make("p","muted","Enhancement roadmap unavailable. Open the source on GitHub main; no completion is assumed.")]);
+    el("roadmapBreakdown").textContent="Enhancement status unavailable";
+    el("roadmapStatus").textContent="Enhancement roadmap unavailable: "+error.message;
+  }
+}
+
 async function refreshV2() {
   try {
-    const [manifest,status]=await Promise.all([
-      getJson(RAW+"v2/tasks/manifest.json"),
-      getJson(RAW+"v2/tasks/status.json")
-    ]);
+    const result=await getPublishedWithFallback(
+      ["v2/tasks/manifest.json","v2/tasks/status.json"],
+      ["./data/v2-manifest.json","./data/v2-status.json"]);
+    const [manifest,status]=result.data;
     const rows=buildTaskRows(manifest,status);
     if(rows.some(t=>!t.id.startsWith("V2-")))throw Error("Unexpected V2 task identifier");
-    showV2Data(rows);
+    showV2Data(rows,result.source);
   }catch(error){
     // Main branch is authoritative. Never silently copy draft statuses or show stale values as current.
     v2Rows=[];
@@ -225,6 +303,8 @@ async function refreshV2() {
 async function refresh() {
   if(loading)return;
   loading=true;el("refresh").disabled=true;el("refresh").textContent="Refreshing…";
+  // Independent V2 and enhancement fetches must run even when the legacy V1 fetch fails.
+  const independent=Promise.allSettled([refreshV2(),refreshEnhancements()]);
   try {
     // Status from main is mandatory. Never substitute an unmerged PR branch.
     const [manifest,status]=await Promise.all([getJson(RAW+"tasks/manifest.json"),getJson(RAW+"tasks/status.json")]);
@@ -232,7 +312,6 @@ async function refresh() {
     latestRows=rows;showSummary(summary,rows);showCurrent(rows);showOwners(summary.owners);showTasks(rows);
     el("lastChecked").textContent=new Date().toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"});
     alert("");
-    await refreshV2();
     const extras=await Promise.allSettled([
       getJson(API+"/pulls?state=all&per_page=10"),
       getJson(API+"/actions/runs?per_page=10"),
@@ -258,6 +337,7 @@ async function refresh() {
       el("lastChecked").textContent="Not synchronized";
     }else alert("Could not refresh. Displayed task data is from the last successful check; open GitHub to verify. ("+error.message+")","warn");
   }finally{
+    await independent;
     loading=false;el("refresh").disabled=false;el("refresh").textContent="↻ Refresh now";
   }
 }
