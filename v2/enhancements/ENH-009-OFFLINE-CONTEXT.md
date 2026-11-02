@@ -20,7 +20,7 @@ r = runtests('v2/enhancements/tests/testENH009OfflineContext.m');
 assert(all([r.Passed]));
 ```
 
-`testENH009OfflineContext.m` has five focused tests: source-level absence of network/file imagery calls plus offline drawing, deterministic primitives, missing-asset fallback, visible truthful labels, and explicit figure cleanup. Its no-network check is a dependency guard, not a packet-capture or OS network-denial test. A later acceptance run should also execute under network denial on both Mac and Windows, inspect the rendered label, and record MATLAB version, execution SHA and screenshots. **MATLAB tests were not run in this Codex session**: `matlab` was not on this shell's PATH, and Claude was using MATLAB. No pass count is claimed.
+`testENH009OfflineContext.m` has six focused tests: source-level absence of network/file imagery calls plus offline drawing, deterministic primitives, missing-asset fallback, present-but-unapproved asset fallback without an image object, visible truthful labels, and explicit figure cleanup. The present-asset test writes a sentinel file, passes its path, checks that no image object was created and confirms the file is unchanged; it cannot prove absence of every possible read without runtime instrumentation. The no-network check is a dependency guard, not a packet-capture or OS network-denial test. A later acceptance run should also execute under network denial on both Mac and Windows, inspect the rendered label, and record MATLAB version, execution SHA and screenshots. **MATLAB tests were not run in this Codex session**: `matlab` was not on this shell's PATH, and Claude was using MATLAB. No pass count is claimed.
 
 ## Provider and license research, checked 2026-11-02
 

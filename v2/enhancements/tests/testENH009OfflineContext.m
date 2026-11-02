@@ -27,6 +27,24 @@ classdef testENH009OfflineContext < matlab.unittest.TestCase
             tc.verifyEqual(info.asset_status, "MISSING_SCHEMATIC_USED");
             tc.verifyFalse(info.georeferenced);
         end
+        function existingUnapprovedAssetIsNotDisplayed(tc)
+            path = [tempname '.png'];
+            fid = fopen(path, 'w');
+            tc.assertGreaterThan(fid, 0);
+            fwrite(fid, uint8('UNAPPROVED-ASSET-SENTINEL'), 'uint8');
+            fclose(fid);
+            cleanupFile = onCleanup(@() deleteIfPresent(path)); %#ok<NASGU>
+            [f, info] = mgenh009.renderOfflineCampusContext('Visible','off','AssetPath',path);
+            cleanupFigure = onCleanup(@() closeIfOpen(f)); %#ok<NASGU>
+            tc.verifyEqual(info.asset_status, "PRESENT_NOT_APPROVED_SCHEMATIC_USED");
+            tc.verifyEqual(info.kind, "ORIGINAL_SCHEMATIC");
+            tc.verifyEmpty(findall(f,'Type','image'));
+            tc.verifyEqual(numel(findall(f,'Type','rectangle')), 5);
+            fid = fopen(path, 'r');
+            tc.assertGreaterThan(fid, 0);
+            bytes = fread(fid, inf, '*uint8')'; fclose(fid);
+            tc.verifyEqual(bytes, uint8('UNAPPROVED-ASSET-SENTINEL'));
+        end
         function truthfulLabels(tc)
             [f, info] = mgenh009.renderOfflineCampusContext('Visible','off');
             c = onCleanup(@() closeIfOpen(f)); %#ok<NASGU>
@@ -47,4 +65,8 @@ end
 
 function closeIfOpen(f)
 if isgraphics(f), close(f); end
+end
+
+function deleteIfPresent(path)
+if isfile(path), delete(path); end
 end
