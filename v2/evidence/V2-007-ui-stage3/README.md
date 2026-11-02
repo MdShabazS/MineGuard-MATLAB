@@ -6,6 +6,8 @@ Host: macOS 27.0.1, Apple Silicon (arm64), MATLAB R2026b Update 1, UAV Toolbox 2
 
 SIMULATION ONLY. Events are SUSPECTED with uncalibrated scores. The frozen VALIDATION result remains negative (G07: 0 of 4). No TRAIN selection, VAL or TEST study ran, and no detector file or threshold changed. PRs #85 and #86 were not used.
 
+**Latest record: [final-verification/README.md](final-verification/README.md), execution SHA `92f2c266e3a2fa52e03ce516c2d27d2661495a2d`. It supersedes the summary below, which is kept as history for `043a896`.**
+
 ## Results at a glance
 
 | Item | Result |
@@ -56,7 +58,7 @@ Real renders exposed the first three, after property checks had passed. A test e
 |---|---|
 | Scene and thermal header dropdowns squashed, Expand buttons hidden | Fixed tool row, plus a test on rendered sizes |
 | Coverage key swatches rendered without colour, so states could not be told apart | Real coloured chips, tested against the state colours |
-| Event id and status clipped at normal size | Column widths and two-decimal format |
+| Event id and status clipped at normal size | Two-decimal format; widths corrected fully only in `92f2c26` |
 | Coverage drawn over routes | Stacked directly above the terrain |
 
 ## Performance
