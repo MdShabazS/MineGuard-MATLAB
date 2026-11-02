@@ -1,5 +1,5 @@
 /** Public, non-authoritative enhancement roadmap, separate from V2 task manifest. */
-const states = new Set(["ACTIVE_UNMERGED","DRAFT_UNVERIFIED","PLANNED","BLOCKED","LOCAL_UNPUBLISHED","TESTED_BLOCKED","MERGED_IN_BRANCH"]);
+const states = new Set(["ACTIVE_UNMERGED","DRAFT_UNVERIFIED","PLANNED","BLOCKED","LOCAL_UNPUBLISHED","TESTED_BLOCKED","MERGED_IN_BRANCH","MERGED_MAIN"]);
 const repoBase = "https://github.com/MdShabazS/MineGuard-MATLAB/";
 export function validateEnhancements(data) {
   if (!data || data.schemaVersion !== 1 || data.phase !== "V2-ENHANCEMENTS" || !Array.isArray(data.items))
@@ -27,6 +27,7 @@ export function enhancementLabel(status) {
     BLOCKED:"Waiting on prerequisites",
     LOCAL_UNPUBLISHED:"Local fix · not published",
     TESTED_BLOCKED:"Tested · acceptance blocked",
-    MERGED_IN_BRANCH:"Merged in feature branch · not released"
+    MERGED_IN_BRANCH:"Merged in feature branch · not released",
+    MERGED_MAIN:"Merged to main · scoped fix"
   }[status] || "Unverified";
 }
