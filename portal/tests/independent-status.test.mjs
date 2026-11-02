@@ -50,10 +50,10 @@ test("fallback provenance says stale when live GitHub is inaccessible",()=>{
 });
 
 test("a portal deployment must identify the build and include the roadmap",()=>{
-  assert.match(html,/<meta name="mineguard-portal-build" content="2026-11-02-status-fix-1">/);
+  assert.match(html,/<meta name="mineguard-portal-build" content="2026-11-02-roadmap-2">/);
   assert.match(html,/id="roadmapBreakdown"/);
   assert.match(html,/id="enhancementsTitle"/);
-  assert.match(html,/app\.mjs\?v=20261102-statusfix1/);
+  assert.match(html,/app\.mjs\?v=20261102-roadmap2/);
   assert.match(smoke,/DEPLOYMENT OUTDATED/);
   assert.match(smoke,/ENH-011/);
 });
