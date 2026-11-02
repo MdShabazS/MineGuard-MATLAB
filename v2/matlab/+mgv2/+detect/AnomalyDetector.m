@@ -100,21 +100,35 @@ classdef AnomalyDetector < handle
             det.Log(end+1, :) = {s.sensor_id, s.frame_id, s.tick_id, s.t_s, outcome, nC, 1e3 * toc(t0)};
         end
 
-        function T = trackTable(det)
+        function T = trackTable(det, opts)
             %TRACKTABLE All live tracks with per-modality looks, detections, strengths, supports and scores.
+            %   T = det.trackTable()                     complete table
+            %   T = det.trackTable(WithLidar=false)      LiDAR context columns left as NaN (read-path use by events)
+            arguments
+                det
+                opts.WithLidar (1,1) logical = true
+            end
             c = det.Config; tr = det.Tr; live = find(tr.alive); n = numel(live); ob = det.Ob;
             T = table('Size', [n 0]);
             T.track_no = tr.no(live); T.x_m = tr.x(live); T.y_m = tr.y(live); T.z_m = tr.z(live); T.sigma_m = tr.sigma(live);
             looks = zeros(n, 2); detF = zeros(n, 2); str = nan(n, 2); nObs = zeros(n, 2); pol = zeros(n, 1);
-            ft = inf(n, 1); lt = -inf(n, 1);
+            ft = inf(n, 1); lt = -inf(n, 1); xT = T.x_m; yT = T.y_m;
             for k = 1:size(det.Looks.mod, 1)
-                fp = det.Looks.fp{k}; in = inpolygon(T.x_m, T.y_m, fp(:,1), fp(:,2));
+                fp = det.Looks.fp{k};
+                box = xT >= min(fp(:,1)) & xT <= max(fp(:,1)) & yT >= min(fp(:,2)) & yT <= max(fp(:,2));   % nothing outside can be inside
+                if ~any(box), continue; end
+                in = false(n, 1); in(box) = inpolygon(xT(box), yT(box), fp(:,1), fp(:,2));
                 looks(in, det.Looks.mod(k)) = looks(in, det.Looks.mod(k)) + 1;
             end
             ref = [c.rgb.z_reference, c.thermal.dT_reference_K];
-            sup = nan(n, 2);
+            sup = nan(n, 2); noT = T.track_no;
+            [sorted, order] = sort(ob.track);                          % stable: observation order kept within each track
+            first = zeros(numel(tr.no) + 1, 1); last = zeros(numel(tr.no) + 1, 1);
+            if ~isempty(sorted)
+                edge = [true; diff(sorted) ~= 0]; first(sorted(edge)) = find(edge); last(sorted(edge)) = [find(edge(2:end)); numel(sorted)];
+            end
             for i = 1:n
-                j = find(ob.track == T.track_no(i));
+                j = order(first(noT(i)):last(noT(i)));
                 ft(i) = min(ob.tick(j)); lt(i) = max(ob.tick(j));
                 for m = 1:2
                     q = j(ob.mod(j) == m); nObs(i, m) = numel(q);
@@ -132,7 +146,11 @@ classdef AnomalyDetector < handle
             T.support_rgb = sup(:,1); T.support_thermal = sup(:,2);
             T.score_fused = mean(sup, 2, 'omitnan'); T.score_rgb = sup(:,1); T.score_thermal = sup(:,2);
             T.first_tick = ft; T.last_tick = lt; T.first_t_s = ft * det.Dt; T.last_t_s = lt * det.Dt;
-            [T.lidar_returns, T.lidar_height_m, T.lidar_roughness_m] = det.lidarContext(T.x_m, T.y_m);
+            if opts.WithLidar
+                [T.lidar_returns, T.lidar_height_m, T.lidar_roughness_m] = det.lidarContext(T.x_m, T.y_m);
+            else
+                T.lidar_returns = nan(n, 1); T.lidar_height_m = nan(n, 1); T.lidar_roughness_m = nan(n, 1);
+            end
             T.known_landmark = strings(n, 1);
             for q = 1:numel(det.Landmarks)
                 L = det.Landmarks(q); near = hypot(T.x_m - L.xy(1), T.y_m - L.xy(2)) <= L.radius_m + c.landmark_exclusion_m;
@@ -151,8 +169,9 @@ classdef AnomalyDetector < handle
             end
             c = det.Config; mode = opts.ScoreMode; if mode == "", mode = c.score_mode; end
             thr = opts.Threshold; if isempty(thr), thr = c.event.score_threshold.(char(mode)); end
-            T = det.trackTable();
+            T = det.trackTable(WithLidar=false);                       % selection does not use LiDAR context
             [keep, sc] = mgv2.detect.selectEvents(T, mode, thr, c);
+            [T.lidar_returns(keep), T.lidar_height_m(keep), T.lidar_roughness_m(keep)] = det.lidarContext(T.x_m(keep), T.y_m(keep));
             E = repmat(det.emptyEvent(), 0, 1);
             for i = reshape(find(keep), 1, [])
                 r = T(i, :);
@@ -277,12 +296,18 @@ classdef AnomalyDetector < handle
 
         function [n, hmax, rough] = lidarContext(det, x, y)
             g = det.Lg; R = det.Config.lidar.context_radius_m; k = numel(x); n = zeros(k, 1); hmax = nan(k, 1); rough = nan(k, 1);
-            [J, I] = meshgrid(1:size(g.n, 2), 1:size(g.n, 1)); cx = g.x0 + (J - 0.5) * g.c; cy = g.y0 + (I - 0.5) * g.c;
+            [ny, nx] = size(g.n); cxv = g.x0 + ((1:nx) - 0.5) * g.c; cyv = g.y0 + ((1:ny)' - 0.5) * g.c;
             for q = 1:k
+                % only the cells around this point can qualify; subset order matches the whole-grid order
+                j1 = max(1, floor((x(q) - R - g.x0) / g.c)); j2 = min(nx, ceil((x(q) + R - g.x0) / g.c) + 1);
+                i1 = max(1, floor((y(q) - R - g.y0) / g.c)); i2 = min(ny, ceil((y(q) + R - g.y0) / g.c) + 1);
+                if j1 > j2 || i1 > i2, continue; end
+                [J, I] = meshgrid(j1:j2, i1:i2); cx = cxv(J); cy = cyv(I); cx = reshape(cx, size(J)); cy = reshape(cy, size(J));
                 sel = abs(cx - x(q)) <= R & abs(cy - y(q)) <= R; sel(sel) = hypot(cx(sel) - x(q), cy(sel) - y(q)) <= R;
-                N = sum(g.n(sel)); n(q) = N;
+                B = sub2ind([ny nx], I(sel), J(sel));
+                N = sum(g.n(B)); n(q) = N;
                 if N > 0
-                    mu = sum(g.s(sel)) / N; hmax(q) = max(g.mx(sel)); rough(q) = sqrt(max(sum(g.s2(sel)) / N - mu ^ 2, 0));
+                    mu = sum(g.s(B)) / N; hmax(q) = max(g.mx(B)); rough(q) = sqrt(max(sum(g.s2(B)) / N - mu ^ 2, 0));
                 end
             end
         end
