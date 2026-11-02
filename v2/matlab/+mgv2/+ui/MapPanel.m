@@ -57,6 +57,7 @@ classdef MapPanel < mgv2.ui.PanelBase
             obj.Checks.coverage.Enable = matlab.lang.OnOffSwitchState(obj.hasKind("raster"));
             obj.Checks.suspected.Enable = matlab.lang.OnOffSwitchState(obj.hasKind("other"));
             ov = "anomaly overlays: " + view.source.status_text;
+            if strlength(view.overlay_error) > 0, ov = "anomaly overlays failed: " + view.overlay_error; end
             obj.setStatus(sprintf("OFFLINE LOCAL ENU | t=%.2f s | E %.1f N %.1f m | %s", p.t_s, xy, ov), "NONE");
         end
 

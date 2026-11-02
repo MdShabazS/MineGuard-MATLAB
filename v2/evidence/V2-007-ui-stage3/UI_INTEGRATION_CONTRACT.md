@@ -13,7 +13,7 @@ SIMULATION ONLY. Rahil owns the adapter. This file states what the UI at PR #67'
 ## Required from the adapter
 
 1. `suspectedEvents()` is called once per `RenderEvery` ticks, on status frames only. Keep rebuild decisions inside the adapter, and do not skip ingesting any sample or pose.
-2. `sourceInfo()` should add `events_as_of_tick` and `events_as_of_t_s`. **The tick must change whenever events or layers change.** While it is unchanged, the UI skips validation and table redraws, and shows the age, flagged above 5 simulated seconds.
+2. `sourceInfo()` should add `events_as_of_tick` and `events_as_of_t_s`. **The tick must change whenever events or layers change.** While it is unchanged, the UI skips validation and table redraws, and shows the age, flagged above 5.5 simulated seconds.
 3. Events pass `mgv2.ui.validateEvents(ev, runId)`: unique public `event_id`, this run's `run_id`, SUSPECTED, finite estimate. On failure the UI shows no overlays, displays the error and continues the run.
 4. Layers pass `mgv2.ui.validateMapLayers`. A raster needs `cdata` of numel(y)-by-numel(x)-by-3 and `alpha` in [0, 1], with **alpha 0 for UNOBSERVED**. Raster layers follow the Coverage toggle, and all others follow Suspected. Provide event markers as a `points` layer so they can be clicked.
 5. `inspect(eventId)` returns a struct that passes `mgv2.ui.validateInspection`, or throws. `mgv2.detect.inspectEvent` with a sensor log already matches. **Every record needs `verified_against_sensor_log = true`. Never return a substitute frame.**
