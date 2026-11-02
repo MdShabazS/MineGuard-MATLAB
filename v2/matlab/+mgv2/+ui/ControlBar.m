@@ -41,7 +41,7 @@ classdef ControlBar < matlab.ui.componentcontainer.ComponentContainer
             end
             obj.ScenarioDropdown = uidropdown(g, 'Items', mgv2.ui.MissionSession.Scenarios, 'FontSize', 11, 'Tooltip', 'Scenario, before START', 'ValueChangedFcn', @(~, ~) obj.emitConfigure());
             uilabel(g, 'Text', 'seed', 'FontColor', t.text, 'FontSize', 11, 'HorizontalAlignment', 'right');
-            obj.SeedField = uieditfield(g, 'numeric', 'Limits', [0 Inf], 'RoundFractionalValues', 'on', 'ValueDisplayFormat', '%d', 'FontSize', 11, ...
+            obj.SeedField = uieditfield(g, 'numeric', 'Limits', [0 2^32-1], 'RoundFractionalValues', 'on', 'ValueDisplayFormat', '%d', 'FontSize', 11, ...
                 'Tooltip', 'Mission seed, before START', 'ValueChangedFcn', @(~, ~) obj.emitConfigure());
             obj.ReplayButton = uibutton(g, 'Text', 'REPLAY (V2-008)', 'FontSize', 10, 'Enable', 'off', 'Tooltip', 'Not implemented: pending V2-008');
             obj.ExportButton = uibutton(g, 'Text', 'EXPORT (V2-008)', 'FontSize', 10, 'Enable', 'off', 'Tooltip', 'Not implemented: pending V2-008');

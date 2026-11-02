@@ -4,7 +4,7 @@ classdef EventInspectorPanel < mgv2.ui.PanelBase
     %   Selecting a row calls OnSelect(event_id). Evidence comes only from showInspection; on any failure the panel
     %   shows the error and no image. A selected event can leave the list because tracks merge, and it then says so.
     properties (Constant)
-        MaxEventAge_s = 5     % events older than this on the simulation clock are flagged
+        MaxEventAge_s = 5.5   % flagged above this on the simulation clock: a 100-tick interval plus its status frames stays 5.0 to 5.2 s
     end
     properties
         OnSelect = []
@@ -74,6 +74,10 @@ classdef EventInspectorPanel < mgv2.ui.PanelBase
                 "Sensors with evidence: " + strjoin(string(ins.sensors_used), ", ")
                 "Missing or invalid: " + strjoin([string(ins.missing_modalities(:)); repmat("none", isempty(ins.missing_modalities), 1)], "; ")
                 sprintf("%d evidence record(s), checksums verified against the sensor log", numel(it))];
+            if isfield(ins, 'detector_fingerprint'), lines(end+1, 1) = "Detector fingerprint: " + string(ins.detector_fingerprint); end
+            if isfield(ins, 'events_as_of_t_s')
+                lines(end+1, 1) = sprintf("Record %s, as of t = %.1f s, evidence age %d ticks at inspection", ins.record_basis, ins.events_as_of_t_s, ins.stale_ticks);
+            end
             obj.setDetail(strjoin(lines, newline));
             obj.drawCrop(obj.RgbAxes, it, "RGB_NADIR"); obj.drawCrop(obj.ThermalAxes, it, "THERMAL_LWIR");
         end

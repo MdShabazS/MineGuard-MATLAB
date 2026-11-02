@@ -69,7 +69,7 @@ classdef MissionSession < handle
             if scenario ~= "As launched" || seed ~= m.seed
                 m.run_id = sprintf("V2RUN-UI-%s-%04d", upper(regexprep(scenario, '[^A-Za-z0-9]+', '_')), seed);
             end
-            m.seed = seed;
+            m.seed = seed; mgv2.mission.validateConfig(m);      % refused before anything changes
             ses.Scenario = scenario; ses.MissionConfig = m; ses.SensorConfig = c; ses.Environment = e;
             ses.reset();
         end
@@ -119,9 +119,9 @@ classdef MissionSession < handle
 
     methods (Access = private)
         function build(ses)
-            ses.Generation = ses.Generation + 1;
-            ses.Sensors = mgv2.sensors.SensorSystem(ses.World, ses.MissionConfig, SensorConfig=ses.SensorConfig, Environment=ses.Environment);
-            ses.Engine = mgv2.engine.MissionEngine(ses.MissionConfig, mgv2.scene.terrainProvider(ses.World));
+            sys = mgv2.sensors.SensorSystem(ses.World, ses.MissionConfig, SensorConfig=ses.SensorConfig, Environment=ses.Environment);
+            eng = mgv2.engine.MissionEngine(ses.MissionConfig, mgv2.scene.terrainProvider(ses.World));
+            ses.Sensors = sys; ses.Engine = eng; ses.Generation = ses.Generation + 1;   % both built, then swapped together
             src = ses.Source;
             src.bindRun(ses.World, ses.MissionConfig);
             src.onPose(ses.Engine.snapshot());

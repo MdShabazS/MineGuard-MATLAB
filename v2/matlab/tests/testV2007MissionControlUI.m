@@ -775,6 +775,33 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             end
         end
 
+        function inspectorStatesEvidenceAgeAndAgeFlagHoldsAtOneHundredTicks(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event();
+            ins = V2007TestDoubleSource.inspection(); ins.detector_fingerprint = "fnv1a64:abc"; ins.record_basis = "LISTED"; ins.events_as_of_t_s = 1.5; ins.stale_ticks = 40;
+            src.Inspection = ins; app = tc.flown(40, 'AnomalySource', src); E = app.Panels.events;
+            app.selectEvent("T-1"); txt = string(E.DetailText.Text);
+            tc.verifySubstring(txt, "Record LISTED, as of t = 1.5 s, evidence age 40 ticks"); tc.verifySubstring(txt, "fnv1a64:abc");
+            t = app.Session.view().pose.t_s;
+            src.Info = struct('events_as_of_tick', 0, 'events_as_of_t_s', t - 5.2); v = app.Session.view(); E.present(v);
+            tc.verifySubstring(string(E.StatusLabel.Text), "age 5.2 s"); tc.verifyEqual(E.StatusLabel.FontColor, mgv2.ui.theme().valid, 'one full interval is not stale');
+            src.Info = struct('events_as_of_tick', 1, 'events_as_of_t_s', t - 6); v = app.Session.view(); E.present(v);
+            tc.verifyEqual(E.StatusLabel.FontColor, mgv2.ui.theme().stale, 'older than one interval is flagged');
+        end
+
+        function refusedConfigureLeavesTheRunUntouched(tc)
+            src = V2007TestDoubleSource(); app = tc.open('AnomalySource', src); ses = app.Session;
+            c = ses.evidenceContext(); e = ses.Engine; b = src.Binds;
+            tc.verifyError(@() ses.configure("As launched", 5e9), 'mgv2:InvalidMissionConfig');
+            tc.verifySameHandle(ses.Engine, e); tc.verifyEqual(ses.evidenceContext().generation, c.generation);
+            tc.verifyLessThan(ses.MissionConfig.seed, 5e9); tc.verifyEqual(src.Binds, b);
+        end
+
+        function mapStatusShowsAnOverlayFailure(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event('status', "CONFIRMED");
+            app = tc.flown(40, 'AnomalySource', src); v = app.Session.view(); app.Panels.map.present(v);
+            tc.verifySubstring(string(app.Panels.map.StatusLabel.Text), "anomaly overlays failed");
+        end
+
         function evidenceContextDescribesTheCurrentRunOnly(tc)
             src = V2007TestDoubleSource(); app = tc.flown(20, 'AnomalySource', src); ses = app.Session;
             tc.verifyEqual(src.EvidenceBinds, 1); f = src.EvidenceFcn; c = f(); g = c.generation;

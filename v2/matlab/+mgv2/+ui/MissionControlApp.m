@@ -94,6 +94,7 @@ classdef MissionControlApp < handle
                 app.Figure.CloseRequestFcn = ''; app.Figure.SizeChangedFcn = '';
                 delete(app.Figure);
             end
+            if ~isempty(app.Session) && isvalid(app.Session), delete(app.Session); end   % releases the source for another session
         end
 
         function command(app, cmd)
@@ -200,7 +201,7 @@ classdef MissionControlApp < handle
                 elseif mod(n, app.RenderEvery) == 0
                     app.refreshSensors();
                 elseif mod(app.RenderEvery, 2) == 0 && mod(n, app.RenderEvery) == app.RenderEvery / 2
-                    if behind, app.StatusDue = true; app.Perf.skipped = app.Perf.skipped + 1; else, app.refreshStatus(); end
+                    if behind, s.view(); app.StatusDue = true; app.Perf.skipped = app.Perf.skipped + 1; else, app.refreshStatus(); end
                 elseif mod(n, app.SceneEvery) == 0
                     if behind, app.Perf.skipped = app.Perf.skipped + 1; else, app.refreshScene(); end   % the clock has priority
                 end
