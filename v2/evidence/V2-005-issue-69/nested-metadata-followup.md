@@ -40,7 +40,7 @@ Disposable merge with #91 `0f32e71` (`c757bb3`, never pushed): bridge 37/37, UI 
 
 `mg-v2-sensors/1.0` stays, and no producer changed. A full mission gives the same 2799 ticks, 3080 samples and log digest on `main` and here: `37f7fae4104d849c3b3a7d4eac17c03f185fb1bf7643a74be912a9ad94001d21`.
 
-**One behaviour to review:** `validateSensorConfig` does not restrict `units` text, but `validateSample` now does. A custom `SensorConfig` with different units text now fails when it samples. Nothing in the repository does this, and all suites above pass. Unit text describes the contract's fixed units, so that seems right, but it is a decision for review.
+The review of #96 found a mismatch: `validateSensorConfig` accepted any `units`, which `validateSample` then refused. See below.
 
 ## Remaining limit
 
@@ -49,3 +49,27 @@ Free-text string fields such as `data_ref`, `run_id`, `scenario_id`, `frame_id`,
 ## Not run
 
 Windows. V2-006 studies, TRAIN, VAL or TEST.
+
+## Review correction: units checked at configuration time
+
+**Tested SHA: `9ceabbe59eb5d172a27522b8726a122029d16c12`** (clean tree). The results above at `0b303d50` stay as recorded for that commit.
+
+`validateSensorConfig` now refuses `units` that differ from `contract().units` with `mgv2:InvalidSensorConfig`, so a bad config fails before any sample exists. The rule in `validateSample` was not relaxed. Field order carries no meaning. Forbidden names and objects inside `units` still raise `mgv2:TruthLeak`.
+
+| Suite | Passed | Failed | Incomplete |
+|---|---|---|---|
+| `testV2005NestedMetadataContract` (22 + 12 new) | 34 | 0 | 0 |
+| `testV2005QualityContract` | 35 | 0 | 0 |
+| V2-002 | 22 | 0 | 0 |
+| V2-003 | 22 | 0 | 0 |
+| V2-005 | 28 | 0 | 0 |
+| V2-006 | 28 | 0 | 0 |
+| **Total** | **169** | **0** | **0** |
+
+New tests per sensor: default config equals the contract and keeps its fingerprint; wrong, missing, extra, nested, char, numeric and non-scalar units are refused; `SensorSystem` refuses a bad config; a valid config, including dropout, yields accepted samples.
+
+**Unchanged:** the producers, `mg-v2-sensors/1.0`, the full-mission digest `37f7fae4104d849c3b3a7d4eac17c03f185fb1bf7643a74be912a9ad94001d21`, and detector fingerprint `fnv1a64:d6d364f988f04bb4`. The default config's channel hashes are unchanged, as the new test checks.
+
+**A discarded run:** a first run at this SHA reported 168/169 with `d20` failing. My test script's path filter had removed MATLAB's own folders, so `readtable` could not load. It was a harness fault, shown by the error ID `MATLAB:class:InvalidSuperClass`. The path was repaired and all suites rerun; only the clean run is reported.
+
+**Not rerun with this commit:** the #91 merge (bridge 37/37 and GUI 60/60 are from `0b303d50`). Windows was not run.
