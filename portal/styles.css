@@ -44,7 +44,7 @@
 .enhancement-state.draft-unverified,.enhancement-state.local-unpublished{color:#edd59a;background:#3b3327;border-color:#5c513d}
 .enhancement-state.blocked{color:#d4a8a8;background:#342c35;border-color:#554454}
 .enhancement-state.tested-blocked{color:#f1d29c;background:#453521;border-color:#725637}
-.enhancement-state.merged-in-branch{color:#a9e0d0;background:#20403c;border-color:#3f6860}
+.enhancement-state.merged-in-branch,.enhancement-state.merged-main{color:#a9e0d0;background:#20403c;border-color:#3f6860}
 .enhancement-title{font-size:14px;font-weight:720;line-height:1.35;margin:0;color:#e5f0f9}
 .enhancement-owner{font-size:11px;color:#8babc0;margin:0}
 .enhancement-detail{font-size:12px;color:#d0e1ee;line-height:1.55;margin:0}
