@@ -1,7 +1,7 @@
 classdef V2006AnomalySource < mgv2.ui.AnomalySource
     %V2006ANOMALYSOURCE Adapter from V2-006 public outputs to the V2-007 UI seam (UI Stage 3). SIMULATION ONLY.
     %   src = mgv2.bridge.V2006AnomalySource()                without a session: reports not connected, no events, no layers
-    %   src = mgv2.bridge.V2006AnomalySource(RefreshTicks=20) ticks between rebuilds of the events and layers
+    %   src = mgv2.bridge.V2006AnomalySource(RefreshTicks=100) ticks between rebuilds of the events and layers
     %   app = mgv2MissionControl('AnomalySource', src)        binds itself: events, layers, coverage and evidence work
     %   ins = src.inspect("SUS-00012")                        verified evidence record for one listed event
     %
@@ -19,7 +19,7 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
     %
     %   Refresh: events and layers are rebuilt at most once per RefreshTicks while the clock runs, and on demand once
     %   it holds (session paused or ended, or a terminal pose; without a session, a repeated request at one tick).
-    %   RefreshTicks=20 is one simulated second, a provisional default. Between rebuilds, the last validated result is
+    %   RefreshTicks=100 is five simulated seconds, chosen by the paced 1x benchmark in v2/evidence/V2-007.md. Between rebuilds, the last validated result is
     %   returned unchanged and sourceInfo reports its age. Ticks, never wall clock, decide when to rebuild, so runs are
     %   deterministic. events_as_of_tick changes whenever the output changes.
     %
@@ -47,7 +47,7 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
     methods
         function obj = V2006AnomalySource(opts)
             arguments
-                opts.RefreshTicks (1,1) double {mustBeInteger, mustBePositive} = 20
+                opts.RefreshTicks (1,1) double {mustBeInteger, mustBePositive} = 100
             end
             obj.RefreshTicks = opts.RefreshTicks; obj.Stats = obj.newStats();
         end

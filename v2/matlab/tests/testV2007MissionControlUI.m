@@ -24,7 +24,7 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
 
     methods (Access = private)
         function app = open(tc, varargin)
-            app = mgv2MissionControl('RealTime', 0, varargin{:}); tc.App = app;
+            app = mgv2MissionControl('RealTime', 0, 'AnomalySource', mgv2.ui.NullAnomalySource(), varargin{:}); tc.App = app;
         end
         function app = flown(tc, ticks, varargin)
             app = tc.open('MaxTicksPerRun', ticks, varargin{:});
@@ -422,7 +422,7 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             p = app.perfSummary();
             tc.verifyEqual(p.sim_s, 2, 'AbsTol', 1e-9);
             tc.verifyGreaterThanOrEqual(p.wall_s, 1.9, 'paced run must not run ahead of 1x');
-            app2 = mgv2MissionControl('RealTime', 100, 'MaxTicksPerRun', 40); cl = onCleanup(@() delete(app2)); %#ok<NASGU>
+            app2 = mgv2MissionControl('RealTime', 100, 'MaxTicksPerRun', 40, 'AnomalySource', mgv2.ui.NullAnomalySource()); cl = onCleanup(@() delete(app2)); %#ok<NASGU>
             app2.command("start"); q = app2.perfSummary();
             tc.verifyEqual(app2.Session.Engine.TickId, 40, 'dropping frames never drops ticks');
             tc.verifyGreaterThan(q.skipped_scene, 0, 'scene frames dropped when behind are counted');
@@ -645,7 +645,7 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
         function repeatedLaunchesAndResetsLeaveNothing(tc)
             before = numel(findall(groot, 'Type', 'figure'));
             for k = 1:3
-                a = mgv2MissionControl('RealTime', 0, 'MaxTicksPerRun', 8); a.command("start"); a.command("abort"); a.command("reset"); a.command("start"); a.command("abort"); delete(a);
+                a = mgv2MissionControl('RealTime', 0, 'MaxTicksPerRun', 8, 'AnomalySource', mgv2.ui.NullAnomalySource()); a.command("start"); a.command("abort"); a.command("reset"); a.command("start"); a.command("abort"); delete(a);
             end
             tc.verifyEqual(numel(findall(groot, 'Type', 'figure')), before); tc.verifyEmpty(timerfindall());
         end
@@ -800,6 +800,11 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event('status', "CONFIRMED");
             app = tc.flown(40, 'AnomalySource', src); v = app.Session.view(); app.Panels.map.present(v);
             tc.verifySubstring(string(app.Panels.map.StatusLabel.Text), "anomaly overlays failed");
+        end
+
+        function thePlainLauncherUsesTheRealDetector(tc)
+            app = mgv2MissionControl('Visible', "off"); c = onCleanup(@() delete(app));
+            tc.verifyClass(app.Session.Source, 'mgv2.bridge.V2006AnomalySource');
         end
 
         function aFaultInATickEndsTheRunAndIsShown(tc)

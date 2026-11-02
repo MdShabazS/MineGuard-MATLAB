@@ -16,8 +16,7 @@ n = [0 0]; pauseAt = inf; phases = strings(0, 1);
         if a.Session.evidenceContext().tick >= pauseAt, pauseAt = inf; a.command("pause"); end
     end
 f0 = numel(findall(groot, 'Type', 'figure')); t0 = numel(timerfindall);
-src = mgv2.bridge.V2006AnomalySource(RefreshTicks=100);
-app = mgv2MissionControl('AnomalySource', src, 'RealTime', 0);
+app = mgv2MissionControl('RealTime', 0); src = app.Session.Source;
 ses = app.Session; P = app.Panels; E = P.events; g1 = ses.evidenceContext().generation;
 chk("launch: plain launch with real bridge, READY at tick 0", ses.state() == "READY" && ses.evidenceContext().tick == 0 && src.sourceInfo().connected);
 chk("one evidenceContext on the loaded class", nnz(string({meta.class.fromName('mgv2.ui.MissionSession').MethodList.Name}) == "evidenceContext") == 1);

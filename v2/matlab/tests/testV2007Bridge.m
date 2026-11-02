@@ -453,7 +453,7 @@ classdef testV2007Bridge < matlab.unittest.TestCase
         end
 
         function b34_defaultsAndIntervalsAgree(tc)                           % 20 by default; the interval changes age, never results
-            tc.verifyEqual(mgv2.bridge.V2006AnomalySource().RefreshTicks, 20);
+            tc.verifyEqual(mgv2.bridge.V2006AnomalySource().RefreshTicks, 100);
             [a, sa] = testV2007Bridge.flown(tc.N, RefreshTicks=20); [b, sb] = testV2007Bridge.flown(tc.N, RefreshTicks=100);
             sa.pauseRun(); sb.pauseRun(); tc.verifyEqual(sa.view().events, sb.view().events);
             tc.verifyEqual(a.Detector.Fingerprint, b.Detector.Fingerprint);
