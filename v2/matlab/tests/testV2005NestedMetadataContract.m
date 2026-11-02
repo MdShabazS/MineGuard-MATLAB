@@ -85,6 +85,41 @@ classdef testV2005NestedMetadataContract < matlab.unittest.TestCase
             end
         end
 
+        function defaultConfigUnitsAreTheContractUnits(tc, sensor)
+            c = mgv2.sensors.defaultSensorConfig(); want = mgv2.sensors.contract().units.(char(sensor));
+            tc.verifyEqual(c.(sensor).units, want);
+            tc.verifyEqual(mgv2.sensors.validateSensorConfig(c).(sensor).parameter_hash, c.(sensor).parameter_hash, 'the units check must not change the fingerprint');
+        end
+
+        function configRejectsBadUnitsBeforeSampling(tc, sensor)
+            c = mgv2.sensors.defaultSensorConfig(); u = c.(sensor).units; f = string(fieldnames(u))'; id = 'mgv2:InvalidSensorConfig';
+            bad = {struct('wrong', "m"), 1, "m", [u u], {u}};
+            for k = 1:numel(bad)
+                x = c; x.(sensor).units = bad{k}; tc.verifyError(@() mgv2.sensors.validateSensorConfig(x), id, "units " + k);
+            end
+            x = c; x.(sensor).units.note = "m"; tc.verifyError(@() mgv2.sensors.validateSensorConfig(x), id);
+            x = c; x.(sensor).units.nested = struct('a', 1); tc.verifyError(@() mgv2.sensors.validateSensorConfig(x), id);
+            x = c; x.(sensor).units.h = containers.Map(); tc.verifyError(@() mgv2.sensors.validateSensorConfig(x), 'mgv2:TruthLeak');
+            x = c; x.(sensor).units.hidden_truth = "m"; tc.verifyError(@() mgv2.sensors.validateSensorConfig(x), 'mgv2:TruthLeak');
+            for n = f
+                x = c; x.(sensor).units = rmfield(u, n); tc.verifyError(@() mgv2.sensors.validateSensorConfig(x), id, char(n));
+                for v = {"furlongs", char(u.(n)), 1, [u.(n) u.(n)], struct('a', 1), string(missing)}
+                    x = c; x.(sensor).units.(n) = v{1}; tc.verifyError(@() mgv2.sensors.validateSensorConfig(x), id, char(n));
+                end
+            end
+            x = c; x.(sensor).units = orderfields(u); mgv2.sensors.validateSensorConfig(x);   % field order carries no meaning
+            x = c; x.(sensor).units.(f(1)) = "furlongs";
+            tc.verifyError(@() mgv2.sensors.SensorSystem(tc.W, tc.Mc, SensorConfig=x), id, 'refused before any sample exists');
+        end
+
+        function everyAcceptedConfigProducesAcceptedSamples(tc, sensor)
+            c = mgv2.sensors.validateSensorConfig(mgv2.sensors.defaultSensorConfig()); c.(sensor).dropout_model.intervals_s = [0 0.2];
+            c = mgv2.sensors.validateSensorConfig(c); S = mgv2.sensors.SensorSystem(tc.W, tc.Mc, SensorConfig=c, KeepFrames=50);
+            E = mgv2.engine.MissionEngine(tc.Mc, mgv2.scene.terrainProvider(tc.W)); S.attach(E); E.start();
+            while E.TickId < 40, E.step(); end
+            tc.verifyEqual(S.latest(sensor).units, mgv2.sensors.contract().units.(char(sensor))); mgv2.sensors.validateSample(S.latest(sensor));
+        end
+
         function serializedSamplesKeepTheSameResult(tc, sensor)
             s = tc.sample(sensor); f = tempname + ".mat"; c = onCleanup(@() delete(f));
             save(f, 's'); L = load(f); mgv2.sensors.validateSample(L.s);
