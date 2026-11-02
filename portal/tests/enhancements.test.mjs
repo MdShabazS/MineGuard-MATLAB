@@ -39,14 +39,16 @@ test("proposal and local display fix cannot inflate authoritative V2 percent", (
   assert.deepEqual(Object.keys(status.tasks), Object.keys(manifest.tasks));
   assert.ok(!Object.keys(status.tasks).some(x=>x.startsWith("ENH-")));
   assert.match(app, /const s=summarize\(rows\)/);
-  assert.match(app, /await refreshEnhancements\(\)/);
+  assert.match(app, /const independent=Promise\.allSettled\(\[refreshV2\(\),refreshEnhancements\(\)\]\)/);
 });
 
 test("portal has a separate roadmap section, linked only to merged main roadmap data", () => {
   for (const id of ["enhancementsTitle","roadmapStatus","roadmapBreakdown","roadmapItems"]) {
     assert.match(html,new RegExp('id="'+id+'"'));
   }
-  assert.match(app, /getJson\(RAW\+"v2\/roadmap\/enhancements\.json"\)/);
+  assert.match(app, /getPublishedWithFallback\(/);
+  assert.match(app, /\["v2\/roadmap\/enhancements\.json"\]/);
+  assert.match(app, /"\.\/data\/enhancements\.json"/);
   assert.match(app, /validateEnhancements\(data\)/);
   assert.match(app, /enhancement-group-grid/);
   assert.match(app, /item.category===group.id/);

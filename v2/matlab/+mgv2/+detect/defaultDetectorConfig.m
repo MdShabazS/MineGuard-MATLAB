@@ -1,0 +1,36 @@
+function cfg = defaultDetectorConfig()
+%DEFAULTDETECTORCONFIG Frozen interpretable baseline detector configuration (mg-v2-detector/1.0).
+%   cfg = mgv2.detect.defaultDetectorConfig()
+%   Provenance differs by parameter group (v2/evidence/V2-006.md):
+%     Frame-level feature definitions and thresholds (rgb, thermal, size, lidar, association, timing, evidence)
+%       were fixed before the formal TRAIN study. No auditable tuning-selection record exists for them.
+%     Event score thresholds (event.score_threshold per score mode) were selected on TRAIN by a logged sweep and
+%       frozen before VAL was evaluated (v2/data/V2-006/tuning_log.csv, train_selection.csv, detector_frozen.json).
+%   TEST groups were never run.
+%   rgb      local colour contrast: per-channel residual from a masked w x w box mean, scaled by the frame's
+%            robust (MAD) residual spread; z = RMS over channels. Candidate pixels z > z_threshold.
+%   thermal  local apparent-temperature deviation dT = T - masked box mean (K). Candidate |dT| > dT_threshold_K.
+%   size     candidate components kept if their ground-equivalent diameter is within [min, max] metres.
+%   lidar    per-return height above the public terrain model on a cell_m grid: max height and roughness (std)
+%            within context_radius_m of an event (terrain-context feature, NOT part of the score).
+%   association  observation-derived ENU positions, greedy nearest track within gate_m; tracks closer than
+%            merge_m are merged (older id kept). pose_sigma_m: ASSUMED pose/georegistration error term.
+%   event    model_score = mean over scored modalities with >= 1 valid look of support_m, where
+%            support_m = (frames detecting / valid frames covering the location) * mean(min(strength/reference, 1)).
+%            UNCALIBRATED; never a probability. An event needs score >= score_threshold.(score_mode) and
+%            >= min_detections observations.
+%   parameter_hash is recomputed by mgv2.detect.validateDetectorConfig (mgv2.sensors.configFingerprint).
+cfg = struct('schema_version', "mg-v2-detector/1.0", 'detector_id', "MG-V2-INTERPRETABLE-BASELINE", 'detector_version', "1.0.0", ...
+    'score_mode', "FUSED", ...
+    'rgb', struct('window_px', 31, 'z_threshold', 4, 'z_reference', 10, 'min_support_fraction', 0.6), ...
+    'thermal', struct('window_px', 25, 'dT_threshold_K', 1.0, 'dT_reference_K', 2.5, 'min_support_fraction', 0.6), ...
+    'size', struct('min_diameter_m', 0.15, 'max_diameter_m', 1.6, 'max_candidates_per_frame', 40), ...
+    'lidar', struct('cell_m', 0.5, 'context_radius_m', 1.0, 'protrusion_m', 0.15), ...
+    'association', struct('gate_m', 1.0, 'merge_m', 0.6, 'pose_sigma_m', 0.10), ...
+    'event', struct('score_threshold', struct('FUSED', 0.30, 'RGB_ONLY', 0.95, 'THERMAL_ONLY', 0.80), 'min_detections', 2, ...
+        'emit_single_channel', true), ...
+    'timing', struct('tolerance_ticks', 1, 'timestamp_tolerance_s', 1e-6), ...
+    'evidence', struct('max_per_modality', 4, 'crop_half_px', 20), ...
+    'landmark_exclusion_m', 1.0, 'parameter_hash', "");
+cfg = mgv2.detect.validateDetectorConfig(cfg);
+end
