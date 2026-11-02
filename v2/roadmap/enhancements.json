@@ -108,10 +108,10 @@
       "owner": "Codex (isolated offline schematic), Shabaz (rights/acceptance), Rahil (optional Windows check)",
       "status": "BLOCKED",
       "priority": "P1",
-      "detail": "Codex is assigned to prepare a standalone original MATLAB-generated ILLUSTRATIVE offline campus-context fallback; no implementation or PR is yet verified. Real satellite-image downloads, offline caching and redistribution remain blocked until licensing and approved bounds are documented.",
-      "dependency": "Codex to publish an isolated draft PR with deterministic offline tests. Shabaz must separately approve campus extent, original-image provenance or legally reusable imagery permissions and Mac/Windows acceptance.",
-      "url": "https://github.com/MdShabazS/MineGuard-MATLAB/issues/79",
-      "urlLabel": "Offline backdrop issue #79"
+      "detail": "Codex has published a standalone original MATLAB schematic in draft PR #95 at a56d34ba, labelled ILLUSTRATIVE / NOT SURVEYED / SIMULATION CONTEXT. Five focused tests are authored but MATLAB was NOT run. This is not a real BITM campus map. Real imagery download, caching and redistribution remain blocked until licensing and approved bounds are documented.",
+      "dependency": "Run exact-SHA Mac/Windows MATLAB and actual network-denied/visual checks, inspect the original schematic and record evidence; Shabaz must separately approve campus extent, imagery rights and integration. ENH-009 is not DONE.",
+      "url": "https://github.com/MdShabazS/MineGuard-MATLAB/pull/95",
+      "urlLabel": "Codex draft offline schematic PR #95"
     },
     {
       "id": "ENH-010",
