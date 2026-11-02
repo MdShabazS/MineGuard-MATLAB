@@ -22,6 +22,7 @@ classdef MissionSession < handle
         Launch            % configurations the session was created with
         Overlay           % last validated source output: see clearOverlay
         Generation = 0    % engine/sensor pairs built so far: tells apart two runs with the same run id
+        Building = false  % true only while the tick-0 samples are emitted
         BindError = ""    % why the source refused this run; the mission flies without it and the error stays displayed
     end
 
@@ -140,11 +141,22 @@ classdef MissionSession < handle
                 src.bindRun(ses.World, ses.MissionConfig);
                 src.onPose(ses.Engine.snapshot());
                 ses.Engine.subscribe(@(p) src.onPose(p));   % before the sensors: a sample's pose is always known first
-                ses.Sensors.subscribe(@(s) src.onSample(s));
+                ses.Sensors.subscribe(@(s) ses.forwardSample(s));
             catch err
                 ses.BindError = string(err.message);
             end
-            ses.Sensors.attach(ses.Engine);                 % the sensors never depend on the source
+            ses.Building = true; ses.Sensors.attach(ses.Engine); ses.Building = false;   % the sensors never depend on the source
+        end
+
+        function forwardSample(ses, s)
+            %FORWARDSAMPLE A failure on the tick-0 sample refuses the run like a failed bind. Later it faults the tick.
+            if strlength(ses.BindError) > 0, return; end
+            try
+                ses.Source.onSample(s);
+            catch err
+                if ~ses.Building, rethrow(err); end
+                ses.BindError = string(err.message);
+            end
         end
 
         function clearOverlay(ses)

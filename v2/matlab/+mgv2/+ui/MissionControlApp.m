@@ -181,7 +181,7 @@ classdef MissionControlApp < handle
 
         function runLoop(app)
             %RUNLOOP Advance the engine until paused, terminal, the per-run budget, or window close.
-            app.Running = true; guard = onCleanup(@() app.endRun()); %#ok<NASGU>
+            app.Running = true; guard = onCleanup(@() app.endRun());
             app.LastStamp = NaN; s = app.Session; ticks = 0; base = s.Engine.time(); tw = tic; simBefore = app.Perf.sim_s; wallBefore = app.Perf.wall_s;
             while ticks < app.MaxTicksPerRun
                 if app.RealTime > 0

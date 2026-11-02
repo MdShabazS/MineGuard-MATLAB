@@ -299,7 +299,7 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
                 app = tc.flown(20); r = app.Panels.scene.Renderer; ses = app.Session; fig = app.Figure;
                 tc.verifyEqual(numel(timerfindall), t0, 'the application must not create a timer');
                 delete(app); drawnow;
-                tc.verifyFalse(isvalid(fig)); tc.verifyFalse(isvalid(r)); tc.verifyTrue(isvalid(ses));
+                tc.verifyFalse(isvalid(fig)); tc.verifyFalse(isvalid(r)); tc.verifyFalse(isvalid(ses), 'closing releases the session and its source');
             end
             tc.verifyEqual(numel(findall(groot, 'Type', 'figure')), f0);
             tc.verifyEqual(numel(timerfindall), t0);
@@ -803,11 +803,18 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
         end
 
         function aFaultInATickEndsTheRunAndIsShown(tc)
-            src = V2007TestDoubleSource(); src.SampleError = "injected test fault";
-            app = tc.flown(40, 'AnomalySource', src); s = app.Session;
+            src = V2007TestDoubleSource(); app = tc.open('MaxTicksPerRun', 40, 'AnomalySource', src); s = app.Session;
+            src.SampleError = "injected test fault"; app.command("start");
             tc.verifyEqual(s.state(), "ENDED"); tc.verifyEqual(s.pose().fault_code, "SOFTWARE_FAULT");
             tc.verifySubstring(s.view(false).fault_message, "injected test fault");
             tc.verifyFalse(app.Running); tc.verifyEqual(string(app.Controls.Buttons.resume.Enable), "off");
+        end
+
+        function aFaultOnTheFirstSampleRefusesTheRunAndStillOpens(tc)
+            src = V2007TestDoubleSource(); src.SampleError = "injected test fault";
+            app = tc.open('MaxTicksPerRun', 5, 'AnomalySource', src); s = app.Session;
+            tc.verifySubstring(s.view().overlay_error, "injected test fault");
+            app.command("start"); tc.verifyEqual(s.pose().fault_code, ""); tc.verifyEqual(s.state(), "PAUSED");
         end
 
         function theRingFollowsTheEstimateAndGoesWithTheEvent(tc)
