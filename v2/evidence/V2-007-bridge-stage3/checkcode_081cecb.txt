@@ -1,0 +1,13 @@
+SHA 081cecbc38fef725374ea4f7f1f22cc0231fe070
++mgv2/+bridge/V2006AnomalySource.m: 0
++mgv2/+bridge/checkEvidence.m: 0
++mgv2/+bridge/toUiEvents.m: 0
++mgv2/+bridge/toMapLayers.m: 0
++mgv2/+ui/AnomalySource.m: 0
++mgv2/+ui/MissionSession.m: 0
+mgv2PerfRun.m: 0
+mgv2BridgeBenchmark.m: 0
+mgv2PerfProfile.m: 0
+tests/testV2007Bridge.m: 2
+  L43 Value assigned to variable might be unused.
+  L374 A Code Analyzer message was once suppressed here, but the message is no longer generated.
