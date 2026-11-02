@@ -9,11 +9,10 @@ classdef RgbPanel < mgv2.ui.PanelBase
     methods
         function present(obj, view)
             st = mgv2.ui.sampleStatus("RGB_NADIR", view); s = st.sample;
-            obj.setStatus(st.text, st.state);
+            obj.setStatus(st.text, st.state); obj.showChannelState(obj.Overlay, st, "IMAGE");
             if isempty(s) || s.frame_id == obj.LastFrame, return; end
             obj.LastFrame = s.frame_id;
             obj.Image.CData = s.image_rgb_uint8;
-            if s.valid, obj.setOverlay(obj.Overlay, ''); else, obj.setOverlay(obj.Overlay, "NO VALID IMAGE: " + s.invalid_reason); end
         end
         function resetDisplay(obj), obj.LastFrame = ""; end
     end

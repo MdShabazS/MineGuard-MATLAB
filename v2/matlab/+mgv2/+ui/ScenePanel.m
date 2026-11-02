@@ -26,10 +26,8 @@ classdef ScenePanel < mgv2.ui.PanelBase
     methods (Access = protected)
         function buildBody(obj)
             obj.TitleLabel.Text = '3-D SCENE [SIMULATED]';
-            obj.CameraDropdown = uidropdown(obj.Grid, 'Items', ["follow","chase","isometric","topdown","orbit"], 'FontSize', 11, ...
+            obj.CameraDropdown = uidropdown(obj.Tools, 'Items', ["follow","chase","isometric","topdown","orbit"], 'FontSize', 11, ...
                 'ValueChangedFcn', @(src, ~) obj.Renderer.setCameraMode(src.Value));
-            obj.CameraDropdown.Layout.Row = 1; obj.CameraDropdown.Layout.Column = 2;
-            obj.Grid.RowHeight{1} = 24;
             % The perspective view is not clipped by its axes. A panel clips it, so the header stays clear (as in V2-005).
             t = mgv2.ui.theme();
             obj.Viewport = uipanel(obj.Grid, 'BorderType', 'none', 'BackgroundColor', t.sky);

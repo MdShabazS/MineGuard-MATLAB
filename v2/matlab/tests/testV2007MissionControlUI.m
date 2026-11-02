@@ -154,7 +154,7 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             tc.verifyEqual(string(P.Colorbar.Visible), "on");
             tc.verifyEqual(P.Colorbar.Limits, lim, 'AbsTol', 1e-9);
             tc.verifySubstring(string(P.Colorbar.Label.String), "[K]");
-            tc.verifyEqual(string(P.StatusLabel.Text), sprintf("t=%.2f s | tick %d | VALID", s.t_s, s.tick_id));
+            tc.verifySubstring(string(P.StatusLabel.Text), sprintf("t=%.2f s | tick %d | VALID", s.t_s, s.tick_id));
         end
 
         function paletteChangesDisplayNotKelvin(tc)
@@ -502,6 +502,264 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             tc.verifyEqual(height(app.Session.Sensors.Log), 3080, 'same sample count as the Stage 1 mission');
             h = app.Panels.lidar.Points; ax = app.Panels.lidar.Axes; k = isfinite(h.XData);
             tc.verifyGreaterThan(max(h.XData(k)) - min(h.XData(k)), 0.2 * diff(ax.XLim), 'the landing scan must stay legible, not shrink to a dot');
+        end
+
+        function kelvinCelsiusIsPresentationOnly(tc)
+            app = tc.flown(120); P = app.Panels.thermal; s = app.Session.Sensors.latest("THERMAL_LWIR"); K = s.temperature_K; img = P.Image.CData;
+            lim = [s.display_min_K s.display_max_K]; v = K(s.valid_pixel_mask);
+            tc.verifySubstring(string(P.StatusLabel.Text), sprintf("%.2f to %.2f K", min(v), max(v)));
+            P.UnitDropdown.Value = "degC"; P.UnitDropdown.ValueChangedFcn(P.UnitDropdown, []); drawnow;
+            tc.verifyEqual(P.Colorbar.Limits, lim - 273.15, 'AbsTol', 1e-9);
+            tc.verifySubstring(string(P.Colorbar.Label.String), "[deg C]");
+            tc.verifySubstring(string(P.StatusLabel.Text), "K"); app.Panels.thermal.present(app.Session.view()); drawnow;
+            tc.verifySubstring(string(P.StatusLabel.Text), sprintf("%.2f to %.2f deg C", min(v) - 273.15, max(v) - 273.15));
+            tc.verifyEqual(P.Image.CData, img, 'the image must not change');
+            tc.verifyEqual(app.Session.Sensors.latest("THERMAL_LWIR").temperature_K, K, 'the sample must not change');
+            P.setUnit("K"); tc.verifyEqual(P.Colorbar.Limits, lim, 'AbsTol', 1e-9);
+        end
+
+        function paletteChangesFrameOnScreenWhilePaused(tc)
+            app = tc.flown(40); P = app.Panels.thermal; s = app.Session.Sensors.latest("THERMAL_LWIR"); K = s.temperature_K; tick = app.Session.Engine.TickId;
+            P.PaletteDropdown.Value = "TURBO"; P.PaletteDropdown.ValueChangedFcn(P.PaletteDropdown, []); drawnow;
+            tc.verifyEqual(P.Image.CData, mgv2.sensors.thermalPalette(K, "TURBO", [s.display_min_K s.display_max_K]));
+            tc.verifyEqual(app.Session.Sensors.latest("THERMAL_LWIR").temperature_K, K);
+            tc.verifyEqual(app.Session.Engine.TickId, tick, 'display controls do not advance time');
+            tc.verifyError(@() P.setPalette("RAINBOW"), 'mgv2:InvalidSensorConfig');
+        end
+
+        function staleAndEmptyStatesAreShownOnTheImage(tc)
+            app = tc.flown(40); v = app.Session.view(); s = v.samples.RGB_NADIR;
+            v.pose.tick_id = v.pose.tick_id + v.period.RGB_NADIR + 1;
+            app.Panels.rgb.present(v); tc.verifySubstring(string(app.Panels.rgb.Overlay.String), sprintf("STALE: last frame t=%.2f s", s.t_s));
+            v.samples.RGB_NADIR = []; app.Panels.rgb.present(v);
+            tc.verifyEqual(string(app.Panels.rgb.Overlay.String), "NO SAMPLE YET");
+        end
+
+        function mapLayerTogglesChangeDisplayOnly(tc)
+            app = tc.flown(40); M = app.Panels.map; x = M.H.flown.XData;
+            for f = ["terrain", "boundary", "route", "flown", "footprint"]
+                M.setLayerVisible(f, false); tc.verifyEqual(string(M.H.(f).Visible), "off");
+                M.setLayerVisible(f, true); tc.verifyEqual(string(M.H.(f).Visible), "on");
+            end
+            M.setLayerVisible("flown", false); tc.press(app.Controls.Buttons.resume); drawnow;
+            tc.verifyGreaterThan(numel(M.H.flown.XData), numel(x), 'a hidden route keeps its data');
+            tc.verifyEqual(string(M.H.flown.Visible), "off");
+            tc.verifyEqual(string(M.Checks.coverage.Enable), "off", 'nothing to toggle without a layer');
+        end
+
+        function coverageStatesStayDistinct(tc)
+            g = [0 10 20 30 40]; c = double(reshape(mgv2.map.MapView.StateRGBA(:, 1:3), 5, 1, 3));
+            a = reshape(mgv2.map.MapView.StateRGBA(:, 4), 5, 1);
+            src = V2007TestDoubleSource(); src.Layers = V2007TestDoubleSource.layer('kind', "raster", 'x_enu_m', 5, 'y_enu_m', g);
+            src.Layers.cdata = c; src.Layers.alpha = a;
+            app = tc.flown(10, 'AnomalySource', src); M = app.Panels.map; h = findall(M.Axes, 'Tag', 'layer_cov');
+            tc.verifyEqual(h.AlphaData(1), 0, 'UNOBSERVED has no overlay');
+            tc.verifyGreaterThan(h.AlphaData(4:5), 0);
+            tc.verifyNotEqual(squeeze(h.CData(4, 1, :)), squeeze(h.CData(5, 1, :)), 'SENSOR INVALID differs from VALID OBSERVED');
+            tc.verifyEqual(string(M.KeyGrid.Visible), "on"); key = strjoin(string(get(findall(M.KeyGrid, 'Type', 'uilabel'), 'Text')), " ");
+            tc.verifyEqual(vertcat(M.KeyChips.BackgroundColor), mgv2.map.MapView.StateRGBA(2:5, 1:3), 'the key shows the real state colours');
+            for w = ["SENSOR INVALID", "VALID OBSERVED", "UNOBSERVED", "not cleared land"], tc.verifySubstring(key, w); end
+            k = allchild(M.Axes); tc.verifyEqual(k(end - 1), h(1), 'coverage sits directly over the terrain');
+            M.setLayerVisible("coverage", false); tc.verifyEqual(string(h.Visible), "off");
+            src.Layers.revision = 2; src.Layers.alpha(5) = 0.9; tc.press(app.Controls.Buttons.resume); drawnow;
+            tc.verifyEqual(findall(M.Axes, 'Tag', 'layer_cov'), h, 'a new revision updates the same image');
+            tc.verifyEqual(h.AlphaData(5), 0.9); tc.verifyEqual(string(h.Visible), "off", 'the operator choice survives');
+        end
+
+        function panelsExpandAndRestore(tc)
+            app = tc.open('Position', [40 40 1300 800]); drawnow; f = app.Figure.Position;
+            for n = ["scene", "map", "rgb", "thermal", "lidar", "telemetry", "events"]
+                P = app.Panels.(n); tc.press(P.ExpandButton); drawnow;
+                tc.settle(@() P.Position(3) > 0.9 * f(3));
+                tc.verifyGreaterThan(P.Position(3), 0.9 * f(3)); tc.verifyEqual(app.Expanded, n);
+                tc.verifyEqual(string(P.ExpandButton.Text), "Restore");
+                others = setdiff(string(fieldnames(app.Panels)), n);
+                for o = others', tc.verifyEqual(string(app.Panels.(o).Visible), "off"); end
+                tc.assertWarningVisible(app);
+                tc.press(P.ExpandButton); drawnow;
+                tc.verifyEqual(app.Expanded, ""); tc.verifyEqual(string(app.Panels.(others(1)).Visible), "on");
+            end
+            tc.settle(@() app.Panels.scene.Position(3) < 0.6 * f(3));
+            tc.verifyLessThan(app.Panels.scene.Position(3), 0.6 * f(3));
+        end
+
+        function expandedPanelStaysLiveAndClockUnchanged(tc)
+            app = tc.open('MaxTicksPerRun', 40); app.toggleExpand("rgb"); tc.press(app.Controls.Buttons.start); drawnow;
+            s = app.Session.Sensors.latest("RGB_NADIR");
+            tc.verifyEqual(app.Panels.rgb.Image.CData, s.image_rgb_uint8);
+            tc.verifyEqual(app.Session.Engine.TickId, 40);
+            tc.verifyEqual(height(app.Session.Engine.poseLog()), 41, 'hidden panels drop no ticks');
+        end
+
+        function scenarioAndSeedOnlyBeforeStart(tc)
+            app = tc.open('MaxTicksPerRun', 20); C = app.Controls; base = app.Session.MissionConfig.run_id;
+            drawnow; tc.verifyEqual(string(C.ScenarioDropdown.Enable), "on");
+            C.ScenarioDropdown.Value = "Thermal dropout"; C.ScenarioDropdown.ValueChangedFcn(C.ScenarioDropdown, []); drawnow;
+            tc.verifyEqual(app.Session.Scenario, "Thermal dropout");
+            tc.verifyEqual(app.Session.SensorConfig.THERMAL_LWIR.dropout_model.intervals_s, [10 40]);
+            tc.verifyNotEqual(app.Session.MissionConfig.run_id, base);
+            tc.verifySubstring(string(C.Readout.Text), app.Session.MissionConfig.run_id);
+            C.SeedField.Value = 77; C.SeedField.ValueChangedFcn(C.SeedField, []); drawnow;
+            tc.verifyEqual(app.Session.MissionConfig.seed, 77); tc.verifySubstring(string(C.Readout.Text), "seed 77");
+            tc.press(C.Buttons.start); drawnow;
+            tc.verifyEqual(string(C.ScenarioDropdown.Enable), "off"); tc.verifyEqual(string(C.SeedField.Enable), "off");
+            tc.verifyError(@() app.Session.configure("Overcast", 1), 'mgv2:InvalidCommand');
+            app.configure("Overcast", 1); tc.verifyEqual(app.Session.Scenario, "Thermal dropout", 'refused once started');
+            a = app.Session.Sensors.Log.checksum;
+            tc.press(C.Buttons.abort); tc.press(C.Buttons.reset); drawnow;
+            tc.verifyEqual(app.Session.MissionConfig.seed, 77, 'reset never reseeds');
+            tc.press(C.Buttons.start); drawnow;
+            tc.verifyEqual(app.Session.Sensors.Log.checksum, a, 'reset reproduces the run');
+            tc.press(C.Buttons.abort); tc.press(C.Buttons.reset); drawnow;
+            app.configure("As launched", mgv2.mission.defaultConfig().seed);
+            tc.verifyEqual(app.Session.MissionConfig.run_id, base, 'back to the launch configuration');
+        end
+
+        function seedAndScenarioChangeTheMeasurements(tc)
+            ses = mgv2.ui.MissionSession(); ses.start(); for k = 1:20, ses.step(); end
+            n1 = ses.Sensors.latest("VIRTUAL_GNSS_INS").reported_position_enu_m; k1 = ses.Sensors.latest("THERMAL_LWIR").temperature_K; ses.abortRun(); ses.reset();
+            ses.configure("Low contrast", 99); ses.start(); for k = 1:20, ses.step(); end
+            tc.verifyNotEqual(ses.Sensors.latest("THERMAL_LWIR").temperature_K, k1);
+            tc.log(1, sprintf("seed effect on navigation: %g m", norm(ses.Sensors.latest("VIRTUAL_GNSS_INS").reported_position_enu_m - n1)));
+        end
+
+        function replayAndExportAreHonestlyPending(tc)
+            app = tc.flown(10); C = app.Controls;
+            for b = [C.ReplayButton C.ExportButton]
+                tc.verifyEqual(string(b.Enable), "off"); tc.verifySubstring(string(b.Text), "V2-008");
+            end
+        end
+
+        function repeatedPauseResumeDoesNotDriftOrDuplicate(tc)
+            src = V2007TestDoubleSource(); app = tc.open('MaxTicksPerRun', 10, 'AnomalySource', src);
+            tc.press(app.Controls.Buttons.start); drawnow;
+            for k = 1:6, tc.press(app.Controls.Buttons.resume); drawnow; end
+            T = app.Session.Engine.poseLog();
+            tc.verifyEqual(app.Session.Engine.TickId, 70);
+            tc.verifyEqual(T.t_s, (0:70)' * app.Session.MissionConfig.dt_s, 'AbsTol', 1e-9);
+            tc.verifyEqual(src.Poses, (0:70)', 'each pose exactly once'); tc.verifyEqual(numel(unique(src.Seen)), numel(src.Seen));
+            tc.verifyEmpty(timerfindall());
+        end
+
+        function repeatedLaunchesAndResetsLeaveNothing(tc)
+            before = numel(findall(groot, 'Type', 'figure'));
+            for k = 1:3
+                a = mgv2MissionControl('RealTime', 0, 'MaxTicksPerRun', 8); a.command("start"); a.command("abort"); a.command("reset"); a.command("start"); a.command("abort"); delete(a);
+            end
+            tc.verifyEqual(numel(findall(groot, 'Type', 'figure')), before); tc.verifyEmpty(timerfindall());
+        end
+
+        function sourceIsBoundToTheSessionsOwnRun(tc)
+            src = V2007TestDoubleSource(); app = tc.open('MaxTicksPerRun', 12, 'AnomalySource', src); ses = app.Session;
+            tc.verifyEqual(src.Binds, 1); tc.verifyEqual(src.BoundMission.run_id, ses.MissionConfig.run_id);
+            tc.verifyEqual(src.BoundWorld.seed, ses.World.seed); tc.verifyEqual(src.Poses, 0);
+            tc.press(app.Controls.Buttons.start); drawnow;
+            tc.verifyEqual(src.Poses, (0:12)', 'every executed pose once');
+            tc.press(app.Controls.Buttons.abort); tc.press(app.Controls.Buttons.reset); drawnow;
+            tc.verifyEqual(src.Binds, 2); tc.verifyEqual(src.Resets, 1); tc.verifyEqual(src.Poses, 0, 'one subscription per engine');
+            tc.press(app.Controls.Buttons.start); drawnow;
+            tc.verifyEqual(src.Poses, (0:12)', 'the old engine is not followed');
+            tc.verifyFalse(any(contains(string(fieldnames(src.BoundMission)), ["truth", "target"], 'IgnoreCase', true)));
+        end
+
+        function sourceReadOncePerRenderPeriodAndValidatedOnChange(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event(); src.Info = struct('events_as_of_tick', 0, 'events_as_of_t_s', 0);
+            app = tc.open('MaxTicksPerRun', 40, 'AnomalySource', src); r0 = src.Reads;
+            tc.press(app.Controls.Buttons.start); drawnow;
+            tc.verifyLessThanOrEqual(src.Reads - r0, 12, 'one read per RenderEvery plus the final refresh');
+            tc.verifyEqual(app.Session.view().overlay_key, 0);
+            src.Events = V2007TestDoubleSource.event('status', "CONFIRMED");
+            tc.verifyEqual(string(app.Session.view().events.status), "SUSPECTED", 'unchanged freshness tick: not re-validated');
+            src.Info.events_as_of_tick = 40; v = app.Session.view();
+            tc.verifyEmpty(v.events, 'a changed tick is validated, and a bad record is not shown');
+            tc.verifySubstring(v.overlay_error, "CONFIRMED");
+        end
+
+        function rejectedOutputIsDisplayedAndTheRunContinues(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event('target_id', 3);
+            app = tc.flown(20, 'AnomalySource', src);
+            tc.verifyEqual(app.Session.Engine.TickId, 20);
+            tc.verifySubstring(string(app.Panels.events.StatusLabel.Text), "REJECTED, NOT SHOWN");
+            tc.verifyEmpty(app.Panels.events.Table.Data);
+            src.Events = V2007TestDoubleSource.event('run_id', "another-run"); tc.press(app.Controls.Buttons.resume); drawnow;
+            tc.verifySubstring(string(app.Panels.events.StatusLabel.Text), "another-run");
+            D = @V2007TestDoubleSource.event;
+            tc.verifyError(@() mgv2.ui.validateEvents([D(); D()]), 'mgv2:InvalidEvent');
+            tc.verifyError(@() mgv2.ui.validateMapLayers(V2007TestDoubleSource.layer('x_enu_m', 1)), 'mgv2:InvalidMapLayer');
+        end
+
+        function eventAgeIsShownAndFlagged(tc)
+            src = V2007TestDoubleSource(); src.Info = struct('events_as_of_tick', 0, 'events_as_of_t_s', 0);
+            app = tc.flown(140, 'AnomalySource', src); S = app.Panels.events.StatusLabel;
+            tc.verifySubstring(string(S.Text), "age 7.0 s");
+            tc.verifyEqual(S.FontColor, mgv2.ui.theme().stale);
+        end
+
+        function eventInspectorShowsVerifiedEvidence(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event('uncertainty_m', 1.5); src.Inspection = V2007TestDoubleSource.inspection();
+            app = tc.flown(20, 'AnomalySource', src); E = app.Panels.events; tick = app.Session.Engine.TickId;
+            E.Table.CellSelectionCallback(E.Table, struct('Indices', [1 1])); drawnow;
+            tc.verifyEqual(app.Expanded, "events"); tc.verifyEqual(E.SelectedId, "T-1");
+            txt = string(E.DetailText.Text);
+            for w = ["SUSPECTED", "SIMULATED", "uncalibrated", "2.00, 3.00", "1.50 m", "not a probability", "RGB_NADIR", "verified"], tc.verifySubstring(txt, w); end
+            h = findall(E.RgbAxes, 'Type', 'image'); tc.verifySize(h, [1 1]); tc.verifyEqual(h.CData, src.Inspection.items(1).crop);
+            tc.verifySubstring(string(E.ThermalAxes.Title.String), "K");
+            tc.verifySize(findall(E.ThermalAxes, 'Type', 'image'), [1 1]);
+            r = app.Panels.map.H.selected; tc.verifyEqual([r.XData r.YData], [2 3]);
+            tc.verifyEqual(app.Session.Engine.TickId, tick, 'inspection does not advance time');
+            app.command("abort"); app.command("reset"); drawnow;
+            tc.verifyEqual(E.SelectedId, ""); tc.verifyEqual(r.XData, NaN);
+        end
+
+        function eventInspectorNeverSubstitutesEvidence(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event(); src.Inspection = V2007TestDoubleSource.inspection();
+            app = tc.flown(20, 'AnomalySource', src); E = app.Panels.events;
+            app.selectEvent("T-1"); tc.verifyNotEmpty(findall(E.RgbAxes, 'Type', 'image'));
+            src.InspectError = "checksum differs"; app.selectEvent("T-1"); drawnow;
+            tc.verifySubstring(string(E.DetailText.Text), "EVIDENCE NOT AVAILABLE"); tc.verifySubstring(string(E.DetailText.Text), "checksum differs");
+            tc.verifyEmpty(findall(E.RgbAxes, 'Type', 'image')); tc.verifyEmpty(findall(E.ThermalAxes, 'Type', 'image'));
+            src.InspectError = ""; bad = V2007TestDoubleSource.inspection(); bad.items(1).verified_against_sensor_log = false; src.Inspection = bad;
+            app.selectEvent("T-1"); tc.verifySubstring(string(E.DetailText.Text), "unverified"); tc.verifyEmpty(findall(E.RgbAxes, 'Type', 'image'));
+            src.Inspection = V2007TestDoubleSource.inspection('event_id', "T-2"); app.selectEvent("T-1"); tc.verifySubstring(string(E.DetailText.Text), "EVIDENCE NOT AVAILABLE");
+            src.Inspection = V2007TestDoubleSource.inspection('target_id', 3); app.selectEvent("T-1"); tc.verifyEmpty(findall(E.RgbAxes, 'Type', 'image'));
+            tc.verifyEmpty(strfind(string(E.DetailText.Text), "target_id = 3"));
+        end
+
+        function selectedEventCanDisappear(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event(); src.Inspection = V2007TestDoubleSource.inspection();
+            app = tc.flown(20, 'AnomalySource', src); E = app.Panels.events; app.selectEvent("T-1");
+            src.Events = V2007TestDoubleSource.event('event_id', "T-9"); tc.press(app.Controls.Buttons.resume); drawnow;
+            tc.verifySubstring(string(E.DetailText.Text), "no longer in the current detector output");
+            tc.verifyEmpty(findall(E.RgbAxes, 'Type', 'image'));
+            tc.verifyEqual(E.Table.Data{1, 1}, 'T-9');
+        end
+
+        function nullSourceOffersNoEvidence(tc)
+            app = tc.flown(10); tc.verifyError(@() app.Session.inspect("X"), 'mgv2:InspectUnavailable');
+            app.selectEvent("X"); tc.verifySubstring(string(app.Panels.events.DetailText.Text), "EVIDENCE NOT AVAILABLE");
+        end
+
+        function compactWindowKeepsControlsUsable(tc)
+            app = tc.open('Position', [40 40 960 640]); tc.settle(@() app.LayoutMode == "compact"); drawnow; pause(0.3); drawnow;
+            tc.verifyEqual(app.LayoutMode, "compact"); tc.verifyEqual(string(app.Content.Scrollable), "on");
+            C = app.Controls; tc.verifyLessThanOrEqual(C.ExportButton.Position(1) + C.ExportButton.Position(3), 960);
+            tc.verifyGreaterThanOrEqual(C.Readout.Position(3), 850);
+            tc.assertWarningVisible(app);
+        end
+
+        function headerToolsAreFullyRendered(tc)
+            for pos = {[40 40 1440 880], [40 40 960 640]}
+                app = tc.open('Position', pos{1}); drawnow; pause(0.3); drawnow;
+                for n = string(fieldnames(app.Panels))'
+                    P = app.Panels.(n); tc.verifyEqual(string(P.ExpandButton.Visible), "on");
+                    for c = P.Tools.Children'
+                        tc.verifyEqual(c.Layout.Row, 1, n + ": tools share one row");
+                        tc.verifyGreaterThanOrEqual(c.Position(4), 20, n + ": a tool must not be squashed");
+                        tc.verifyGreaterThanOrEqual(c.Position(3), 30, n + ": a tool must not be squashed");
+                    end
+                end
+                delete(app);
+            end
         end
 
         function adapterSeamRejectsBadRecords(tc)

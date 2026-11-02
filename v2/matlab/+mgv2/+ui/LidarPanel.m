@@ -15,14 +15,13 @@ classdef LidarPanel < mgv2.ui.PanelBase
                 txt = sprintf("%s | %d/%d returns | %d invalid rays", txt, s.return_count, n, n - s.return_count);
                 if isfinite(s.altitude_agl_m), txt = sprintf("%s | AGL(obs) %.2f m", txt, s.altitude_agl_m); end
             end
-            obj.setStatus(txt, st.state);
+            obj.setStatus(txt, st.state); obj.showChannelState(obj.Overlay, st, "RETURNS");
             if isempty(s) || s.frame_id == obj.LastFrame, return; end
             obj.LastFrame = s.frame_id;
             P = s.points_enu_m(s.valid_ray_mask, :);
             if isempty(P), P = [NaN NaN NaN]; end
             set(obj.Points, 'XData', P(:, 1), 'YData', P(:, 2), 'ZData', P(:, 3), 'CData', P(:, 3));
             obj.holdLimits(P);
-            if s.valid, obj.setOverlay(obj.Overlay, ''); else, obj.setOverlay(obj.Overlay, "NO VALID RETURNS: " + s.invalid_reason); end
         end
         function resetDisplay(obj)
             obj.LastFrame = ""; obj.Held = []; set(obj.Points, 'XData', NaN, 'YData', NaN, 'ZData', NaN, 'CData', NaN);
