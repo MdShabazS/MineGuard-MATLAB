@@ -28,7 +28,8 @@ pinned = "Source: Esri, Vantor, Earthstar Geographics, and the GIS User Communit
 credit = pinned; creditSource = "PINNED_2026_11_02"; metadataStatus = "UNAVAILABLE";
 try
     info = metadataReader(service + "?f=json");
-    if isstruct(info) && isfield(info,'copyrightText')
+    if isstruct(info) && isscalar(info) && isfield(info,'copyrightText') && ...
+            (ischar(info.copyrightText) || isstring(info.copyrightText))
         live = string(info.copyrightText);
         if isscalar(live) && ~ismissing(live) && strlength(strtrim(live)) > 0
             credit = live; creditSource = "LIVE_SERVICE"; metadataStatus = "AVAILABLE";

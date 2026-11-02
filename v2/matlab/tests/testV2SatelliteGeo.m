@@ -124,9 +124,10 @@ end
 end
 
 function testBasemapSourceDoesNotQueryUnrelatedMetadata(tc)
-reader = @(~) error('mgv2:UnexpectedMetadataRequest','World Imagery must not be queried.');
+requests = strings(0,1);
 for bm = ["topographic","streets-light"]
-    src = mgv2.geo.basemapSource(bm,reader);
+    src = mgv2.geo.basemapSource(bm,@readMetadata);
+    verifyEqual(tc,numel(requests),0,"No metadata request for " + bm);
     verifyEqual(tc,src.metadata_status,"NOT_QUERIED");
     verifyEqual(tc,src.tile_status,"UNVERIFIED");
     verifySubstring(tc,src.status,"Basemap " + bm + " selected");
@@ -134,20 +135,30 @@ for bm = ["topographic","streets-light"]
     verifySubstring(tc,src.credit,"Powered by Esri");
     verifyFalse(tc,contains(src.credit,"Vantor"));
 end
-src = mgv2.geo.basemapSource("darkwater",reader);
+src = mgv2.geo.basemapSource("darkwater",@readMetadata);
+verifyEqual(tc,numel(requests),0,"No metadata request for darkwater");
 verifyEqual(tc,src.metadata_status,"NOT_APPLICABLE");
 verifyEqual(tc,src.tile_status,"LOCAL_BASEMAP");
 verifySubstring(tc,src.credit,"Natural Earth");
+    function info = readMetadata(url)
+        requests(end+1,1) = string(url);
+        info = struct('copyrightText',"Source: Test Contributor");
+    end
 end
 
-function testSatelliteMetadataSuccessStillDoesNotClaimTiles(tc)
-reader = @(~) struct('copyrightText',"Source: Esri, Test Contributor");
-src = mgv2.geo.basemapSource("satellite",reader);
+function testSatelliteRequestsOnlyWorldImageryMetadata(tc)
+requests = strings(0,1);
+src = mgv2.geo.basemapSource("satellite",@readMetadata);
+verifyEqual(tc,requests,"https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer?f=json");
 verifyEqual(tc,src.metadata_status,"AVAILABLE");
 verifyEqual(tc,src.credit_source,"LIVE_SERVICE");
 verifySubstring(tc,src.credit,"Test Contributor");
 verifyEqual(tc,src.tile_status,"UNVERIFIED");
 verifySubstring(tc,src.status,"tile loading unverified");
+    function info = readMetadata(url)
+        requests(end+1,1) = string(url);
+        info = struct('copyrightText',"Source: Esri, Test Contributor");
+    end
 end
 
 function testSatelliteMetadataFailureKeepsPinnedCredits(tc)
@@ -165,4 +176,12 @@ reader = @(~) struct('copyrightText',"");
 src = mgv2.geo.basemapSource("satellite",reader);
 verifyEqual(tc,src.metadata_status,"UNAVAILABLE");
 verifyEqual(tc,src.credit_source,"PINNED_2026_11_02");
+end
+
+function testSatelliteMalformedMetadataKeepsPinnedCredits(tc)
+for response = {struct(),struct('copyrightText',42)}
+    src = mgv2.geo.basemapSource("satellite",@(~) response{1});
+    verifyEqual(tc,src.metadata_status,"UNAVAILABLE");
+    verifyEqual(tc,src.credit_source,"PINNED_2026_11_02");
+end
 end
