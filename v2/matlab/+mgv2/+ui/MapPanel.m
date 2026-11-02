@@ -1,9 +1,13 @@
 classdef MapPanel < mgv2.ui.PanelBase
     %MAPPANEL Offline local ENU mission map: terrain, boundary, home, planned and flown route, UAV, RGB footprint.
     %   It needs no internet or map toolbox. Coverage and suspect overlays come only from V2-006 through view.layers;
-    %   this panel computes neither. Unobserved ground is never coloured as cleared.
+    %   this panel computes neither. Unobserved ground is never coloured as cleared: it stays without overlay.
+    %   Check boxes show or hide each layer without touching any data. Clicking a points layer calls OnPick(x, y).
     properties (SetAccess = private, Transient, NonCopyable)
-        Axes; H = struct(); LayerHandles = struct(); LayerRevisions = struct()
+        Axes; H = struct(); LayerHandles = struct(); LayerRevisions = struct(); Checks = struct(); KeyLabel; Body
+    end
+    properties
+        OnPick = []
     end
     properties (Access = private)
         Flown; NFlown = 0; LastTick = -1; LastFootprint = ""
@@ -25,8 +29,10 @@ classdef MapPanel < mgv2.ui.PanelBase
             obj.H.uav = plot(ax, NaN, NaN, 'o', 'MarkerSize', 8, 'MarkerFaceColor', [1 0.3 0.1], 'MarkerEdgeColor', 'w', 'DisplayName', 'UAV', 'Tag', 'map_uav');
             obj.H.legend = legend(ax, [obj.H.boundary obj.H.route obj.H.flown obj.H.footprint obj.H.home obj.H.uav], 'Location', 'eastoutside', 'TextColor', 'w', ...
                 'Color', [0.1 0.11 0.13], 'FontSize', 9);
+            obj.H.selected = plot(ax, NaN, NaN, 'o', 'MarkerSize', 16, 'LineWidth', 2, 'Color', [1 1 1], 'HandleVisibility', 'off', 'PickableParts', 'none', 'Tag', 'map_selected');
             xlabel(ax, 'E [m]'); ylabel(ax, 'N [m]');
             set(ax, 'XColor', 'w', 'YColor', 'w', 'GridColor', 'w', 'Layer', 'top', 'Box', 'on');
+            obj.applyVisibility();
         end
 
         function present(obj, view)
@@ -48,6 +54,8 @@ classdef MapPanel < mgv2.ui.PanelBase
                 end
             end
             obj.drawLayers(view.layers);
+            obj.Checks.coverage.Enable = matlab.lang.OnOffSwitchState(obj.hasKind("raster"));
+            obj.Checks.suspected.Enable = matlab.lang.OnOffSwitchState(obj.hasKind("other"));
             ov = "anomaly overlays: " + view.source.status_text;
             obj.setStatus(sprintf("OFFLINE LOCAL ENU | t=%.2f s | E %.1f N %.1f m | %s", p.t_s, xy, ov), "NONE");
         end
@@ -57,37 +65,102 @@ classdef MapPanel < mgv2.ui.PanelBase
             set(obj.H.flown, 'XData', NaN, 'YData', NaN);
             f = fieldnames(obj.LayerHandles);
             for k = 1:numel(f), delete(obj.LayerHandles.(f{k})); end
-            obj.LayerHandles = struct(); obj.LayerRevisions = struct();
+            obj.LayerHandles = struct(); obj.LayerRevisions = struct(); obj.setSelected(NaN, NaN);
+        end
+
+        function setSelected(obj, x, y)
+            %SETSELECTED Ring around the estimated position of the selected event, or NaN for none.
+            set(obj.H.selected, 'XData', x, 'YData', y);
+        end
+
+        function setLayerVisible(obj, name, tf)
+            obj.Checks.(name).Value = tf; obj.applyVisibility();
         end
     end
     methods (Access = protected)
         function buildBody(obj)
             obj.TitleLabel.Text = 'MISSION MAP [SIMULATED, VIRTUAL COORDINATES]';
-            obj.Axes = obj.makeAxes();
+            t = mgv2.ui.theme();
+            obj.Body = uigridlayout(obj.Grid, [3 1], 'RowHeight', {20, 0, '1x'}, 'ColumnWidth', {'1x'}, 'Padding', 0, 'RowSpacing', 2, 'BackgroundColor', t.panel);
+            obj.Body.Layout.Row = 3; obj.Body.Layout.Column = [1 2];
+            caps = {'terrain', 'Terrain', 1; 'boundary', 'Boundary', 1; 'route', 'Planned', 1; 'flown', 'Traversed', 1; 'footprint', 'Footprint', 1; 'coverage', 'Coverage', 1; 'suspected', 'Suspected', 1};
+            row = uigridlayout(obj.Body, [1 size(caps, 1)], 'ColumnWidth', repmat({'fit'}, 1, size(caps, 1)), 'RowHeight', {'1x'}, 'Padding', 0, 'ColumnSpacing', 6, 'BackgroundColor', t.panel);
+            for k = 1:size(caps, 1)
+                obj.Checks.(caps{k, 1}) = uicheckbox(row, 'Text', caps{k, 2}, 'Value', true, 'FontSize', 10, 'FontColor', t.text, 'ValueChangedFcn', @(~, ~) obj.applyVisibility());
+            end
+            obj.Checks.coverage.Enable = 'off'; obj.Checks.suspected.Enable = 'off';
+            obj.KeyLabel = uilabel(obj.Body, 'Text', mgv2.ui.MapPanel.coverageKey(), 'Interpreter', 'html', 'FontSize', 10, 'FontColor', t.text, 'WordWrap', 'on', 'Tag', 'map_coverage_key', 'Visible', 'off');
+            obj.Axes = obj.makeAxes(obj.Body); obj.Axes.Layout.Row = 3;
         end
     end
     methods (Access = private)
+        function applyVisibility(obj)
+            for f = ["terrain", "boundary", "route", "flown", "footprint"]
+                obj.H.(f).Visible = matlab.lang.OnOffSwitchState(obj.Checks.(f).Value);
+            end
+            for f = string(fieldnames(obj.LayerHandles))', obj.applyLayerVisibility(f); end
+        end
+
+        function applyLayerVisibility(obj, f)
+            h = obj.LayerHandles.(f); c = obj.Checks.suspected;
+            if isa(h, 'matlab.graphics.primitive.Image'), c = obj.Checks.coverage; end
+            h.Visible = matlab.lang.OnOffSwitchState(c.Value);
+        end
+
+        function tf = hasKind(obj, kind)
+            tf = false;
+            for f = string(fieldnames(obj.LayerHandles))'
+                tf = tf || isa(obj.LayerHandles.(f), 'matlab.graphics.primitive.Image') == (kind == "raster");
+            end
+        end
+
         function drawLayers(obj, L)
             live = strings(0);
             for k = 1:numel(L)
                 f = matlab.lang.makeValidName(char(L(k).id)); live(end+1) = f; %#ok<AGROW>
                 if isfield(obj.LayerRevisions, f) && isequal(obj.LayerRevisions.(f), L(k).revision), continue; end
-                if isfield(obj.LayerHandles, f), delete(obj.LayerHandles.(f)); end
-                obj.LayerHandles.(f) = obj.drawLayer(L(k)); obj.LayerRevisions.(f) = L(k).revision;
+                if isfield(obj.LayerHandles, f) && string(L(k).kind) == "raster" && isa(obj.LayerHandles.(f), 'matlab.graphics.primitive.Image')
+                    set(obj.LayerHandles.(f), 'XData', L(k).x_enu_m, 'YData', L(k).y_enu_m, 'CData', L(k).cdata, 'AlphaData', L(k).alpha);
+                else
+                    if isfield(obj.LayerHandles, f), delete(obj.LayerHandles.(f)); end
+                    obj.LayerHandles.(f) = obj.drawLayer(L(k));
+                end
+                obj.LayerRevisions.(f) = L(k).revision; obj.applyLayerVisibility(f);
             end
             for f = setdiff(string(fieldnames(obj.LayerHandles))', live)
                 delete(obj.LayerHandles.(f)); obj.LayerHandles = rmfield(obj.LayerHandles, f); obj.LayerRevisions = rmfield(obj.LayerRevisions, f);
+            end
+            showKey = obj.hasKind("raster");
+            if strcmp(obj.KeyLabel.Visible, 'on') ~= showKey
+                obj.KeyLabel.Visible = matlab.lang.OnOffSwitchState(showKey);
+                if showKey, obj.Body.RowHeight{2} = 'fit'; else, obj.Body.RowHeight{2} = 0; end
             end
         end
 
         function h = drawLayer(obj, l)
             ax = obj.Axes; x = l.x_enu_m; y = l.y_enu_m; tag = "layer_" + string(l.id);
             switch string(l.kind)
-                case "points", h = plot(ax, x, y, 'd', 'MarkerSize', 9, 'MarkerFaceColor', l.color, 'MarkerEdgeColor', 'k', 'HandleVisibility', 'off', 'Tag', tag);
+                case "points", h = plot(ax, x, y, 'd', 'MarkerSize', 9, 'MarkerFaceColor', l.color, 'MarkerEdgeColor', 'k', 'HandleVisibility', 'off', 'Tag', tag, 'ButtonDownFcn', @(~, e) obj.picked(e));
                 case "polyline", h = plot(ax, x, y, '-', 'Color', l.color, 'LineWidth', 1.5, 'HandleVisibility', 'off', 'Tag', tag);
                 case "polygon", h = patch(ax, 'XData', x, 'YData', y, 'FaceColor', l.color, 'FaceAlpha', 0.3, 'EdgeColor', l.color, 'HandleVisibility', 'off', 'Tag', tag);
-                case "raster", h = image(ax, x, y, l.cdata, 'AlphaData', l.alpha, 'HandleVisibility', 'off', 'Tag', tag);
+                case "raster"
+                    h = image(ax, x, y, l.cdata, 'AlphaData', l.alpha, 'HandleVisibility', 'off', 'Tag', tag, 'PickableParts', 'none');
+                    uistack(h, 'bottom'); uistack(obj.H.terrain, 'bottom');     % over the terrain, under everything else
             end
+        end
+
+        function picked(obj, e)
+            if ~isempty(obj.OnPick), obj.OnPick(e.IntersectionPoint(1), e.IntersectionPoint(2)); end
+        end
+    end
+    methods (Static, Access = private)
+        function txt = coverageKey()
+            %COVERAGEKEY Colours of the V2-006 cell states. UNOBSERVED has alpha 0, so it is simply no overlay.
+            c = mgv2.map.MapView.StateRGBA; names = ["planned", "traversed", "SENSOR INVALID", "VALID OBSERVED"]; txt = "Coverage is sensor evidence, not cleared land: ";
+            for k = 1:4
+                txt = txt + sprintf('<span style="color:rgb(%d,%d,%d)">&#9632;</span> %s ', round(255 * c(k + 1, 1:3)), names(k));
+            end
+            txt = char(txt + "| no overlay = UNOBSERVED");
         end
     end
 end

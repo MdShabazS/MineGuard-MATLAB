@@ -2,6 +2,9 @@ classdef MissionControlApp < handle
     %MISSIONCONTROLAPP Integrated desktop dashboard for one simulated mission. SIMULATION ONLY.
     %   app = mgv2.ui.MissionControlApp(Name=Value)      see mgv2MissionControl for the options
     %   app.command("start")   same as pressing the button: "start"|"pause"|"resume"|"abort"|"reset"
+    %   app.configure(scenario, seed)   same as the scenario and seed controls, before a start
+    %   app.toggleExpand("rgb")         panel fills the window, or is restored
+    %   app.selectEvent(id)             show verified evidence of one public event
     %   delete(app)            closes the window and releases every object it created
     %
     %   One run loop lives inside the START/RESUME command and returns on pause, end or close. There is
@@ -21,6 +24,7 @@ classdef MissionControlApp < handle
     properties (SetAccess = private)
         Figure; Session; Panels = struct(); Banner; Controls; Outer; Content
         LayoutMode = ""
+        Expanded = ""             % panel filling the window, or ""
         Running = false
         RealTime; RenderEvery; SceneEvery; MaxTicksPerRun
         Perf
@@ -59,20 +63,24 @@ classdef MissionControlApp < handle
             app.Figure = uifigure('Name', 'MineGuard V2 Mission Control (SIMULATION ONLY)', 'Position', pos, 'Color', t.bg, 'Visible', 'off', ...
                 'AutoResizeChildren', 'off', 'CloseRequestFcn', @(~, ~) delete(app), 'Tag', 'mgv2_mission_control');
             theme(app.Figure, "dark");      % the layout is dark in any desktop theme, so its controls and table must match
-            app.Outer = uigridlayout(app.Figure, [3 1], 'RowHeight', {30, 36, '1x'}, 'ColumnWidth', {'1x'}, 'Padding', [4 4 4 4], 'RowSpacing', 4, 'BackgroundColor', t.bg);
+            app.Outer = uigridlayout(app.Figure, [3 1], 'RowHeight', {30, 60, '1x'}, 'ColumnWidth', {'1x'}, 'Padding', [4 4 4 4], 'RowSpacing', 4, 'BackgroundColor', t.bg);
             app.Banner = mgv2.ui.SimulationBanner(app.Outer); app.Banner.Layout.Row = 1;
             app.Controls = mgv2.ui.ControlBar(app.Outer); app.Controls.Layout.Row = 2;
             app.Controls.OnCommand = @(c) app.command(c);
+            app.Controls.OnConfigure = @(sc, seed) app.configure(sc, seed);
             app.Content = uigridlayout(app.Outer, 'Padding', 0, 'RowSpacing', 4, 'ColumnSpacing', 4, 'BackgroundColor', t.bg);
             app.Content.Layout.Row = 3;
             s = app.Session;
             app.Panels.scene = mgv2.ui.ScenePanel(app.Content); app.Panels.scene.bind(s.World);
             app.Panels.map = mgv2.ui.MapPanel(app.Content); app.Panels.map.bind(s.World, s.MissionConfig, s.Engine.Route);
             app.Panels.rgb = mgv2.ui.RgbPanel(app.Content);
-            app.Panels.thermal = mgv2.ui.ThermalPanel(app.Content); app.Panels.thermal.Palette = opts.Palette;
+            app.Panels.thermal = mgv2.ui.ThermalPanel(app.Content); app.Panels.thermal.setPalette(opts.Palette);
             app.Panels.lidar = mgv2.ui.LidarPanel(app.Content);
             app.Panels.telemetry = mgv2.ui.TelemetryPanel(app.Content);
             app.Panels.events = mgv2.ui.EventInspectorPanel(app.Content);
+            app.Panels.map.OnPick = @(x, y) app.pickOnMap(x, y);
+            app.Panels.events.OnSelect = @(id) app.selectEvent(id);
+            for f = string(fieldnames(app.Panels))', app.Panels.(f).OnExpand = @() app.toggleExpand(f); end
             app.applyLayout();
             app.Figure.SizeChangedFcn = @(~, ~) app.applyLayout();
             app.refresh();
@@ -111,6 +119,39 @@ classdef MissionControlApp < handle
             end
         end
 
+        function configure(app, scenario, seed)
+            %CONFIGURE New scenario or mission seed before a start. Refused once a run has begun.
+            if app.Running || app.Session.state() ~= "READY", return; end
+            app.Session.configure(scenario, seed);
+            for f = string(fieldnames(app.Panels))', app.Panels.(f).resetDisplay(); end
+            app.safeRefresh(); app.clearPerf();
+        end
+
+        function toggleExpand(app, name)
+            %TOGGLEEXPAND Let one panel fill the window for inspection. All panels keep receiving every view.
+            name = string(name);
+            if ~isfield(app.Panels, name), error('mgv2:InvalidCommand', 'Unknown panel "%s".', name); end
+            if app.Expanded == name, name = ""; end
+            if app.Expanded ~= "", app.Panels.(app.Expanded).setExpanded(false); end
+            app.Expanded = name;
+            if name ~= "", app.Panels.(name).setExpanded(true); end
+            app.LayoutMode = ""; app.applyLayout();
+        end
+
+        function selectEvent(app, eventId)
+            %SELECTEVENT Open the inspector on one public event id. An evidence failure is displayed, never replaced.
+            eventId = string(eventId); P = app.Panels; ev = app.Session.view(false).events; P.events.select(eventId); k = [];
+            if ~isempty(ev), k = find(string({ev.event_id}) == eventId); end
+            if isscalar(k), P.map.setSelected(ev(k).x_est_m, ev(k).y_est_m); else, P.map.setSelected(NaN, NaN); end
+            if app.Expanded ~= "events", app.toggleExpand("events"); end
+            try
+                P.events.showInspection(app.Session.inspect(eventId));
+            catch err
+                P.events.showInspectionError(eventId, err.message);
+                if startsWith(err.identifier, "MATLAB:"), rethrow(err); end
+            end
+        end
+
         function p = perfSummary(app)
             %PERFSUMMARY Measured wall-clock figures of this run so far. Not an acceptance result.
             P = app.Perf; p = struct('ticks', P.ticks, 'sim_s', P.sim_s, 'wall_s', P.wall_s, 'sim_to_wall', P.sim_s / max(P.wall_s, eps), 'late_ticks', P.late, ...
@@ -129,6 +170,14 @@ classdef MissionControlApp < handle
     end
 
     methods (Access = private)
+        function pickOnMap(app, x, y)
+            %PICKONMAP A click on a map marker selects the nearest listed event.
+            ev = app.Session.view(false).events;
+            if isempty(ev), return; end
+            [~, k] = min(hypot([ev.x_est_m] - x, [ev.y_est_m] - y));
+            app.selectEvent(ev(k).event_id);
+        end
+
         function runLoop(app)
             %RUNLOOP Advance the engine until paused, terminal, the per-run budget, or window close.
             app.Running = true; guard = onCleanup(@() app.endRun()); %#ok<NASGU>
@@ -184,7 +233,7 @@ classdef MissionControlApp < handle
 
         function refreshSensors(app)
             %REFRESHSENSORS Scene, images and map: everything tied to the samples of this tick.
-            tf = tic; v = app.Session.view();
+            tf = tic; v = app.Session.view(false);       % the source is read once per RenderEvery, in refreshStatus
             t0 = tic; app.Panels.scene.presentPose(v.pose); app.Perf.panel_ms.scene(end+1, 1) = 1e3 * toc(t0);
             for f = ["rgb", "thermal", "map"]
                 t0 = tic; app.Panels.(f).present(v); app.Perf.panel_ms.(f)(end+1, 1) = 1e3 * toc(t0);
@@ -233,13 +282,19 @@ classdef MissionControlApp < handle
             if pos(3) < app.CompactWidth || pos(4) < app.CompactHeight, mode = "compact"; else, mode = "wide"; end
             if mode == app.LayoutMode, return; end
             app.LayoutMode = mode; c = app.Content; P = app.Panels;
+            if pos(3) < app.CompactWidth || pos(4) < app.CompactHeight, app.Outer.RowHeight{1} = 48; else, app.Outer.RowHeight{1} = 30; end
+            names = string(fieldnames(P))';
+            for f = names, P.(f).Visible = matlab.lang.OnOffSwitchState(app.Expanded == "" || f == app.Expanded); end
+            if app.Expanded ~= ""
+                for f = names, P.(f).Layout.Row = 1; P.(f).Layout.Column = 1; end
+                c.Scrollable = 'off'; c.RowHeight = {'1x'}; c.ColumnWidth = {'1x'};
+                return
+            end
             if mode == "wide"
                 c.Scrollable = 'off'; c.ColumnWidth = repmat({'1x'}, 1, 6); c.RowHeight = {'2x', '1.35x', 178};
-                app.Outer.RowHeight{1} = 30;
                 L = {'scene', 1, [1 3]; 'map', 1, [4 6]; 'rgb', 2, [1 2]; 'thermal', 2, [3 4]; 'lidar', 2, [5 6]; 'telemetry', 3, [1 4]; 'events', 3, [5 6]};
             else
                 c.Scrollable = 'on'; c.ColumnWidth = {'1x', '1x'}; c.RowHeight = {300, 240, 240, 196, 170};
-                app.Outer.RowHeight{1} = 48;
                 L = {'scene', 1, 1; 'map', 1, 2; 'rgb', 2, 1; 'thermal', 2, 2; 'lidar', 3, [1 2]; 'telemetry', 4, [1 2]; 'events', 5, [1 2]};
             end
             for k = 1:size(L, 1)
