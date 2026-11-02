@@ -56,7 +56,7 @@ No notifications, approvals, or access-controlled student dashboard. No backgrou
 
 A separately rendered section below the official ten-task V2 tracker shows the **non-authoritative** enhancement work in `v2/roadmap/enhancements.json`. It includes the evidence explorer/integration, optional satellite preview, Focus Mode, 3-D realism, replay/debrief, sensor input hardening and Mac demo theme fix.
 
-- Enhancement identifiers are `ENH-001` etc., not new official V2 tasks. **Never add them to `v2/tasks/manifest.json` or infer a new official completion percentage from them.** V2 remains 5/10 DONE until accepted, task-gated merges alter the authoritative status.
+- Enhancement identifiers are `ENH-001` etc., not new official V2 tasks. **Never add them to `v2/tasks/manifest.json` or infer a new official completion percentage from them.** As of 2026-11-02, V2 has 6/10 DONE on GitHub main (V2-007 IN_PROGRESS); only accepted task-gated merges alter authoritative status.
 - An entry may be marked `ACTIVE_UNMERGED`, `DRAFT_UNVERIFIED`, `PLANNED`, `BLOCKED` or `LOCAL_UNPUBLISHED`; **none means DONE**. For each update, verify associated issue/PR/test evidence and update the JSON on a reviewed branch. The portal does not auto-read unmerged PR status into roadmap state.
 - The enhancement view is fetched from GitHub **main** only, every ordinary portal refresh. It fails safely if missing/invalid. A passing CI gate does not prove MATLAB, satellite tile, Render deployment or physical detector validation.
 - The official V2 tracker, owners, journal and V1 historical archive are unaffected. One-time MATLAB satellite previews and locally tested display fixes are clearly reported as *unverified* or *not yet published*.
@@ -93,3 +93,11 @@ The fix makes V2 and ENH status requests independent, bundles clearly labelled *
 7. Official V2 status remains sourced from GitHub main whenever reachable. If not, the portal displays **deployed GitHub-main snapshot (may be outdated)**; a fallback snapshot must never be represented as current/live and does not change official task status.
 
 The roadmap JSON lives at `v2/roadmap/enhancements.json` in GitHub; a PR merge does **not** prove a Render deployment. The standalone `portal/data/enhancements.json` snapshot is a fallback for the same data at the portal-build commit.
+
+## 2026-11-02 — Verified V2/ENH status refresh (roadmap-2)
+
+- Official `v2/tasks/status.json` on main remains **6/10 DONE**, V2-007 IN_PROGRESS, V2-008/009/010 TODO. The portal bundled fallback now mirrors it; live GitHub main is still authoritative.
+- ENH-001 V2-007 bridge (#67/#91) is not merged or accepted. ENH-002 satellite prototype Mac and Windows each reported 15/15 tests (#75/#90), but source/rights approval and stacked merging remain open.
+- ENH-006 sensor schema hardening PR #92 is open; Codex independent audit #94 merged. ENH-007's theme correction reached main via V2-006 PR #66 and is shown as `MERGED_MAIN` (not a claim of valid mine detection).
+- Codex is **assigned** ENH-009's original offline schematic fallback, with no delivered implementation PR yet. Real-world imagery permissions and campus bounds remain unresolved. ENH-010 is planned afterward; ENH-011 remains blocked on V2/performance and georeferencing prerequisites.
+- The portal build marker `2026-11-02-roadmap-2` is required by strict post-deployment verification. A merged PR alone does **not** demonstrate the Render site is current. Use `node scripts/verify-render-portal.mjs https://mineguard-guide-portal.onrender.com/ --require-current` after the Render live deployment.
