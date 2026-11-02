@@ -25,7 +25,9 @@ test("enhancement entries are all distinct, public, and never falsely DONE", () 
   assert.match(enhancementLabel("TESTED_BLOCKED"), /acceptance blocked/);
   assert.match(enhancementLabel("MERGED_IN_BRANCH"), /not released/);
   assert.equal(items.find(item=>item.id==="ENH-002").status,"TESTED_BLOCKED");
-  assert.equal(items.find(item=>item.id==="ENH-007").status,"MERGED_IN_BRANCH");
+  assert.equal(items.find(item=>item.id==="ENH-007").status,"MERGED_MAIN");
+  assert.match(enhancementLabel("MERGED_MAIN"), /main/);
+  assert.equal(items.find(item=>item.id==="ENH-006").status,"ACTIVE_UNMERGED");
   assert.ok(items.filter(x=>x.category==="campus").every(x=>x.url.includes("/issues/")));
 });
 
