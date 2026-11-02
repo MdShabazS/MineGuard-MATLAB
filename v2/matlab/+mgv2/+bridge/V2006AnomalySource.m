@@ -8,7 +8,8 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
     %   Binding: MissionSession calls bindEvidence once, then bindRun with its own public world and mission, once per
     %   engine, also after a reset or scenario change, and onPose with every executed pose. The detector and map are
     %   built there, never from a guessed copy. Every sample and pose arrives through the session, exactly once.
-    %   One source serves one session: a second session raises mgv2:BridgeAlreadyBound.
+    %   One source serves one live session: a second session raises mgv2:BridgeAlreadyBound while the first one exists.
+    %   If the session refuses a run at binding, the source keeps no detector or map for it.
     %
     %   Evidence: inspect checks each record against the session's current SensorSystem.Log, read through the provider.
     %   A reset or other run raises mgv2:BridgeRunMismatch. No provider raises mgv2:EvidenceLogUnavailable. inspect
@@ -59,8 +60,12 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
             obj.ValidatedEvents = containers.Map('KeyType', 'char', 'ValueType', 'any');
             obj.Dirty = true; obj.Stats.binds = obj.Stats.binds + 1;
             if ~isempty(obj.EvidenceFcn)
-                c = obj.evidenceContext(); obj.BoundGeneration = c.generation;
-                if c.run_id ~= obj.Detector.RunId, error('mgv2:BridgeRunMismatch', 'Bound to run %s, but the session shows %s.', obj.Detector.RunId, c.run_id); end
+                try
+                    c = obj.evidenceContext(); obj.BoundGeneration = c.generation;
+                    if c.run_id ~= obj.Detector.RunId, error('mgv2:BridgeRunMismatch', 'Bound to run %s, but the session shows %s.', obj.Detector.RunId, c.run_id); end
+                catch err
+                    obj.clearRun(); rethrow(err);                     % a refused run leaves nothing that could be shown
+                end
             end
         end
 
@@ -70,7 +75,7 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
                 obj
                 provider (1,1) function_handle
             end
-            if ~isempty(obj.EvidenceFcn), error('mgv2:BridgeAlreadyBound', 'This source is already bound to a session.'); end
+            if obj.providerIsLive(), error('mgv2:BridgeAlreadyBound', 'This source is already bound to a session.'); end
             obj.EvidenceFcn = provider;
         end
 
@@ -171,6 +176,14 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
             need = ["run_id","generation","state","tick","sensor_log"];
             if ~isstruct(c) || ~isscalar(c) || ~all(isfield(c, need)) || ~istable(c.sensor_log)
                 error('mgv2:EvidenceLogUnavailable', 'The session gave no usable sensor log.');
+            end
+        end
+
+        function tf = providerIsLive(obj)
+            tf = false; if isempty(obj.EvidenceFcn), return; end
+            try
+                obj.EvidenceFcn(); tf = true;
+            catch
             end
         end
 

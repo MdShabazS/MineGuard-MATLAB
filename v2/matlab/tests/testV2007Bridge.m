@@ -42,6 +42,9 @@ classdef testV2007Bridge < matlab.unittest.TestCase
         function withLog(src, c, g, L, id)
             g.sensor_log = L; c('ctx') = g; src.inspect(id);
         end
+        function keepFrame(F, s)
+            F(char(s.frame_id)) = s; %#ok<NASGU> handle object
+        end
         function t = eventTable(E)
             t = table([E.event_id]', [E.x_est_m]', [E.y_est_m]', [E.model_score]', 'VariableNames', ["id","x","y","score"]);
         end
@@ -495,6 +498,60 @@ classdef testV2007Bridge < matlab.unittest.TestCase
             end
             tc.verifyTrue(got); tc.verifyGreaterThan(src.Stats.inspect_current_reads, 0);
             tc.verifyEqual(src.Stats.rebuilds, n);                             % the schedule did not move
+        end
+
+        function b38_exactlyOneEvidenceInterface(tc)                         % a merge that keeps two seams fails here, by name
+            ui = fileparts(which('mgv2.ui.MissionSession'));
+            ses = fileread(fullfile(ui, 'MissionSession.m')); seam = fileread(fullfile(ui, 'AnomalySource.m'));
+            tc.verifyNumElements(regexp(ses, 'function\s+\w+\s*=\s*evidenceContext\s*\('), 1);
+            tc.verifyNumElements(regexp(seam, 'function\s+bindEvidence\s*\('), 1);
+            tc.verifyEmpty(regexp([ses seam], 'bindSensorLog|readSensorLog', 'once'), 'the replaced seam must be gone');
+            c = mgv2.ui.MissionSession().evidenceContext();
+            tc.verifyEqual(sort(string(fieldnames(c))), sort(["run_id";"generation";"state";"tick";"sensor_log"]));
+        end
+
+        function b39_failedBindingAndEndedSession(tc)                        % nothing of a refused run stays; a deleted session frees the source
+            base = mgv2.ui.MissionSession(); w = base.World; m = base.MissionConfig;
+            ctx = struct('run_id', "OTHER-RUN", 'generation', 1, 'state', "READY", 'tick', 0, 'sensor_log', base.Sensors.Log);
+            src = mgv2.bridge.V2006AnomalySource(); src.bindEvidence(@() ctx);
+            tc.verifyError(@() src.bindRun(w, m), 'mgv2:BridgeRunMismatch');
+            tc.verifyEmpty(src.Detector); tc.verifyEmpty(src.Map); tc.verifyFalse(src.sourceInfo().connected); tc.verifyEmpty(src.suspectedEvents());
+            bad = mgv2.bridge.V2006AnomalySource(); bad.bindEvidence(@() struct());
+            tc.verifyError(@() bad.bindRun(w, m), 'mgv2:EvidenceLogUnavailable'); tc.verifyEmpty(bad.Detector);
+            one = mgv2.bridge.V2006AnomalySource(); a = mgv2.ui.MissionSession(AnomalySource=one);
+            tc.verifyError(@() mgv2.ui.MissionSession(AnomalySource=one), 'mgv2:BridgeAlreadyBound');
+            first = one.Detector; delete(a);
+            tc.verifyError(@() one.inspect("SUS-00001"), 'mgv2:EvidenceLogUnavailable');   % never the old run's records
+            b = mgv2.ui.MissionSession(AnomalySource=one);
+            tc.verifyNotSameHandle(one.Detector, first); tc.verifyEqual(one.Detector.RunId, string(b.MissionConfig.run_id));
+        end
+
+        function b40_rgbAndThermalCropsAreExactlyTheirFrames(tc)             % both modalities, real detector, pixels from the referenced sample
+            src = mgv2.bridge.V2006AnomalySource(); ses = mgv2.ui.MissionSession(AnomalySource=src);
+            F = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            ses.Sensors.subscribe(@(s) testV2007Bridge.keepFrame(F, s));
+            ses.start(); testV2007Bridge.advance(ses, 1000); ses.pauseRun(); ev = ses.view().events; tc.assertNotEmpty(ev);
+            n = struct('RGB_NADIR', 0, 'THERMAL_LWIR', 0);
+            for e = reshape(ev, 1, [])
+                ins = ses.inspect(e.event_id);
+                for it = reshape(ins.items, 1, [])
+                    tc.assertTrue(isKey(F, char(it.frame_id))); s = F(char(it.frame_id)); o = it.crop_origin_px; [h, w, ~] = size(it.crop);
+                    if it.sensor_id == "RGB_NADIR", I = s.image_rgb_uint8; tc.verifyClass(it.crop, 'uint8'); else, I = s.temperature_K; tc.verifyClass(it.crop, 'double'); end
+                    tc.verifyEqual(it.crop, I(o(2):o(2)+h-1, o(1):o(1)+w-1, :), it.ref_id);
+                    n.(char(it.sensor_id)) = n.(char(it.sensor_id)) + 1;
+                end
+            end
+            tc.verifyGreaterThan(n.RGB_NADIR, 0, 'an RGB record was checked'); tc.verifyGreaterThan(n.THERMAL_LWIR, 0, 'a thermal record was checked');
+        end
+
+        function b41_cleanResources(tc)                                      % closing the app leaves no window or timer, and no usable evidence
+            f0 = numel(findall(groot, 'Type', 'figure')); t0 = numel(timerfindall);
+            src = mgv2.bridge.V2006AnomalySource();
+            app = mgv2.ui.MissionControlApp(Visible="off", RealTime=0, MaxTicksPerRun=60, AnomalySource=src);
+            app.command("start"); drawnow; ses = app.Session; delete(app); drawnow;
+            tc.verifyNumElements(findall(groot, 'Type', 'figure'), f0); tc.verifyNumElements(timerfindall, t0);
+            if isvalid(ses), delete(ses); end
+            tc.verifyError(@() src.inspect("SUS-00001"), 'mgv2:EvidenceLogUnavailable');
         end
 
         function b20_validationMemoNeverChangesOutput(tc)                    % issue #76: skipped scan, same result
