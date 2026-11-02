@@ -22,7 +22,7 @@ r = runtests('v2/enhancements/tests/testENH010Storyboard.m');
 assert(all([r.Passed]));
 ```
 
-Five focused tests cover deterministic and bounded state, labels and simulation separation, repeated graphics cleanup, and a source dependency guard. **MATLAB was not executed for this draft** because the shared runtime was in use; no pass count or visual acceptance is claimed. The source guard does not substitute for an OS network-denied run.
+Six focused tests cover deterministic and bounded state, labels and simulation separation, card text colours in both themes, repeated graphics cleanup, and a source dependency guard. **MATLAB was not executed for this draft** because the shared runtime was in use; no pass count or visual acceptance is claimed. The source guard does not substitute for an OS network-denied run.
 
 ## Dependencies and remaining approval
 

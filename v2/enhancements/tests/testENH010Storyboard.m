@@ -31,6 +31,16 @@ classdef testENH010Storyboard < matlab.unittest.TestCase
                 close(f);
             end
         end
+        function textColoursDoNotFollowTheTheme(tc)
+            for stage = ["CITY_CONTEXT","SIMULATION_HANDOFF"]
+                [f,~] = mgenh010.renderStoryboardFrame(stage,'Visible','off');
+                cleanup = onCleanup(@() closeIfOpen(f)); %#ok<NASGU>
+                theme(f,"light"); light = get(findall(f,'Type','text'),'Color');
+                theme(f,"dark"); dark = get(findall(f,'Type','text'),'Color');
+                tc.verifyEqual(dark,light,'card text must stay readable on the fixed light card');
+                close(f);
+            end
+        end
         function graphicsCleanup(tc)
             before = numel(findall(groot,'Type','figure'));
             for k = 1:3

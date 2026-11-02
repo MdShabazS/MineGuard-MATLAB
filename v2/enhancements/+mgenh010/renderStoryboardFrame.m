@@ -32,8 +32,8 @@ try
     axis(ax,[0 1 0 1]); axis(ax,'off');
     rectangle(ax,'Position',[0.03 0.08 0.94 0.84], 'FaceColor',[0.87 0.92 0.91], ...
         'EdgeColor',[0.20 0.35 0.37], 'LineWidth',2);
-    text(ax,0.5,0.72,heading,'HorizontalAlignment','center','FontWeight','bold','FontSize',15);
-    text(ax,0.5,0.48,body,'HorizontalAlignment','center','FontSize',10);
+    text(ax,0.5,0.72,heading,'HorizontalAlignment','center','FontWeight','bold','FontSize',15,'Color',[0.08 0.14 0.16]);
+    text(ax,0.5,0.48,body,'HorizontalAlignment','center','FontSize',10,'Color',[0.08 0.14 0.16]);
     text(ax,0.5,0.22,foot,'HorizontalAlignment','center','FontWeight','bold','FontSize',10, ...
         'Color',[0.42 0.17 0.10]);
     info = struct('stage',state,'kind',"ORIGINAL_TITLE_CARD",'georeferenced',false, ...
