@@ -57,6 +57,8 @@ if bridge
     S = src.Stats; d = src.Detector; R.rebuilds = S.rebuilds; R.rebuild_ms = stats(S.rebuild_ms); R.on_sample_total_s = S.on_sample_total_ms / 1e3;
     E = src.suspectedEvents(); R.events = numel(E); R.event_digest = digest(string(arrayfun(@(e) sprintf('%s %.17g %.17g %.17g %.17g', e.event_id, e.x_est_m, e.y_est_m, e.model_score, e.uncertainty_m), E, 'UniformOutput', false)));
     R.stale_s = stats(stale * ses.MissionConfig.dt_s); R.fingerprint = d.Fingerprint;
+    R.convert_ms = stats(S.convert_ms); R.layers_ms = stats(S.layers_ms); R.on_sample_max_ms = S.on_sample_max_ms;
+    R.requests = S.requests; R.pose_subscriptions = S.pose_subscriptions; R.samples_refused = S.samples_refused; R.ingested_samples = S.samples; R.poses = S.poses;
 end
 if isUi, clear c; end
 R.calibration_after_ms = calibration(); R.host_after = hostState();
