@@ -1,0 +1,75 @@
+mgv2PerfProfile at 759f4f209f8a86c36207d603c1317a2344e04c54
+       ticks: 2799
+       phase: "COMPLETE"
+         top: [30×4 table]
+    top_read: [30×4 table]
+
+                                                     <strong>fn</strong>                                                      <strong>self_s</strong>    <strong>total_s</strong>      <strong>calls</strong>   
+    <strong>_____________________________________________________________________________________________________</strong>    <strong>______</strong>    <strong>_______</strong>    <strong>__________</strong>
+
+    "rasterView"                                                                                             65.131    72.919           1398
+    "AnomalyDetector>AnomalyDetector.processCamera"                                                          26.185    72.377           1398
+    "sampleCamera"                                                                                           19.923     127.1           1398
+    "checksum"                                                                                               15.549    15.549           4154
+    "sampleCamera>vertexInterp"                                                                              13.543    13.768           2097
+    "assertPublic>scan"                                                                                      12.948    15.358     4.0811e+05
+    "RandStream.randn"                                                                                       10.594    10.594           8672
+    "heightAt"                                                                                               9.5934    9.5934          80095
+    "SensorSystem>SensorSystem.onPose"                                                                       9.0026    270.49           2799
+    "castRays"                                                                                               8.3015    15.978           1687
+    "MissionEngine>MissionEngine.record"                                                                     6.7802    7.3313           2799
+    "frameCandidates"                                                                                        6.0866     23.27           1398
+    "MissionMap>MissionMap.addSample"                                                                        5.8903    14.439           3076
+    "frameCandidates>boxMean"                                                                                5.1635    5.1635           1398
+    "AnomalyDetector>AnomalyDetector.pruneEvidence"                                                          5.0136     7.373          10009
+    "unique>uniqueR2012a"                                                                                    4.3257    4.3257          14407
+    "tabular.oneLevelParenAssign"                                                                            4.2104     6.717           6159
+    "AnomalyDetector>AnomalyDetector.updateTrack"                                                            4.1215    4.1215          10337
+    "validateSample"                                                                                          2.979    21.638           9228
+    "contract"                                                                                               2.7451    2.7451          21532
+    "AnomalyDetector>AnomalyDetector.makeEvidence"                                                            2.681    2.7733           9996
+    "AnomalyDetector>@(o)isKey(det.Ev,o)"                                                                    2.3594    2.3594          71097
+    "repmat"                                                                                                 2.1865    2.2496           4483
+    "median"                                                                                                 1.9612    1.9612           4469
+    "MissionMap>MissionMap.addPose"                                                                          1.9084    2.1494           2799
+    "AnomalyDetector>AnomalyDetector.mergeNear"                                                              1.8679    2.3413           9673
+    "AnomalyDetector>AnomalyDetector.ingest"                                                                  1.802    85.359           3076
+    "georegisterRays"                                                                                        1.5667    7.2536           1207
+    "istable"                                                                                                1.5119    1.5119     3.7956e+05
+    "georegisterRays>@(t,i)O(i,3)+t.*D(i,3)-mgv2.scene.heightAt(world,O(i,1)+t.*D(i,1),O(i,2)+t.*D(i,2))"    1.4795    5.6869          49997
+
+                          <strong>fn</strong>                           <strong>self_s</strong>     <strong>total_s</strong>       <strong>calls</strong>   
+    <strong>______________________________________________</strong>    <strong>________</strong>    <strong>________</strong>    <strong>__________</strong>
+
+    "assertNoBannedWords>scan"                          8.1264      8.2613         35245
+    "AnomalyDetector>AnomalyDetector.lidarContext"      4.4821      4.4911             5
+    "assertPublic>scan"                                 3.6534      4.2164    1.3076e+05
+    "AnomalyDetector>AnomalyDetector.trackTable"        1.6037      9.0837             5
+    "AnomalyDetector>AnomalyDetector.makeEvent"         1.2647      2.1684           425
+    "inpolygon>vec_inpolygon"                          0.94622     0.94622          6530
+    "tabular.dotReference"                             0.67232     0.67232         27635
+    "inpolygon"                                        0.48924      1.5583          7000
+    "istable"                                          0.47057     0.47057    1.2695e+05
+    "AnomalyDetector>AnomalyDetector.evidence"         0.33565     0.33565          2095
+    "AnomalyDetector>@(q)isKey(det.Ev,q)"               0.2486      0.2486          6770
+    "tabular.dotListLength"                            0.23909     0.23909         27645
+    "unique>uniqueR2012a"                              0.18078     0.18078          7695
+    "tabular.dotAssign"                                0.16003     0.22929           145
+    "mean"                                             0.15142     0.23435          7275
+    "unique"                                            0.1415     0.32229          7695
+    "strjoin"                                          0.13487     0.13487         15520
+    "contract"                                         0.12557     0.12557          1265
+    "median"                                           0.11456     0.11456          7270
+    "toUiEvents>eventIsUsable"                         0.11346      10.315           420
+    "mgv2PerfProfile"                                   0.1133      25.105             1
+    "tabular.dotParenReference"                        0.10753     0.10753          6965
+    "tabular.parenReference"                          0.096038     0.21614           420
+    "AnomalyDetector>AnomalyDetector.events"          0.096031      11.689             5
+    "toUiEvents"                                      0.073246      10.992             5
+    "ismember"                                        0.072602     0.10793          4650
+    "validateEvent"                                   0.066986      9.8658           420
+    "inpolygon>checkRange"                             0.06695     0.06695          6530
+    "contract"                                        0.062806    0.062806           430
+    "inpolygon>close_loops"                           0.055856    0.055856          6530
+
+

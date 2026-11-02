@@ -34,6 +34,7 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
         AsOfTick = -1; AsOfTime = NaN
         RawEvents = []; UiEvents = struct([]); Layers = struct([]); Rejected = strings(0, 1)
         LayerRevision = 0; CoverageKey = []; EventKey = []; CoverageRev = 0; EventRev = 0
+        ValidatedEvents       % containers.Map: events already through validateEvent in this run
     end
     properties (Constant)
         MaxPending = 16
@@ -129,7 +130,7 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
             obj.Map = mgv2.map.MissionMap(ses.World, ses.MissionConfig);
             obj.PoseEngine = []; obj.Dirty = true; obj.AsOfTick = -1; obj.AsOfTime = NaN;
             obj.RawEvents = []; obj.UiEvents = struct([]); obj.Layers = struct([]); obj.Rejected = strings(0, 1);
-            obj.CoverageKey = []; obj.EventKey = [];
+            obj.CoverageKey = []; obj.EventKey = []; obj.ValidatedEvents = containers.Map('KeyType', 'char', 'ValueType', 'any');
             if obj.Session.Engine.TickId == 0 && ~obj.isOldEngine(ses.Engine), obj.followEngine(); end
         end
 
@@ -179,7 +180,7 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
             if ~obj.Dirty, return; end
             t0 = tic; d = obj.Detector;
             E = d.events(); t1 = tic;
-            [ev, rej] = mgv2.bridge.toUiEvents(E, d.RunId, d);
+            [ev, rej] = mgv2.bridge.toUiEvents(E, d.RunId, d, obj.ValidatedEvents);
             ev = mgv2.ui.validateEvents(ev);
             if isempty(rej), obj.RawEvents = E; else, obj.RawEvents = E(~ismember([E.event_id], rej)); end
             ms2 = 1e3 * toc(t1); t2 = tic;

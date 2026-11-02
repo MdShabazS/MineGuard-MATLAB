@@ -30,6 +30,11 @@ classdef MissionSession < handle
         function abortRun(ses), ses.Engine.abort("operator abort from mission control"); end
         function advanced = step(ses), advanced = ses.Engine.step(); end
 
+        function p = pose(ses)
+            %POSE Current PoseSample alone, for a scene-only refresh.
+            p = ses.Engine.snapshot();
+        end
+
         function reset(ses)
             %RESET Back to tick 0 with the original seed: new engine and sensors, same configuration.
             ses.Source.reset(); ses.build();

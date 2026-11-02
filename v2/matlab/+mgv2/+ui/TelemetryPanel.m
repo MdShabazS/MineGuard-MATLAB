@@ -39,7 +39,7 @@ classdef TelemetryPanel < mgv2.ui.PanelBase
             obj.TitleLabel.Text = 'TELEMETRY [VIRTUAL]';
             g = uigridlayout(obj.Grid, [1 3], 'ColumnWidth', {'1x', '1x', '1.7x'}, 'Padding', 0, 'BackgroundColor', t.panel);
             g.Layout.Row = 3; g.Layout.Column = [1 2];
-            mk = @() uilabel(g, 'Text', '', 'FontColor', t.text, 'FontName', t.mono, 'FontSize', 11, 'VerticalAlignment', 'top', 'WordWrap', 'on');
+            mk = @() uilabel(g, 'Text', '', 'FontColor', t.text, 'FontName', t.mono, 'FontSize', 12, 'VerticalAlignment', 'top', 'WordWrap', 'on');
             obj.FlightLabel = mk(); obj.NavLabel = mk(); obj.HealthLabel = mk();
         end
     end
