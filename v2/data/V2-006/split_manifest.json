@@ -1,0 +1,78 @@
+{
+  "schema": "mg-v2-split/1.0",
+  "task": "V2-006",
+  "frozen_on": "2026-11-01",
+  "split_unit": "scenario group (terrain seed + layout seed + mission/sensor seed + environment)",
+  "analysis_unit": "event-level, one-to-one greedy nearest match",
+  "r_match_m": 1,
+  "scenario_builder": "mgv2.eval.buildScenario scenario-builder-v1",
+  "counts": {
+    "TRAIN": 6,
+    "VAL": 2,
+    "TEST": 2
+  },
+  "test_policy": "TEST groups RESERVED and NOT RUN in V2-006; one-time use in V2-008 (EVAL-09) only",
+  "groups": [
+    {
+      "group_id": "G01",
+      "split": "TRAIN",
+      "family": "POS_MIXED",
+      "definition_sha256": "760618668d4a3fc2580ffeb0c11af11d3eb682817f7ef64a9e2ed777ce499026"
+    },
+    {
+      "group_id": "G02",
+      "split": "TRAIN",
+      "family": "POS_MIXED",
+      "definition_sha256": "f886accf10d9f3521e45eaf1661e45bd3a1032ef4c1303f5f8f467874f9dfc4a"
+    },
+    {
+      "group_id": "G03",
+      "split": "TRAIN",
+      "family": "N1_CLUTTER",
+      "definition_sha256": "14601a056f9ecdb5b24385c1415240daedb9cd2618b9fda646784ad21a2b7754"
+    },
+    {
+      "group_id": "G04",
+      "split": "TRAIN",
+      "family": "N0_TARGET_FREE",
+      "definition_sha256": "141d8138cef63663005033eeb5097e489179b976a688d7aa6afbb891e317a6ad"
+    },
+    {
+      "group_id": "G05",
+      "split": "TRAIN",
+      "family": "N2_LOW_CONTRAST",
+      "definition_sha256": "5b42ba2802c2c1745ba260f2016014d422eb45b5f78c78d160296f9d77cd5f76"
+    },
+    {
+      "group_id": "G06",
+      "split": "TRAIN",
+      "family": "N3_DROPOUT",
+      "definition_sha256": "9fe2a86869f19a1f831b85dfec544900d4c6b57655590a071c257e5f7814ec36"
+    },
+    {
+      "group_id": "G07",
+      "split": "VAL",
+      "family": "POS_MIXED",
+      "definition_sha256": "39dade7c75cdea77ec1affd8744ddcc73cc61fe1780ddb674c8b2f957bf7ab2b"
+    },
+    {
+      "group_id": "G08",
+      "split": "VAL",
+      "family": "N1_CLUTTER",
+      "definition_sha256": "a215ab97d7172d24fd0487c13ff29af63afe53e1b4f7655c3034e3557e4e0fbe"
+    },
+    {
+      "group_id": "G09",
+      "split": "TEST",
+      "family": "POS_MIXED",
+      "definition_sha256": "a598d5d423acbf1f1254abda8a7f1e546001ca1cbe7ab4bdad3847fa1a4c2d0e"
+    },
+    {
+      "group_id": "G10",
+      "split": "TEST",
+      "family": "N3_DROPOUT",
+      "definition_sha256": "ad3a665a3f2a45dd739ea8c2a26f0ced31b9f432f6287f345ec84f9928e09f82"
+    }
+  ],
+  "manifest_sha256": "550af3d4cd4dbca16ee294d29148c084141fe2b1864ead54d31d0a529dd77d16"
+}

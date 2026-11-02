@@ -1,0 +1,15 @@
+Science-preservation check at e44daa59196955967dbd4ae1b5feb2ef0d05965d, Windows PCWIN64, 26.2.0.3433840 (R2026b) Update 1. DEMO FIXTURE only, excluded from accuracy. No study stage, no TEST.
+detector fingerprint fnv1a64:d6d364f988f04bb4 | frozen fnv1a64:d6d364f988f04bb4 | equal 1
+thresholds FUSED 0.30 RGB_ONLY 0.95 THERMAL_ONLY 0.80
+split manifest 550af3d4cd4dbca16ee294d29148c084141fe2b1864ead54d31d0a529dd77d16 | frozen 550af3d4cd4dbca16ee294d29148c084141fe2b1864ead54d31d0a529dd77d16 | equal 1
+event schema mg-v2-detector/1.0, 30 fields, field order equals contract 1, all events valid 1
+DEMO FIXTURE: events 78, TP 1, FP 77, FN 0, sensor samples 1571, phase COMPLETE
+fixture event SUS-00296 at (5.435, 3.202), error 0.081 m, score 0.859, sigma 0.184
+sample checksum digest 3c54e1046a9854ef80bcfc5bdefa0e3dd663c2b7158c13a66d71668eabddcc87
+committed VAL file, read only, not rerun:
+  G07 FUSED threshold 0.30 targets 4 TP 0 FP 45 FN 4
+  G07 RGB_ONLY threshold 0.95 targets 4 TP 0 FP 19 FN 4
+  G07 THERMAL_ONLY threshold 0.80 targets 4 TP 0 FP 9 FN 4
+  G08 FUSED threshold 0.30 targets 0 TP 0 FP 32 FN 0
+  G08 RGB_ONLY threshold 0.95 targets 0 TP 0 FP 4 FN 0
+  G08 THERMAL_ONLY threshold 0.80 targets 0 TP 0 FP 1 FN 0

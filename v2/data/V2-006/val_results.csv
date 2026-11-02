@@ -1,0 +1,7 @@
+group_id,family,score_mode,threshold,n_events,n_targets,TP,FP,FN,FN_no_signature,precision,recall,median_match_error_m
+G07,POS_MIXED,FUSED,0.3,45,4,0,45,4,1,0,0,NaN
+G07,POS_MIXED,RGB_ONLY,0.95,19,4,0,19,4,1,0,0,NaN
+G07,POS_MIXED,THERMAL_ONLY,0.8,9,4,0,9,4,1,0,0,NaN
+G08,N1_CLUTTER,FUSED,0.3,32,0,0,32,0,0,0,NaN,NaN
+G08,N1_CLUTTER,RGB_ONLY,0.95,4,0,0,4,0,0,0,NaN,NaN
+G08,N1_CLUTTER,THERMAL_ONLY,0.8,1,0,0,1,0,0,0,NaN,NaN
