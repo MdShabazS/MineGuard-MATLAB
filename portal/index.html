@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b1220">
+  <meta name="mineguard-portal-build" content="2026-11-02-status-fix-1">
   <meta name="description" content="MineGuard MATLAB project: live academic guide overview sourced from GitHub task records.">
   <title>MineGuard · Guide's Project Observatory</title>
-  <link rel="stylesheet" href="./styles.css">
-  <script type="module" src="./app.mjs"></script>
+  <link rel="stylesheet" href="./styles.css?v=20261102-statusfix1">
+  <script type="module" src="./app.mjs?v=20261102-statusfix1"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to project status</a>
@@ -69,6 +70,19 @@
         <div class="table-scroller"><table><thead><tr><th>Task / deliverable</th><th>Owner</th><th>Status</th><th>Dependency / evidence</th></tr></thead>
           <tbody id="v2TaskRows"><tr><td colspan="4" class="muted">Loading V2 tasks from GitHub main…</td></tr></tbody></table></div>
       </section>
+      <section class="panel enhancements-panel" aria-labelledby="enhancementsTitle">
+        <div class="panel-head">
+          <div><div class="section-kicker">RESEARCH-BACKED / SEPARATE FROM OFFICIAL V2 TASKS</div>
+            <h3 id="enhancementsTitle">Mission Intelligence enhancement roadmap</h3>
+            <p class="roadmap-intro">Engineering upgrades and four new BITM/Ballari presentation ideas, each with an owner, evidence link, dependency and reviewed status. <strong>Planning, locally tested code and feature-branch merges do not equal accepted V2 completion.</strong></p>
+          </div>
+          <a class="tiny-link" href="https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/v2/roadmap/enhancements.json" target="_blank" rel="noopener noreferrer">Roadmap data ↗</a>
+        </div>
+        <p id="roadmapStatus" class="roadmap-source" role="status">Loading the enhancement plan from GitHub main…</p>
+        <p id="roadmapBreakdown" class="roadmap-breakdown" aria-live="polite">Awaiting enhancement status breakdown…</p>
+        <div id="roadmapItems" class="enhancement-grid"><p class="muted">Enhancement data is not yet available.</p></div>
+        <p class="note">Enhancement statuses are maintained in GitHub and reviewed before publication; they are <strong>not real-time PR automation</strong>. These entries do <strong>not</strong> change the ten official V2 tasks. Campus imagery is geographic context only—never real flight telemetry or suspected-mine geolocation. MATLAB functionality is accepted only after recorded tests.</p>
+      </section>
       <p class="v2-note">3-D animation feasibility was demonstrated locally, but it is not yet a committed, independently reviewed V2 build. MATLAB simulation is not live flight telemetry, actual buried-mine detection, or mine-clearance validation.</p>
     </section>
     <div class="phase-divider" id="v1Archive"><div class="section-kicker">COMPLETED BASELINE / V1 ARCHIVE</div><h2>MineGuard V1 · 22-task research baseline</h2><p>V1 task completion is shown separately below. It must not be confused with Advanced V2 readiness or field validation.</p></div>
@@ -111,7 +125,7 @@
     <section class="panel" aria-labelledby="activityTitle"><div class="panel-head"><div><div class="section-kicker">LATEST CHANGES</div><h2 id="activityTitle">Recent GitHub activity</h2></div><a class="tiny-link" href="https://github.com/MdShabazS/MineGuard-MATLAB/commits/main/" target="_blank" rel="noopener noreferrer">History ↗</a></div><div id="activity" class="activity"><p class="muted">Loading commits…</p></div></section>
     <section class="disclaimer" aria-label="Important project limitation"><strong>Research simulation only.</strong> Virtual anomaly detections are not verified mine detections or proof of safe land. A status of DONE indicates recorded task completion with repository evidence, not external scientific certification.</section>
   </main>
-  <footer><span>MineGuard · ECE major project · Guide observatory</span><span>Read-only · Public GitHub records · <a href="https://github.com/MdShabazS/MineGuard-MATLAB" target="_blank" rel="noopener noreferrer">View source ↗</a></span></footer>
+  <footer><span>MineGuard · ECE major project · Guide observatory · <span id="portalBuild">Build: 2026-11-02 status-fix-1</span></span><span>Read-only · Public GitHub records · <a href="https://github.com/MdShabazS/MineGuard-MATLAB" target="_blank" rel="noopener noreferrer">View source ↗</a></span></footer>
 </div>
 </body>
 </html>
