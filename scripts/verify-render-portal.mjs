@@ -48,6 +48,12 @@ if (!roadmapPresent || !buildMatch) {
   process.stdout.write(JSON.stringify(result,null,2)+"\\n");
   process.exit(0);
 }
+const expectedPortalBuild="2026-11-02-roadmap-2";
+if (buildMatch[1]!==expectedPortalBuild) {
+  const msg="DEPLOYMENT OUTDATED: expected portal build "+expectedPortalBuild+", received "+buildMatch[1]+". Deploy latest main on Render.";
+  if (requireCurrent) fail(msg);
+  result.checks.latest_roadmap_build="NOT_YET_DEPLOYED (advisory pre-deploy)";
+} else result.checks.latest_roadmap_build="PASS";
 result.portal_build=buildMatch[1];
 result.checks.enhancement_html="PASS";
 const app = await get(new URL("./app.mjs",site), "javascript");
@@ -72,6 +78,10 @@ const v2Ids=Object.keys(v2Manifest.tasks||{});
 if(v2Ids.length!==10 || v2Ids.some(id=>!v2Status.tasks?.[id])) fail("Invalid deployed V2 status snapshot.");
 result.checks.v2_status_snapshot="PASS";
 result.v2_snapshot_done_count=v2Ids.filter(id=>v2Status.tasks[id].state==="DONE").length;
+if (requireCurrent) {
+  if (result.v2_snapshot_done_count!==6) fail("Deployed build has an outdated V2 fallback snapshot; expected 6 DONE at roadmap-2.");
+  if (!enh.items.some(x=>x.id==="ENH-007" && x.status==="MERGED_MAIN")) fail("Deployed enhancement snapshot missing main-merged ENH-007 status.");
+}
 const core = await get(new URL("./core.mjs",site), "javascript");
 if (!core.includes(expectedRepo) || !core.includes("buildTaskRows")) fail("Served core.mjs does not match expected repository");
 result.checks.core_module = "PASS";
