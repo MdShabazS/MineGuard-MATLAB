@@ -5,7 +5,7 @@ classdef V2007TestDoubleSource < mgv2.ui.AnomalySource
     properties
         Events = struct([]); Layers = struct([]); Seen = strings(0); Resets = 0
         Binds = 0; BoundWorld = []; BoundMission = []; Poses = zeros(0, 1); Reads = 0; Info = struct()
-        Inspection = []; InspectError = ""; EvidenceFcn = []; EvidenceBinds = 0
+        ReadError = ""; Inspection = []; InspectError = ""; EvidenceFcn = []; EvidenceBinds = 0
         StampFromLog = true     % inspect fills the frame references from the bound log; false returns Inspection as set
     end
     methods
@@ -13,6 +13,7 @@ classdef V2007TestDoubleSource < mgv2.ui.AnomalySource
         function ev = suspectedEvents(obj)
             %SUSPECTEDEVENTS The placeholder run "r" stands for the run this double is bound to.
             obj.Reads = obj.Reads + 1; ev = obj.Events;
+            if strlength(obj.ReadError) > 0, error('mgv2:EvidenceMissing', '%s', obj.ReadError); end
             for k = 1:numel(ev), if ev(k).run_id == "r", ev(k).run_id = obj.BoundMission.run_id; end, end
         end
         function L = mapLayers(obj), L = obj.Layers; end

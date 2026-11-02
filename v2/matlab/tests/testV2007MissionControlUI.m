@@ -689,6 +689,18 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             tc.verifyError(@() mgv2.ui.validateMapLayers(V2007TestDoubleSource.layer('x_enu_m', 1)), 'mgv2:InvalidMapLayer');
         end
 
+        function sourceReadErrorIsDisplayedAndTheRunContinues(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event(); src.Info = struct('events_as_of_tick', 5, 'events_as_of_t_s', 0.25);
+            app = tc.flown(20, 'AnomalySource', src); E = app.Panels.events; tc.assertEqual(size(E.Table.Data, 1), 1);
+            src.ReadError = "source read failed"; tc.press(app.Controls.Buttons.resume); drawnow;
+            tc.verifyEqual(app.Session.Engine.TickId, 40, 'the run continues');
+            tc.verifySubstring(string(E.StatusLabel.Text), "source read failed");
+            tc.verifyEmpty(E.Table.Data, 'old events are not left on screen as if current');
+            src.ReadError = ""; tc.press(app.Controls.Buttons.resume); drawnow;
+            tc.verifyEqual(size(E.Table.Data, 1), 1, 'recovers, even with an unchanged freshness tick');
+            tc.verifyEqual(app.Session.view().overlay_error, "");
+        end
+
         function eventAgeIsShownAndFlagged(tc)
             src = V2007TestDoubleSource(); src.Info = struct('events_as_of_tick', 0, 'events_as_of_t_s', 0);
             app = tc.flown(140, 'AnomalySource', src); S = app.Panels.events.StatusLabel;

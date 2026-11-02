@@ -137,16 +137,17 @@ classdef MissionSession < handle
 
         function readOverlay(ses)
             %READOVERLAY Ask the source. Validation and panel redraws are skipped while its freshness tick is unchanged.
-            src = ses.Source; o = ses.Overlay; ev = src.suspectedEvents(); L = src.mapLayers(); o.source = src.sourceInfo();
-            key = NaN; if isfield(o.source, 'events_as_of_tick'), key = double(o.source.events_as_of_tick); end
-            if ~isequal(key, o.key) || isnan(key)
-                o.key = key; o.error = "";
-                try
+            %   Any failure in reading or validating shows no overlays and displays the error; the run itself continues.
+            src = ses.Source; o = ses.Overlay;
+            try
+                ev = src.suspectedEvents(); L = src.mapLayers(); o.source = src.sourceInfo();
+                key = NaN; if isfield(o.source, 'events_as_of_tick'), key = double(o.source.events_as_of_tick); end
+                if ~isequal(key, o.key) || isnan(key) || strlength(o.error) > 0
+                    o.key = key; o.error = "";
                     o.events = mgv2.ui.validateEvents(ev, ses.MissionConfig.run_id); o.layers = mgv2.ui.validateMapLayers(L);
-                catch err
-                    if ~ismember(string(err.identifier), ["mgv2:InvalidEvent", "mgv2:InvalidMapLayer", "mgv2:TruthLeak"]), rethrow(err); end
-                    o.events = struct([]); o.layers = struct([]); o.error = string(err.message);
                 end
+            catch err
+                o.key = NaN; o.events = struct([]); o.layers = struct([]); o.error = string(err.message);
             end
             ses.Overlay = o;
         end
