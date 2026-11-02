@@ -466,11 +466,12 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
 
         function eventHeadingsAreComplete(tc)
             app = tc.open(); T = app.Panels.events.Table;
-            tc.verifyEqual(string(T.ColumnName'), ["event","t [s]","E est","N est","uncalibrated score","unc. [m]","status"]);
+            tc.verifyEqual(regexprep(string(T.ColumnName'), '\n', ' '), ["event","t [s]","E est","N est","uncalibrated score","unc. [m]","status"]);
             for s = {[60 60 1400 860], [60 60 900 600]}
                 app.Figure.Position = s{1}; tc.settle(@() abs(app.Banner.Position(3) - (s{1}(3) - 8)) <= 1); drawnow;
-                fixed = sum([T.ColumnWidth{2:6}]);
-                tc.verifyGreaterThan(T.Position(3) - fixed, 2 * 44, 'room for the flexible columns');
+                fixed = sum([T.ColumnWidth{1:6}]);
+                tc.verifyGreaterThan(T.Position(3) - fixed, 80, 'room for SUSPECTED in the flexible column');
+                tc.verifyGreaterThanOrEqual(T.ColumnWidth{5}, 100, 'room for the word uncalibrated');
             end
         end
 
