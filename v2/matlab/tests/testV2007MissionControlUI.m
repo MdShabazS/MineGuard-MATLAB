@@ -763,18 +763,17 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             end
         end
 
-        function sensorLogAccessorIsTiedToTheCurrentRun(tc)
+        function evidenceContextDescribesTheCurrentRunOnly(tc)
             src = V2007TestDoubleSource(); app = tc.flown(20, 'AnomalySource', src); ses = app.Session;
-            tc.verifyEqual(src.LogBinds, 1); first = src.LogFcn; L = first();
-            tc.verifyEqual(L, ses.Sensors.Log);
-            L.checksum(:) = "changed"; tc.verifyNotEqual(ses.Sensors.Log.checksum(1), "changed", 'a copy cannot change the log');
+            tc.verifyEqual(src.EvidenceBinds, 1); f = src.EvidenceFcn; c = f(); g = c.generation;
+            tc.verifyEqual(c.sensor_log, ses.Sensors.Log); tc.verifyEqual(c.run_id, ses.MissionConfig.run_id); tc.verifyEqual(c.tick, 20);
+            c.sensor_log.checksum(:) = "changed"; tc.verifyNotEqual(ses.Sensors.Log.checksum(1), "changed", 'a copy cannot change the log');
             app.command("abort"); app.command("reset");
-            tc.verifyEqual(src.LogBinds, 2);
-            tc.verifyError(first, 'mgv2:StaleSensorLog');
-            tc.verifyEqual(src.LogFcn(), ses.Sensors.Log);
-            second = src.LogFcn; app.configure("Overcast", 77);
-            tc.verifyEqual(src.LogBinds, 3); tc.verifyError(second, 'mgv2:StaleSensorLog');
-            tc.verifyEqual(src.LogFcn().tick_id(1), ses.Sensors.Log.tick_id(1));
+            c = f(); tc.verifyEqual(src.EvidenceBinds, 1, 'one binding per session');
+            tc.verifyGreaterThan(c.generation, g, 'a reset is a new generation with the same run id');
+            tc.verifyEqual(c.sensor_log, ses.Sensors.Log); tc.verifyEqual(c.tick, 0);
+            app.configure("Overcast", 77); c2 = f();
+            tc.verifyGreaterThan(c2.generation, c.generation); tc.verifyEqual(c2.run_id, ses.MissionConfig.run_id); tc.verifyNotEqual(c2.run_id, c.run_id);
         end
 
         function evidenceFromAReplacedRunIsNeverShown(tc)

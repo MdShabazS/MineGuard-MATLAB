@@ -7,7 +7,6 @@ classdef MissionSession < handle
     %   The authoritative clock and sensor state live here, never in a visual component. There is no timer.
     %   The session binds and subscribes the source once per engine/sensor pair. V2-005 has no reset or unsubscribe,
     %   so reset() replaces both objects with the same seed and configuration.
-    %   L = ses.readSensorLog(generation)  read-only log copy of that run; a source gets it as a bound function.
     %   A source output that fails validation is not shown: the events and layers are empty and the error is displayed.
 
     properties (Constant)
@@ -18,7 +17,6 @@ classdef MissionSession < handle
         World; MissionConfig; SensorConfig; Environment
         Engine; Sensors; Source
         Scenario = "As launched"
-        RunGeneration = 0     % increases with every new engine, also when run id and seed stay the same
     end
     properties (Access = private)
         Launch            % configurations the session was created with
@@ -88,12 +86,6 @@ classdef MissionSession < handle
             end
         end
 
-        function L = readSensorLog(ses, generation)
-            %READSENSORLOG The table is a value, so the caller's copy cannot change the session's log.
-            if generation ~= ses.RunGeneration, error('mgv2:StaleSensorLog', 'This sensor log accessor belongs to a replaced run.'); end
-            L = ses.Sensors.Log;
-        end
-
         function c = evidenceContext(ses)
             %EVIDENCECONTEXT Read-only copy of the current run for evidence checks. Public producer log only, no frames.
             %   Fields: run_id, generation (changes on every reset), state, tick, sensor_log (SensorSystem.Log).
@@ -126,9 +118,8 @@ classdef MissionSession < handle
             ses.Generation = ses.Generation + 1;
             ses.Sensors = mgv2.sensors.SensorSystem(ses.World, ses.MissionConfig, SensorConfig=ses.SensorConfig, Environment=ses.Environment);
             ses.Engine = mgv2.engine.MissionEngine(ses.MissionConfig, mgv2.scene.terrainProvider(ses.World));
-            src = ses.Source; ses.RunGeneration = ses.RunGeneration + 1; g = ses.RunGeneration;
+            src = ses.Source;
             src.bindRun(ses.World, ses.MissionConfig);
-            src.bindSensorLog(@() ses.readSensorLog(g));
             src.onPose(ses.Engine.snapshot());
             ses.Engine.subscribe(@(p) src.onPose(p));       % before the sensors: a sample's pose is always known first
             ses.Sensors.subscribe(@(s) src.onSample(s));

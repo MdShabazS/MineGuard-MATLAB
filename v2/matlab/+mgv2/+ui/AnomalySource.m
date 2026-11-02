@@ -15,9 +15,6 @@ classdef (Abstract) AnomalySource < handle
     %   bindRun(obj, world, missionCfg)  the session's own public world and mission, once per engine, before its first
     %                                    pose and sample. Also called after reset and after a scenario change.
     %   onPose(obj, pose)                every executed PoseSample exactly once, in order, starting with tick 0
-    %   bindSensorLog(obj, logFcn)       right after bindRun. logFcn() returns a read-only copy of this run's producer
-    %                                    sensor log. It raises mgv2:StaleSensorLog once the run is replaced, so never
-    %                                    keep its output for another run.
     %   ins = inspect(obj, eventId)      checksum-verified evidence (see mgv2.ui.validateInspection), or an error.
     %                                    Never a substitute frame.
     %   bindEvidence(obj, provider)      once per session, before the first bindRun. c = provider() returns a read-only
@@ -31,7 +28,6 @@ classdef (Abstract) AnomalySource < handle
     end
     methods
         function bindRun(~, ~, ~), end
-        function bindSensorLog(~, ~), end
         function onPose(~, ~), end
         function bindEvidence(~, ~), end
         function ins = inspect(~, eventId) %#ok<STOUT>
