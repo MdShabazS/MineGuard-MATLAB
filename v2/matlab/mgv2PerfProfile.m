@@ -12,7 +12,7 @@ arguments
     opts.CheckEvery (1,1) double = 700
 end
 src = mgv2.bridge.V2006AnomalySource(RefreshTicks=1e9);    % nothing rebuilt during flight: read-path cost is timed separately
-ses = mgv2.ui.MissionSession(AnomalySource=src); src.bindSession(ses); ses.start();
+ses = mgv2.ui.MissionSession(AnomalySource=src); ses.start();
 n = min(opts.MaxTicks, 6000); rows = {}; k = 0;
 if opts.Profiler, profile('clear'); profile('on', '-timer', 'performance'); end
 while k < n && ses.step()

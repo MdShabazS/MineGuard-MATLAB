@@ -20,12 +20,10 @@ R = struct('mode', mode, 'max_ticks', opts.MaxTicks, 'render_every', opts.Render
 if startsWith(mode, "APP")
     app = mgv2.ui.MissionControlApp(Visible="on", RealTime=0, RenderEvery=opts.RenderEvery, MaxTicksPerRun=opts.MaxTicks, AnomalySource=src);
     c = onCleanup(@() delete(app));
-    if bridge, src.bindSession(app.Session); end
     app.command("start"); ses = app.Session;
     R.perf = app.perfSummary(); R.ticks = double(ses.Engine.TickId); R.phase = string(ses.Engine.Phase);
 else
     ses = mgv2.ui.MissionSession(AnomalySource=src);
-    if bridge, src.bindSession(ses); end
     ses.start(); n = min(opts.MaxTicks, 6000);
     stepMs = zeros(n, 1); viewMs = zeros(ceil(n / opts.RenderEvery) + 1, 1); nV = 0; mem = zeros(0, 3); t0 = tic;
     for k = 1:n

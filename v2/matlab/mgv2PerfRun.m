@@ -23,17 +23,16 @@ stale = zeros(0, 1); t0 = tic;
 if isUi
     app = mgv2.ui.MissionControlApp(Visible=opts.Visible, RealTime=opts.RealTime, MaxTicksPerRun=opts.MaxTicks, AnomalySource=src);
     c = onCleanup(@() delete(app));
-    if bridge, src.bindSession(app.Session); app.AfterRefreshFcn = @(a) noteAge(src); end
+    if bridge, app.AfterRefreshFcn = @(a) noteAge(src); end
     ses = app.Session; startup = toc(t0);
     noteAge("clear");
     tr = tic; app.command("start"); wall = toc(tr);
     P = app.perfSummary(); G = app.Perf.gap_ms;
     R = struct('step_ms', P.step_ms, 'present_ms', P.present_ms, 'drawnow_ms', P.drawnow_ms, 'gap_ms', stats(G), 'gaps_over_250ms', nnz(G > 250), 'gaps_over_1s', nnz(G > 1000), ...
-        'late_ticks', P.late_ticks, 'events_panel_ms', P.events_ms, 'map_panel_ms', P.map_ms, 'scene_panel_ms', P.scene_ms);
+        'gaps_over_100ms', nnz(G > 100), 'stalls_over_100ms', P.stalls_over_100ms, 'refresh_rate', P.refresh_rate, 'refreshes', P.refreshes, 'skipped_scene', P.skipped_scene, 'max_behind_s', P.max_behind_s, 'late_ticks', P.late_ticks, 'events_panel_ms', P.events_ms, 'map_panel_ms', P.map_ms, 'scene_panel_ms', P.scene_ms);
     worst = max([G; 0]); stale = noteAge("get");
 else
     ses = mgv2.ui.MissionSession(AnomalySource=src);
-    if bridge, src.bindSession(ses); end
     startup = toc(t0); ses.start(); n = min(opts.MaxTicks, 6000);
     st = zeros(n, 1); vw = zeros(ceil(n / 4) + 1, 1); nV = 0; tr = tic; worst = 0;
     for k = 1:n

@@ -2,22 +2,25 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
     %V2006ANOMALYSOURCE Adapter from V2-006 public outputs to the V2-007 UI seam (UI Stage 3). SIMULATION ONLY.
     %   src = mgv2.bridge.V2006AnomalySource()                without a session: reports not connected, no events, no layers
     %   src = mgv2.bridge.V2006AnomalySource(RefreshTicks=20) ticks between rebuilds of the events and layers
-    %   app = mgv2MissionControl('AnomalySource', src)        binds itself: events, layers and coverage work
-    %   src.bindSession(app.Session)                          also gives access to the producer's sensor log for inspect
-    %   ins = src.inspect("SUS-00012")                        verified evidence record for one event
+    %   app = mgv2MissionControl('AnomalySource', src)        binds itself: events, layers, coverage and evidence work
+    %   ins = src.inspect("SUS-00012")                        verified evidence record for one listed event
     %
-    %   Binding: MissionSession calls bindRun with its own public world and mission, once per engine, also after a
-    %   reset or scenario change, and onPose with every executed pose. The detector and map are built there, never
-    %   from a guessed copy. Every sample and pose arrives through the session, exactly once.
+    %   Binding: MissionSession calls bindEvidence once, then bindRun with its own public world and mission, once per
+    %   engine, also after a reset or scenario change, and onPose with every executed pose. The detector and map are
+    %   built there, never from a guessed copy. Every sample and pose arrives through the session, exactly once.
+    %   One source serves one session: a second session raises mgv2:BridgeAlreadyBound.
     %
-    %   Evidence: inspect checks each record against the producer's SensorSystem.Log. The bindRun seam does not carry
-    %   that log, so bindSession supplies it. Without it inspect raises mgv2:EvidenceLogUnavailable rather than report
-    %   an unchecked record as verified.
+    %   Evidence: inspect checks each record against the session's current SensorSystem.Log, read through the provider.
+    %   A reset or other run raises mgv2:BridgeRunMismatch. No provider raises mgv2:EvidenceLogUnavailable. inspect
+    %   reads the listed result and never advances the refresh schedule, so a click cannot change a run. If the detector
+    %   has since replaced a listed event's retained records, inspect reads that same event id from the current detector
+    %   output, with all checks, and costs one detector read. The record states record_basis, its run and its age.
     %
     %   Refresh: events and layers are rebuilt at most once per RefreshTicks while the clock runs, and on demand once
-    %   it holds (session paused or ended, a repeated request at one tick, or a terminal pose). Between rebuilds, the
-    %   last validated result is returned unchanged and sourceInfo reports its age. Ticks, never wall clock, decide
-    %   when to rebuild, so runs are deterministic. events_as_of_tick changes whenever the output changes.
+    %   it holds (session paused or ended, or a terminal pose; without a session, a repeated request at one tick).
+    %   RefreshTicks=20 is one simulated second, a provisional default. Between rebuilds, the last validated result is
+    %   returned unchanged and sourceInfo reports its age. Ticks, never wall clock, decide when to rebuild, so runs are
+    %   deterministic. events_as_of_tick changes whenever the output changes.
     %
     %   Boundaries: public samples only, no scenario truth, no mgv2.eval. This class holds no route for display;
     %   MapPanel owns the plan, UAV and flown route. The detector schema and thresholds are not changed here.
@@ -25,8 +28,7 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
 
     properties (SetAccess = private)
         RefreshTicks
-        Session = []          % optional mgv2.ui.MissionSession: source of the producer's sensor log
-        Detector = []         % mgv2.detect.AnomalyDetector for the current run
+        Detector = []       % mgv2.detect.AnomalyDetector for the current run
         Map = []              % mgv2.map.MissionMap for the current run
         Stats                 % measured counters: see newStats
     end
@@ -37,6 +39,8 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
         RawEvents = []; UiEvents = struct([]); Layers = struct([]); Rejected = strings(0, 1)
         LayerRevision = 0; CoverageKey = []; EventKey = []; CoverageRev = 0; EventRev = 0
         ValidatedEvents       % containers.Map: events already through validateEvent in this run
+        EvidenceFcn = []      % provider from the session: see mgv2.ui.MissionSession.evidenceContext
+        BoundGeneration = NaN % session generation this detector was built for
     end
 
     methods
@@ -54,17 +58,20 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
             obj.Map = mgv2.map.MissionMap(world, missionCfg);
             obj.ValidatedEvents = containers.Map('KeyType', 'char', 'ValueType', 'any');
             obj.Dirty = true; obj.Stats.binds = obj.Stats.binds + 1;
+            if ~isempty(obj.EvidenceFcn)
+                c = obj.evidenceContext(); obj.BoundGeneration = c.generation;
+                if c.run_id ~= obj.Detector.RunId, error('mgv2:BridgeRunMismatch', 'Bound to run %s, but the session shows %s.', obj.Detector.RunId, c.run_id); end
+            end
         end
 
-        function bindSession(obj, ses)
-            %BINDSESSION Optional: use this session's sensor log for inspect and its state for refresh. Allowed at any tick.
+        function bindEvidence(obj, provider)
+            %BINDEVIDENCE Called once by the session that owns this source, before its first bindRun.
             arguments
                 obj
-                ses (1,1) mgv2.ui.MissionSession
+                provider (1,1) function_handle
             end
-            if ~isempty(obj.Session), error('mgv2:BridgeAlreadyBound', 'This source is already bound to a session.'); end
-            if ses.Source ~= obj, error('mgv2:BridgeWrongSession', 'The session was not created with this source.'); end
-            obj.Session = ses;
+            if ~isempty(obj.EvidenceFcn), error('mgv2:BridgeAlreadyBound', 'This source is already bound to a session.'); end
+            obj.EvidenceFcn = provider;
         end
 
         function onPose(obj, p)
@@ -108,24 +115,38 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
             obj.clearRun(); obj.Stats.resets = obj.Stats.resets + 1;
         end
 
-        function ins = inspect(obj, eventId, opts)
-            %INSPECT Verified evidence for one event, from its exact references. Nothing is ever substituted.
+        function ins = inspect(obj, eventId)
+            %INSPECT Verified evidence for one listed event, from its exact references. Nothing is ever substituted.
             arguments
                 obj
                 eventId (1,1) string
-                opts.SensorLog = []
             end
             if isempty(obj.Detector), error('mgv2:BridgeNotBound', 'Bind the source before inspecting events.'); end
-            obj.rebuild();
+            if isempty(obj.EvidenceFcn), error('mgv2:EvidenceLogUnavailable', 'Event %s cannot be verified: no producer sensor log is available.', eventId); end
+            c = obj.evidenceContext();
+            if c.generation ~= obj.BoundGeneration || c.run_id ~= obj.Detector.RunId
+                error('mgv2:BridgeRunMismatch', 'Event %s belongs to an earlier run than the one the session shows.', eventId);
+            end
+            if obj.AsOfTick < 0, obj.rebuild(); end
             E = obj.RawEvents; k = [];
             if ~isempty(E), k = find([E.event_id] == eventId); end
             if ~isscalar(k), error('mgv2:EventNotFound', 'Event %s is not in the current detector output.', eventId); end
-            L = opts.SensorLog;
-            if isempty(L)
-                if isempty(obj.Session), error('mgv2:EvidenceLogUnavailable', 'Event %s cannot be verified: no producer sensor log is available.', eventId); end
-                L = obj.Session.Sensors.Log;
+            asOf = obj.AsOfTick; basis = "LISTED";
+            try
+                ins = mgv2.bridge.checkEvidence(E(k), obj.Detector, c.sensor_log, c.run_id);
+            catch err
+                if err.identifier ~= "mgv2:EvidenceMissing", rethrow(err); end
+                % The detector replaced this event's retained records after it was listed. Read the same event id from
+                % the current detector output, without touching the refresh schedule. All checks apply again.
+                obj.Stats.inspect_current_reads = obj.Stats.inspect_current_reads + 1;
+                E = obj.Detector.events(); k = [];
+                if ~isempty(E), k = find([E.event_id] == eventId); end
+                if ~isscalar(k), error('mgv2:EventNotFound', 'Event %s is no longer in the current detector output.', eventId); end
+                ins = mgv2.bridge.checkEvidence(E(k), obj.Detector, c.sensor_log, c.run_id);
+                asOf = obj.clockTick(); basis = "CURRENT";
             end
-            ins = mgv2.bridge.checkEvidence(E(k), obj.Detector, L, obj.Detector.RunId);
+            ins.run_id = c.run_id; ins.record_basis = basis; ins.events_as_of_tick = asOf; ins.events_as_of_t_s = asOf * obj.Detector.Dt;
+            ins.current_tick = c.tick; ins.stale_ticks = c.tick - asOf;
         end
 
         function n = rejectedEventIds(obj)
@@ -138,7 +159,19 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
             obj.Detector = []; obj.Map = []; obj.Dirty = false; obj.PoseTick = -1; obj.RequestTick = -1; obj.Terminal = false;
             obj.AsOfTick = -1; obj.AsOfTime = NaN;
             obj.RawEvents = []; obj.UiEvents = struct([]); obj.Layers = struct([]); obj.Rejected = strings(0, 1);
-            obj.CoverageKey = []; obj.EventKey = []; obj.ValidatedEvents = [];
+            obj.CoverageKey = []; obj.EventKey = []; obj.ValidatedEvents = []; obj.BoundGeneration = NaN;
+        end
+
+        function c = evidenceContext(obj)
+            try
+                c = obj.EvidenceFcn();
+            catch err
+                error('mgv2:EvidenceLogUnavailable', 'The session gave no sensor log: %s', err.message);
+            end
+            need = ["run_id","generation","state","tick","sensor_log"];
+            if ~isstruct(c) || ~isscalar(c) || ~all(isfield(c, need)) || ~istable(c.sensor_log)
+                error('mgv2:EvidenceLogUnavailable', 'The session gave no usable sensor log.');
+            end
         end
 
         function t = clockTick(obj)
@@ -162,7 +195,9 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
             tick = obj.clockTick(); held = false;
             if isEventRequest, held = tick == obj.RequestTick; obj.RequestTick = tick; end   % asked twice at one tick: the clock holds
             if ~obj.Dirty, return; end
-            ended = obj.Terminal || held || (~isempty(obj.Session) && obj.Session.state() ~= "ACTIVE");
+            if isempty(obj.EvidenceFcn), ended = obj.Terminal || held;
+            else, ended = obj.Terminal || obj.evidenceContext().state ~= "ACTIVE";
+            end
             if obj.AsOfTick < 0 || tick - obj.AsOfTick >= obj.RefreshTicks || ended, obj.rebuild(); end
         end
 
@@ -191,7 +226,7 @@ classdef V2006AnomalySource < mgv2.ui.AnomalySource
     methods (Static, Access = private)
         function s = newStats()
             e = zeros(0, 1);
-            s = struct('samples', 0, 'samples_refused', 0, 'samples_unbound', 0, 'poses', 0, 'binds', 0, 'requests', 0, 'rebuilds', 0, 'resets', 0, ...
+            s = struct('inspect_current_reads', 0, 'samples', 0, 'samples_refused', 0, 'samples_unbound', 0, 'poses', 0, 'binds', 0, 'requests', 0, 'rebuilds', 0, 'resets', 0, ...
                 'on_sample_total_ms', 0, 'on_sample_max_ms', 0, 'rebuild_ms', e, 'rebuild_tick', e, 'rebuild_events', e, 'convert_ms', e, 'layers_ms', e);
         end
 

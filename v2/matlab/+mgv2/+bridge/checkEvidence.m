@@ -11,4 +11,10 @@ if e.run_id ~= runId
     error('mgv2:BridgeRunMismatch', 'Event %s belongs to run %s, not %s.', e.event_id, e.run_id, runId);
 end
 ins = mgv2.detect.inspectEvent(e, det, sensorLog);
+for it = reshape(ins.items, 1, [])                 % inspectEvent compares checksum and tick: check the rest of the row
+    row = sensorLog(sensorLog.frame_id == it.frame_id, :);
+    if row.sensor_id ~= it.sensor_id || row.pose_id ~= it.pose_id || row.t_s ~= it.t_s || ~row.valid
+        error('mgv2:EvidenceMismatch', 'Evidence %s does not match the producer log row of %s.', it.ref_id, it.frame_id);
+    end
+end
 end

@@ -2,6 +2,8 @@
 
 **Status: proposal only. Nothing in `+mgv2/+ui` was changed.** The bridge works today through `src.bindSession(ses)` on the published UI at `4da9701`. These changes would remove workarounds and make acceptance possible. Measurements: `v2/evidence/V2-007-bridge/README.md`.
 
+> **Superseded for evidence access.** Items 1 to 3 landed in UI Stage 3 and `bindSession` is removed. The current seam is `bindEvidence(provider)` with `MissionSession.evidenceContext()`: see `v2/evidence/V2-007-bridge-stage3/README.md`. Measurements below are older than Stage 3 and kept as history. The 100-tick recommendation is replaced by the provisional 20-tick default, pending the comparison.
+
 SIMULATION ONLY. VALIDATION remains negative, so none of this improves detection.
 
 ## 1. Late source binding

@@ -45,7 +45,8 @@ for r = reshape(e.evidence_refs, 1, [])
     catch
         return
     end
-    if R.frame_id ~= r.frame_id || R.sample_checksum ~= r.sample_checksum || R.tick_id ~= r.tick_id, return; end
+    if R.frame_id ~= r.frame_id || R.sensor_id ~= r.sensor_id || R.tick_id ~= r.tick_id || R.pose_id ~= r.pose_id ...
+            || R.t_s ~= r.t_s || R.sample_checksum ~= r.sample_checksum, return; end   % the same fields inspectEvent requires
 end
 ok = true;
 end
