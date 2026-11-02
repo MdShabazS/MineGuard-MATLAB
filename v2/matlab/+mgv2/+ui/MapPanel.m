@@ -4,7 +4,7 @@ classdef MapPanel < mgv2.ui.PanelBase
     %   this panel computes neither. Unobserved ground is never coloured as cleared: it stays without overlay.
     %   Check boxes show or hide each layer without touching any data. Clicking a points layer calls OnPick(x, y).
     properties (SetAccess = private, Transient, NonCopyable)
-        Axes; H = struct(); LayerHandles = struct(); LayerRevisions = struct(); Checks = struct(); KeyLabel; Body
+        Axes; H = struct(); LayerHandles = struct(); LayerRevisions = struct(); Checks = struct(); KeyGrid; KeyChips; Body
     end
     properties
         OnPick = []
@@ -89,7 +89,14 @@ classdef MapPanel < mgv2.ui.PanelBase
                 obj.Checks.(caps{k, 1}) = uicheckbox(row, 'Text', caps{k, 2}, 'Value', true, 'FontSize', 10, 'FontColor', t.text, 'ValueChangedFcn', @(~, ~) obj.applyVisibility());
             end
             obj.Checks.coverage.Enable = 'off'; obj.Checks.suspected.Enable = 'off';
-            obj.KeyLabel = uilabel(obj.Body, 'Text', mgv2.ui.MapPanel.coverageKey(), 'Interpreter', 'html', 'FontSize', 10, 'FontColor', t.text, 'WordWrap', 'on', 'Tag', 'map_coverage_key', 'Visible', 'off');
+            obj.KeyGrid = uigridlayout(obj.Body, [2 4], 'RowHeight', {16, 16}, 'ColumnWidth', {'1x', '1x', '1x', '1x'}, 'Padding', 0, 'RowSpacing', 2, 'ColumnSpacing', 4, 'BackgroundColor', t.panel, 'Visible', 'off', 'Tag', 'map_coverage_key');
+            head = uilabel(obj.KeyGrid, 'Text', 'Coverage is sensor evidence, not cleared land. No overlay = UNOBSERVED.', 'FontSize', 10, 'FontColor', t.text);
+            head.Layout.Row = 1; head.Layout.Column = [1 4];
+            c = mgv2.map.MapView.StateRGBA; names = ["planned", "traversed", "SENSOR INVALID", "VALID OBSERVED"];     % colours of the V2-006 cell states
+            for k = 1:4
+                obj.KeyChips(k) = uilabel(obj.KeyGrid, 'Text', names(k), 'FontSize', 10, 'FontColor', [0 0 0], 'BackgroundColor', c(k + 1, 1:3), 'HorizontalAlignment', 'center');
+                obj.KeyChips(k).Layout.Row = 2; obj.KeyChips(k).Layout.Column = k;
+            end
             obj.Axes = obj.makeAxes(obj.Body); obj.Axes.Layout.Row = 3;
         end
     end
@@ -131,9 +138,9 @@ classdef MapPanel < mgv2.ui.PanelBase
                 delete(obj.LayerHandles.(f)); obj.LayerHandles = rmfield(obj.LayerHandles, f); obj.LayerRevisions = rmfield(obj.LayerRevisions, f);
             end
             showKey = obj.hasKind("raster");
-            if strcmp(obj.KeyLabel.Visible, 'on') ~= showKey
-                obj.KeyLabel.Visible = matlab.lang.OnOffSwitchState(showKey);
-                if showKey, obj.Body.RowHeight{2} = 'fit'; else, obj.Body.RowHeight{2} = 0; end
+            if strcmp(obj.KeyGrid.Visible, 'on') ~= showKey
+                obj.KeyGrid.Visible = matlab.lang.OnOffSwitchState(showKey);
+                if showKey, obj.Body.RowHeight{2} = 34; else, obj.Body.RowHeight{2} = 0; end
             end
         end
 
@@ -151,16 +158,6 @@ classdef MapPanel < mgv2.ui.PanelBase
 
         function picked(obj, e)
             if ~isempty(obj.OnPick), obj.OnPick(e.IntersectionPoint(1), e.IntersectionPoint(2)); end
-        end
-    end
-    methods (Static, Access = private)
-        function txt = coverageKey()
-            %COVERAGEKEY Colours of the V2-006 cell states. UNOBSERVED has alpha 0, so it is simply no overlay.
-            c = mgv2.map.MapView.StateRGBA; names = ["planned", "traversed", "SENSOR INVALID", "VALID OBSERVED"]; txt = "Coverage is sensor evidence, not cleared land: ";
-            for k = 1:4
-                txt = txt + sprintf('<span style="color:rgb(%d,%d,%d)">&#9632;</span> %s ', round(255 * c(k + 1, 1:3)), names(k));
-            end
-            txt = char(txt + "| no overlay = UNOBSERVED");
         end
     end
 end

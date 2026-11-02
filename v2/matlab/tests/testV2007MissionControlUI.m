@@ -556,7 +556,8 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             tc.verifyEqual(h.AlphaData(1), 0, 'UNOBSERVED has no overlay');
             tc.verifyGreaterThan(h.AlphaData(4:5), 0);
             tc.verifyNotEqual(squeeze(h.CData(4, 1, :)), squeeze(h.CData(5, 1, :)), 'SENSOR INVALID differs from VALID OBSERVED');
-            tc.verifyEqual(string(M.KeyLabel.Visible), "on"); key = string(M.KeyLabel.Text);
+            tc.verifyEqual(string(M.KeyGrid.Visible), "on"); key = strjoin(string(get(findall(M.KeyGrid, 'Type', 'uilabel'), 'Text')), " ");
+            tc.verifyEqual(vertcat(M.KeyChips.BackgroundColor), mgv2.map.MapView.StateRGBA(2:5, 1:3), 'the key shows the real state colours');
             for w = ["SENSOR INVALID", "VALID OBSERVED", "UNOBSERVED", "not cleared land"], tc.verifySubstring(key, w); end
             k = allchild(M.Axes); tc.verifyEqual(k(end - 1), h(1), 'coverage sits directly over the terrain');
             M.setLayerVisible("coverage", false); tc.verifyEqual(string(h.Visible), "off");
