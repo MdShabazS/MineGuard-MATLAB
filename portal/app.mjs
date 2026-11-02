@@ -237,12 +237,13 @@ function showEnhancements(data, sourceLabel="GitHub main") {
     return section;
   }).filter(Boolean);
   replace("roadmapItems",sections);
-  const counts=Object.fromEntries(["ACTIVE_UNMERGED","TESTED_BLOCKED","MERGED_IN_BRANCH","PLANNED","BLOCKED"]
+  const counts=Object.fromEntries(["ACTIVE_UNMERGED","TESTED_BLOCKED","MERGED_IN_BRANCH","MERGED_MAIN","PLANNED","BLOCKED"]
     .map(key=>[key,rows.filter(item=>item.status===key).length]));
   el("roadmapBreakdown").textContent=
     counts.ACTIVE_UNMERGED+" in development · "+
     counts.TESTED_BLOCKED+" tested, blocked · "+
     counts.MERGED_IN_BRANCH+" merged in a feature branch · "+
+    counts.MERGED_MAIN+" merged to main · "+
     counts.PLANNED+" planned · "+counts.BLOCKED+" blocked";
   el("roadmapStatus").textContent=rows.length+
     " tracked enhancements · "+rows.filter(x=>x.category==="campus").length+
