@@ -21,6 +21,7 @@ classdef MissionSession < handle
     properties (Access = private)
         Launch            % configurations the session was created with
         Overlay           % last validated source output: see clearOverlay
+        Generation = 0    % engine/sensor pairs built so far: tells apart two runs with the same run id
     end
 
     methods
@@ -34,6 +35,7 @@ classdef MissionSession < handle
             ses.World = mgv2.scene.buildWorld(); ses.MissionConfig = opts.MissionConfig;
             ses.SensorConfig = opts.SensorConfig; ses.Environment = opts.Environment; ses.Source = opts.AnomalySource;
             ses.Launch = struct('mission', opts.MissionConfig, 'sensors', opts.SensorConfig, 'environment', opts.Environment);
+            ses.Source.bindEvidence(@() ses.evidenceContext());
             ses.clearOverlay(); ses.build();
         end
 
@@ -77,6 +79,13 @@ classdef MissionSession < handle
             ins = mgv2.ui.validateInspection(ses.Source.inspect(string(eventId)), eventId);
         end
 
+        function c = evidenceContext(ses)
+            %EVIDENCECONTEXT Read-only copy of the current run for evidence checks. Public producer log only, no frames.
+            %   Fields: run_id, generation (changes on every reset), state, tick, sensor_log (SensorSystem.Log).
+            c = struct('run_id', string(ses.MissionConfig.run_id), 'generation', ses.Generation, 'state', ses.state(), ...
+                'tick', double(ses.Engine.TickId), 'sensor_log', ses.Sensors.Log);
+        end
+
         function s = state(ses)
             %STATE "READY" | "ACTIVE" | "PAUSED" | "ENDED", derived only from the engine.
             if ses.Engine.Phase == "CONFIGURED", s = "READY";
@@ -99,6 +108,7 @@ classdef MissionSession < handle
 
     methods (Access = private)
         function build(ses)
+            ses.Generation = ses.Generation + 1;
             ses.Sensors = mgv2.sensors.SensorSystem(ses.World, ses.MissionConfig, SensorConfig=ses.SensorConfig, Environment=ses.Environment);
             ses.Engine = mgv2.engine.MissionEngine(ses.MissionConfig, mgv2.scene.terrainProvider(ses.World));
             src = ses.Source;

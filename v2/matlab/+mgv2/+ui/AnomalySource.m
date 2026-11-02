@@ -17,6 +17,8 @@ classdef (Abstract) AnomalySource < handle
     %   onPose(obj, pose)                every executed PoseSample exactly once, in order, starting with tick 0
     %   ins = inspect(obj, eventId)      checksum-verified evidence (see mgv2.ui.validateInspection), or an error.
     %                                    Never a substitute frame.
+    %   bindEvidence(obj, provider)      once per session, before the first bindRun. c = provider() returns a read-only
+    %                                    copy of the session's current run (see MissionSession.evidenceContext).
     methods (Abstract)
         onSample(obj, sample)
         ev = suspectedEvents(obj)
@@ -27,6 +29,7 @@ classdef (Abstract) AnomalySource < handle
     methods
         function bindRun(~, ~, ~), end
         function onPose(~, ~), end
+        function bindEvidence(~, ~), end
         function ins = inspect(~, eventId) %#ok<STOUT>
             error('mgv2:InspectUnavailable', 'This anomaly source provides no evidence inspection for event %s.', string(eventId));
         end
