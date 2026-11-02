@@ -81,7 +81,7 @@ test("BITM tasks preserve safety and distribution gates", () => {
   for(const item of campus)assert.ok(item.dependency.length>30);
   assert.match(campus.find(x=>x.id==="ENH-008").detail,/no real-campus anomaly markers/);
   assert.match(campus.find(x=>x.id==="ENH-009").detail,/licensing, redistribution and approved BITM extent remain unresolved/);
-  assert.match(campus.find(x=>x.id==="ENH-009").detail,/MATLAB was NOT run/);
+  assert.match(campus.find(x=>x.id==="ENH-009").detail,/MATLAB tests \(NOT RUN\)/);
   assert.equal(campus.find(x=>x.id==="ENH-009").status,"BLOCKED");
   assert.equal(campus.find(x=>x.id==="ENH-011").status,"BLOCKED");
 });
