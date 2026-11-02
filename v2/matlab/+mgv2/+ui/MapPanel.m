@@ -93,6 +93,7 @@ classdef MapPanel < mgv2.ui.PanelBase
             head = uilabel(obj.KeyGrid, 'Text', 'Coverage is sensor evidence, not cleared land. No overlay = UNOBSERVED.', 'FontSize', 10, 'FontColor', t.text);
             head.Layout.Row = 1; head.Layout.Column = [1 4];
             c = mgv2.map.MapView.StateRGBA; names = ["planned", "traversed", "SENSOR INVALID", "VALID OBSERVED"];     % colours of the V2-006 cell states
+            obj.KeyChips = gobjects(1, 4);
             for k = 1:4
                 obj.KeyChips(k) = uilabel(obj.KeyGrid, 'Text', names(k), 'FontSize', 10, 'FontColor', [0 0 0], 'BackgroundColor', c(k + 1, 1:3), 'HorizontalAlignment', 'center');
                 obj.KeyChips(k).Layout.Row = 2; obj.KeyChips(k).Layout.Column = k;
