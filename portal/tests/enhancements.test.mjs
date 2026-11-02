@@ -28,7 +28,8 @@ test("enhancement entries are all distinct, public, and never falsely DONE", () 
   assert.equal(items.find(item=>item.id==="ENH-007").status,"MERGED_MAIN");
   assert.match(enhancementLabel("MERGED_MAIN"), /main/);
   assert.equal(items.find(item=>item.id==="ENH-006").status,"ACTIVE_UNMERGED");
-  assert.ok(items.filter(x=>x.category==="campus").every(x=>x.url.includes("/issues/")));
+  assert.ok(items.filter(x=>x.category==="campus").every(x=>x.url.includes("/issues/") || x.url.includes("/pull/")));
+  assert.match(items.find(x=>x.id==="ENH-009").url,/\/pull\/95$/);
 });
 
 test("proposal and local display fix cannot inflate authoritative V2 percent", () => {
