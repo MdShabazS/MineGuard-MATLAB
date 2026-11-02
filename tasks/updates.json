@@ -323,6 +323,15 @@
       "next": "Shabaz re-reviews PR #66 and runs the Mac checks; separate V2-006 DONE PR only after implementation merge.",
       "evidence": "v2/evidence/V2-006.md",
       "pr_url": "https://github.com/MdShabazS/MineGuard-MATLAB/pull/66"
+    },
+    {
+      "date": "2026-11-02",
+      "owner": "Rahil",
+      "task": "V2-006",
+      "summary": "PR #66, not merged, now includes the Mac display fix. Same MATLAB source passes 100/100 tests on Windows at e44daa5 and, as reported by Shabaz's Mac run, 100/100 at bb52c0f. Detector fingerprint, thresholds, split hash and event schema are unchanged. A software PASS does not imply detection success: VALIDATION remains negative (G07: 0/4 targets found, 45 fused false alarms). No held-out TEST run.",
+      "next": "Shabaz reviews and decides on merging PR #66; separate V2-006 DONE PR only after implementation merge.",
+      "evidence": "v2/evidence/V2-006.md",
+      "pr_url": "https://github.com/MdShabazS/MineGuard-MATLAB/pull/66"
     }
   ]
 }
