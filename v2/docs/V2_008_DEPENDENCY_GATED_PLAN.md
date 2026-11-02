@@ -1,6 +1,6 @@
 # V2-008 dependency-gated implementation plan
 
-**Status: PLAN ONLY. V2-008 has not started and may not start yet.** It depends on V2-006 and V2-007 both being DONE on `main` (`v2/tasks/manifest.json`). On 2026-11-02 both are TODO on `main`. This document changes no task state and authorizes nothing.
+**Status: PLAN ONLY. V2-008 has not started and may not start yet.** It depends on V2-006 and V2-007 both being DONE on `main` (`v2/tasks/manifest.json`). On 2026-11-02 (main `0b33357`) V2-006 is DONE and V2-007 is IN_PROGRESS, so V2-008 stays blocked. This document changes no task state and authorizes nothing.
 
 Owner: Rahil. Task: "Verify export, replay, fault cases and macOS simulation performance". Requirements stay in `V2_DEMO_ACCEPTANCE_MATRIX.md`, `V2_SYSTEM_REQUIREMENTS.md`, `V2_004_VERIFICATION_MATRIX.md` and `V2_004_EVALUATION_PROTOCOL.md`. `V2_INTEGRATION_ACCEPTANCE_PREFLIGHT.md` holds the evidence ledger format. If this plan conflicts with them, they win.
 
@@ -8,7 +8,7 @@ SIMULATION ONLY. V2-006 VALIDATION is negative (G07: 0 of 4 targets found). V2-0
 
 ## 1. Start gate (all required, checked with `node scripts/v2-gate.mjs ready`)
 
-- [ ] V2-006 DONE on `main` through its governed status PR.
+- [x] V2-006 DONE on `main` through its governed status PR (#88).
 - [ ] V2-007 DONE on `main`, with a complete integrated dashboard and independent Mac acceptance. A partial bridge demonstration does not count.
 - [ ] V2-008 start PR (TODO → IN_PROGRESS) merged by Shabaz.
 - [ ] Decisions in §6 recorded.
@@ -51,7 +51,7 @@ Report once, all modes, with raw TP, FP, FN and defined denominators, even if th
 
 | Risk | Source |
 |---|---|
-| Rebuild pauses of about 0.5–0.9 s on Windows, and Mac unmeasured | Issue #76 |
+| Rebuild pauses up to about 0.5 s on Windows at bridge `2bca2f8`; integrated UI below 0.8× in most Windows runs; no Mac bridge run at that SHA | Issue #76, PR #91 evidence |
 | Evidence crops are 92% of detector memory, which affects export size | Issue #76 evidence |
 | Evidence retention is capped per track, so export may hold only retained crops | V2-006 |
 | Windows throttling can distort any benchmark or demo | Issue #76 evidence |
