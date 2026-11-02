@@ -260,6 +260,33 @@ classdef testV2007Bridge < matlab.unittest.TestCase
             tc.verifyEqual(numel(src.Map.Route.t_s), app.Session.Engine.TickId + 1);   % the reset run is followed
         end
 
+        function b21_duplicateAndStaleSamplesRefused(tc)                     % injected repeats change nothing
+            [src, ses] = testV2007Bridge.flown(60);
+            d = src.Detector; dt = d.Dt; E0 = d.events(); nFoot = numel(src.Map.Footprints); nRef = src.Stats.samples_refused;
+            s = ses.Sensors.latest("RGB_NADIR"); src.onSample(s);              % exact repeat of a delivered sample
+            tc.verifyEqual(d.Log.outcome(end), "STALE_OR_DUPLICATE");
+            tc.verifyEqual(numel(src.Map.Footprints), nFoot); tc.verifyEqual(src.Stats.samples_refused, nRef + 1);
+            tc.verifyEqual(d.events(), E0);
+            l = ses.Sensors.latest("LIDAR_TERRAIN"); l.tick_id = l.tick_id + 100; l.pose_id = l.tick_id; l.t_s = double(l.tick_id) * dt;
+            src.onSample(l); tc.assertEqual(d.Log.outcome(end), "ACCEPTED");   % moves the detector clock ahead
+            nFoot = numel(src.Map.Footprints);
+            r = s; r.tick_id = r.tick_id + 1; r.pose_id = r.tick_id; r.t_s = double(r.tick_id) * dt;
+            src.onSample(r);                                                   % newer for its sensor, too old for the clock
+            tc.verifyEqual(d.Log.outcome(end), "STALE_DATA");
+            tc.verifyEqual(numel(src.Map.Footprints), nFoot); tc.verifyEqual(src.Stats.samples_refused, nRef + 2);
+        end
+
+        function b22_emptyEventsAreValidOutput(tc)                           % no events is shown as none, not as clear ground
+            src = mgv2.bridge.V2006AnomalySource(); ses = mgv2.ui.MissionSession(AnomalySource=src); src.bindSession(ses);
+            v = ses.view();
+            tc.verifyEmpty(v.events); tc.verifyTrue(v.source.connected); tc.verifyEqual(v.source.rejected_events, 0);
+            tc.verifyEqual([v.layers.id], "v2006_coverage");                   % no marker layer without events
+            tc.verifyFalse(any(contains(lower(v.source.status_text), ["safe", "clear"])));
+            [ev, rej] = mgv2.bridge.toUiEvents(src.Detector.events(), src.Detector.RunId, src.Detector);
+            tc.verifyEmpty(ev); tc.verifyEmpty(rej);
+            tc.verifyError(@() src.inspect("SUS-00001"), 'mgv2:EventNotFound');
+        end
+
         function b20_validationMemoNeverChangesOutput(tc)                    % issue #76: skipped scan, same result
             d = tc.Src.Detector; E = d.events(); memo = containers.Map('KeyType', 'char', 'ValueType', 'any');
             [a, ra] = mgv2.bridge.toUiEvents(E, d.RunId, d);
