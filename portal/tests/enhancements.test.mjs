@@ -28,6 +28,8 @@ test("enhancement entries are all distinct, public, and never falsely DONE", () 
   assert.equal(items.find(item=>item.id==="ENH-007").status,"MERGED_MAIN");
   assert.match(enhancementLabel("MERGED_MAIN"), /main/);
   assert.equal(items.find(item=>item.id==="ENH-006").status,"ACTIVE_UNMERGED");
+  assert.equal(items.find(item=>item.id==="ENH-010").status,"DRAFT_UNVERIFIED");
+  assert.match(items.find(item=>item.id==="ENH-010").url,/\/pull\/98$/);
   assert.ok(items.filter(x=>x.category==="campus").every(x=>x.url.includes("/issues/") || x.url.includes("/pull/")));
   assert.match(items.find(x=>x.id==="ENH-009").url,/\/pull\/95$/);
 });
