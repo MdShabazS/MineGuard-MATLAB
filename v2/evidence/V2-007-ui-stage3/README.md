@@ -1,6 +1,6 @@
 # V2-007 UI Stage 3 on the Mac (contribution record, not task completion)
 
-Task: V2-007 (owner Rahil; status unchanged, `TODO` on `main`). Executed by Claude Code (Opus 5.5) through the MATLAB MCP Server on Shabaz's Mac.
+Task: V2-007 (owner Rahil; this branch makes no status change. `main` moved V2-006 to DONE and V2-007 to IN_PROGRESS through PRs #88 and #89 during this work). Executed by Claude Code (Opus 5.5) through the MATLAB MCP Server on Shabaz's Mac.
 **Execution SHA: `043a8969fd74a3f1aca83ffb377f8e12e8e5e24e`** (clean tree). Later commits on the branch are evidence only.
 Host: macOS 27.0.1, Apple Silicon (arm64), MATLAB R2026b Update 1, UAV Toolbox 26.2. Display theme tests cover both desktop themes.
 
@@ -45,9 +45,9 @@ Earlier commit `5164885` failed its UI suite (3 of 60 passed) because of a codin
 - **REPLAY and EXPORT:** visible, disabled, labelled V2-008. They do nothing.
 - **Event inspector:** row or map-marker selection by public `event_id`, position, uncertainty, score, sensors, missing modalities, timestamps and verified crops. Failures are shown, with no image in their place.
 
-## Defects found by looking at real renders
+## Defects found and fixed
 
-Property checks had passed for the first two.
+Real renders exposed the first three, after property checks had passed. A test exposed the fourth.
 
 | Defect | Fix |
 |---|---|
