@@ -96,6 +96,31 @@ The spread within each version is larger than the difference between them, so no
 
 **Reliability at the execution SHA:** 6 run, abort and reset cycles gave identical checksums, a reset median of 1.76 s (max 1.87 s, this blocks the window), graphics objects constant at 17, and process memory 1835 MB to 1594 MB with no growth. After 5 more launches: 0 figures, 0 timers. Sensor rates and timestamps are covered by the V2-005 and UI tests. Dashboard memory during a full integrated mission was not profiled.
 
+## Rerun with host load logged (added after the first record; earlier tables are kept)
+
+Same code: A = `7e52523`, B = `043a896` (integrated: each merged with unmodified bridge `7e89e70` in scratch worktrees). Raw lines, including load and TeamViewer CPU before and after each mission: [rerun-benchmark-log.txt](rerun-benchmark-log.txt).
+
+TeamViewer restarted with the laptop and moved between about 0% and 45-65% CPU on its own. **Only u5 and u6 had it at 0% throughout. No integrated run was clean, and i1 was clean only at its start.** Load stayed around 5 to 8 during runs, so even u5 and u6 are not an idle host.
+
+| UI only, 1x | TeamViewer | A | B |
+|---|---|---|---|
+| Clean pair (u5, u6) | 0% | x1.000, 9.80/s, gap p95 155 ms, worst 244 ms | x1.000, 9.84/s, gap p95 154 ms, worst 233 ms |
+| Contended (u1 to u4) | 46-60% | x1.000, 9.40 and 8.40/s | x1.000, 6.85 and 6.88/s |
+
+Before the restart, with TeamViewer's daemon out of the top CPU list, one pair ran at x1.000 and 9.98/s for both A and B; later runs in that session fell to 4.88-9.87/s as load rose (per-run load not logged).
+
+| Integrated, `RefreshTicks=100`, 1x, 3 runs each | A | B |
+|---|---|---|
+| Sim/wall | 0.980, 0.701, 0.848 | 0.641, 0.798, 0.835 |
+| Refreshes/s | 4.94, 3.52, 4.26 | 3.22, 4.01, 4.20 |
+| Worst gap (ms) | 1247, 1685, 1071 | 1886, 1322, 970 |
+| Max behind clock (s) | 9.0, 60.3, 26.7 | 79.4, 36.3, 29.4 |
+| Rebuild median / max (ms) | 385-479 / 648-936 | 448-512 / 760-958 |
+
+All 12 missions reached COMPLETE with 2799 ticks and 3080 samples. All 6 integrated runs had 84 events, 0 refused samples, 2800 poses and one subscription.
+
+**Reading.** UI only, the clean pair shows no Stage 3 slowdown and is close to the 10/s schedule, but it is one pair. Contended, B was slower than A in u1 to u4, so sensitivity to load cannot be ruled out. Integrated, **the 0.8 minimum was missed in 1 of 3 A runs and 2 of 3 B runs**, and the 10 refreshes/s target was missed in all. B's mean is lower (0.758 against 0.843), but the runs were contaminated and overlap, so a Stage 3 integrated regression is **neither shown nor excluded**. INT-10 stays **FAIL at this host state**; a clean three-run result is **NOT RUN**.
+
 ## Integrated observations (local combination, simulated)
 
 84 SUSPECTED events, all in the session's run, 0 rejected. 3080 samples, 0 refused. 2800 poses for ticks 0 to 2799, exactly once, one subscription. Reset gave tick 0, 0 events and an empty table. Final coverage cells: 11072 VALID OBSERVED, 8528 UNOBSERVED. Inspecting SUS-00006 showed 4 verified records, a thermal crop and "RGB evidence: none". This scene has no targets from a scenario, so **these events say nothing about detection and are not correct detections**.
