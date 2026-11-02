@@ -102,11 +102,13 @@ function testSatelliteCreditIsNamedWhetherOnlineOrNot(tc)
 o = mgv2SatelliteMapPreview(AnchorLLA=[29.97917 31.13417 80],Visible="off");
 c = onCleanup(@() delete(o.figure));
 txt = string(o.attribution_label.Text);
-verifyTrue(tc,startsWith(txt,"Powered by Esri | Source"));
+verifyTrue(tc,startsWith(txt,"Basemap: satellite | Powered by Esri | Source"));
 verifySubstring(tc,lower(txt),"gis user community");
 verifyTrue(tc,ismember(o.credit_source,["LIVE_SERVICE","PINNED_2026_11_02"]));
 verifySubstring(tc,string(o.attribution_link.URL),"World_Imagery");
 verifyNotEmpty(tc,char(o.status_label.Text));
+verifyEqual(tc,o.tile_status,"UNVERIFIED");
+verifySubstring(tc,string(o.status_label.Text),"tile loading unverified");
 end
 
 function testOtherEsriBasemapsNameNoGuessedSourceList(tc)
@@ -119,4 +121,48 @@ for bm = ["topographic","streets-light"]
     verifyEqual(tc,o.credit_source,"MAP_NATIVE");
     clear c
 end
+end
+
+function testBasemapSourceDoesNotQueryUnrelatedMetadata(tc)
+reader = @(~) error('mgv2:UnexpectedMetadataRequest','World Imagery must not be queried.');
+for bm = ["topographic","streets-light"]
+    src = mgv2.geo.basemapSource(bm,reader);
+    verifyEqual(tc,src.metadata_status,"NOT_QUERIED");
+    verifyEqual(tc,src.tile_status,"UNVERIFIED");
+    verifySubstring(tc,src.status,"Basemap " + bm + " selected");
+    verifySubstring(tc,src.credit,"Basemap: " + bm);
+    verifySubstring(tc,src.credit,"Powered by Esri");
+    verifyFalse(tc,contains(src.credit,"Vantor"));
+end
+src = mgv2.geo.basemapSource("darkwater",reader);
+verifyEqual(tc,src.metadata_status,"NOT_APPLICABLE");
+verifyEqual(tc,src.tile_status,"LOCAL_BASEMAP");
+verifySubstring(tc,src.credit,"Natural Earth");
+end
+
+function testSatelliteMetadataSuccessStillDoesNotClaimTiles(tc)
+reader = @(~) struct('copyrightText',"Source: Esri, Test Contributor");
+src = mgv2.geo.basemapSource("satellite",reader);
+verifyEqual(tc,src.metadata_status,"AVAILABLE");
+verifyEqual(tc,src.credit_source,"LIVE_SERVICE");
+verifySubstring(tc,src.credit,"Test Contributor");
+verifyEqual(tc,src.tile_status,"UNVERIFIED");
+verifySubstring(tc,src.status,"tile loading unverified");
+end
+
+function testSatelliteMetadataFailureKeepsPinnedCredits(tc)
+reader = @(~) error('mgv2:MetadataUnavailable','Simulated offline request.');
+src = mgv2.geo.basemapSource("satellite",reader);
+verifyEqual(tc,src.metadata_status,"UNAVAILABLE");
+verifyEqual(tc,src.credit_source,"PINNED_2026_11_02");
+verifySubstring(tc,src.credit,"GIS User Community");
+verifyEqual(tc,src.tile_status,"UNVERIFIED");
+verifyFalse(tc,contains(src.status,"tiles loaded"));
+end
+
+function testSatelliteEmptyMetadataAlsoFailsClosed(tc)
+reader = @(~) struct('copyrightText',"");
+src = mgv2.geo.basemapSource("satellite",reader);
+verifyEqual(tc,src.metadata_status,"UNAVAILABLE");
+verifyEqual(tc,src.credit_source,"PINNED_2026_11_02");
 end
