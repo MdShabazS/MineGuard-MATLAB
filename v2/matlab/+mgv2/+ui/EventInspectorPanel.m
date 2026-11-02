@@ -88,8 +88,8 @@ classdef EventInspectorPanel < mgv2.ui.PanelBase
             obj.StatusLabel.FontWeight = 'bold'; obj.StatusLabel.FontSize = 13;
             obj.Body = uigridlayout(obj.Grid, [1 2], 'ColumnWidth', {'1x', 0}, 'RowHeight', {'1x'}, 'Padding', 0, 'BackgroundColor', t.panel);
             obj.Body.Layout.Row = 3; obj.Body.Layout.Column = [1 2];
-            obj.Table = uitable(obj.Body, 'Data', cell(0, 7), 'ColumnName', {'event','t [s]','E est','N est','uncalibrated score','unc. [m]','status'}, ...
-                'ColumnWidth', {'1x', 46, 48, 48, 122, 58, 82}, 'ColumnFormat', {'char', 'bank', 'bank', 'bank', 'bank', 'bank', 'char'}, 'FontSize', 10, 'RowName', {}, 'SelectionType', 'row', 'CellSelectionCallback', @(~, e) obj.rowChosen(e));
+            obj.Table = uitable(obj.Body, 'Data', cell(0, 7), 'ColumnName', {'event','t [s]','E est','N est',sprintf('uncalibrated\nscore'),sprintf('unc.\n[m]'),'status'}, ...
+                'ColumnWidth', {74, 44, 50, 50, 100, 44, '1x'}, 'ColumnFormat', {'char', 'bank', 'bank', 'bank', 'bank', 'bank', 'char'}, 'FontSize', 10, 'RowName', {}, 'SelectionType', 'row', 'CellSelectionCallback', @(~, e) obj.rowChosen(e));
             obj.Detail = uigridlayout(obj.Body, [2 2], 'RowHeight', {'fit', '1x'}, 'ColumnWidth', {'1x', '1x'}, 'Padding', 0, 'BackgroundColor', t.panel, 'Visible', 'off');
             obj.DetailText = uilabel(obj.Detail, 'Text', 'Select an event to see its evidence.', 'FontColor', t.text, 'FontName', t.mono, 'FontSize', 12, 'WordWrap', 'on', 'VerticalAlignment', 'top', 'Tag', 'event_detail');
             obj.DetailText.Layout.Row = 1; obj.DetailText.Layout.Column = [1 2];

@@ -466,11 +466,12 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
 
         function eventHeadingsAreComplete(tc)
             app = tc.open(); T = app.Panels.events.Table;
-            tc.verifyEqual(string(T.ColumnName'), ["event","t [s]","E est","N est","uncalibrated score","unc. [m]","status"]);
+            tc.verifyEqual(regexprep(string(T.ColumnName'), '\n', ' '), ["event","t [s]","E est","N est","uncalibrated score","unc. [m]","status"]);
             for s = {[60 60 1400 860], [60 60 900 600]}
                 app.Figure.Position = s{1}; tc.settle(@() abs(app.Banner.Position(3) - (s{1}(3) - 8)) <= 1); drawnow;
-                fixed = sum([T.ColumnWidth{2:6}]);
-                tc.verifyGreaterThan(T.Position(3) - fixed, 2 * 44, 'room for the flexible columns');
+                fixed = sum([T.ColumnWidth{1:6}]);
+                tc.verifyGreaterThan(T.Position(3) - fixed, 80, 'room for SUSPECTED in the flexible column');
+                tc.verifyGreaterThanOrEqual(T.ColumnWidth{5}, 100, 'room for the word uncalibrated');
             end
         end
 
@@ -688,6 +689,18 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             tc.verifyError(@() mgv2.ui.validateMapLayers(V2007TestDoubleSource.layer('x_enu_m', 1)), 'mgv2:InvalidMapLayer');
         end
 
+        function sourceReadErrorIsDisplayedAndTheRunContinues(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event(); src.Info = struct('events_as_of_tick', 5, 'events_as_of_t_s', 0.25);
+            app = tc.flown(20, 'AnomalySource', src); E = app.Panels.events; tc.assertEqual(size(E.Table.Data, 1), 1);
+            src.ReadError = "source read failed"; tc.press(app.Controls.Buttons.resume); drawnow;
+            tc.verifyEqual(app.Session.Engine.TickId, 40, 'the run continues');
+            tc.verifySubstring(string(E.StatusLabel.Text), "source read failed");
+            tc.verifyEmpty(E.Table.Data, 'old events are not left on screen as if current');
+            src.ReadError = ""; tc.press(app.Controls.Buttons.resume); drawnow;
+            tc.verifyEqual(size(E.Table.Data, 1), 1, 'recovers, even with an unchanged freshness tick');
+            tc.verifyEqual(app.Session.view().overlay_error, "");
+        end
+
         function eventAgeIsShownAndFlagged(tc)
             src = V2007TestDoubleSource(); src.Info = struct('events_as_of_tick', 0, 'events_as_of_t_s', 0);
             app = tc.flown(140, 'AnomalySource', src); S = app.Panels.events.StatusLabel;
@@ -760,6 +773,36 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
                 end
                 delete(app);
             end
+        end
+
+        function evidenceContextDescribesTheCurrentRunOnly(tc)
+            src = V2007TestDoubleSource(); app = tc.flown(20, 'AnomalySource', src); ses = app.Session;
+            tc.verifyEqual(src.EvidenceBinds, 1); f = src.EvidenceFcn; c = f(); g = c.generation;
+            tc.verifyEqual(c.sensor_log, ses.Sensors.Log); tc.verifyEqual(c.run_id, ses.MissionConfig.run_id); tc.verifyEqual(c.tick, 20);
+            c.sensor_log.checksum(:) = "changed"; tc.verifyNotEqual(ses.Sensors.Log.checksum(1), "changed", 'a copy cannot change the log');
+            app.command("abort"); app.command("reset");
+            c = f(); tc.verifyEqual(src.EvidenceBinds, 1, 'one binding per session');
+            tc.verifyGreaterThan(c.generation, g, 'a reset is a new generation with the same run id');
+            tc.verifyEqual(c.sensor_log, ses.Sensors.Log); tc.verifyEqual(c.tick, 0);
+            app.configure("Overcast", 77); c2 = f();
+            tc.verifyGreaterThan(c2.generation, c.generation); tc.verifyEqual(c2.run_id, ses.MissionConfig.run_id); tc.verifyNotEqual(c2.run_id, c.run_id);
+        end
+
+        function evidenceFromAReplacedRunIsNeverShown(tc)
+            src = V2007TestDoubleSource(); src.Events = V2007TestDoubleSource.event(); src.Inspection = V2007TestDoubleSource.inspection();
+            app = tc.flown(40, 'AnomalySource', src); E = app.Panels.events; ses = app.Session;
+            L = ses.Sensors.Log; r = L(L.tick_id > 0 & L.sensor_id == "RGB_NADIR", :); r = r(end, :);
+            old = src.Inspection; old.items = old.items(1); old.items.frame_id = r.frame_id; old.items.sample_checksum = r.checksum; old.items.tick_id = r.tick_id;
+            src.Inspection = old; src.StampFromLog = false;
+            tc.verifyEqual(ses.inspectCurrentRun("T-1").items.frame_id, r.frame_id);
+            app.command("abort"); app.command("reset");
+            tc.verifyEqual(E.SelectedId, "");
+            tc.verifyError(@() ses.inspectCurrentRun("T-1"), 'mgv2:EvidenceMismatch', 'that frame is not in the new run yet');
+            app.selectEvent("T-1"); tc.verifySubstring(string(E.DetailText.Text), "EVIDENCE NOT AVAILABLE"); tc.verifyEmpty(findall(E.RgbAxes, 'Type', 'image'));
+            app.configure("Overcast", 77); ses.start(); for k = 1:40, ses.step(); end
+            tc.verifyError(@() ses.inspectCurrentRun("T-1"), 'mgv2:EvidenceMismatch', 'another scenario has other frames');
+            bad = old; L = ses.Sensors.Log; r = L(find(L.sensor_id == "RGB_NADIR", 1), :); bad.items.frame_id = r.frame_id; bad.items.tick_id = r.tick_id; bad.items.sample_checksum = "tampered"; src.Inspection = bad;
+            tc.verifyError(@() ses.inspectCurrentRun("T-1"), 'mgv2:EvidenceMismatch', 'an altered checksum');
         end
 
         function adapterSeamRejectsBadRecords(tc)

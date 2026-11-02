@@ -5,13 +5,15 @@ classdef V2007TestDoubleSource < mgv2.ui.AnomalySource
     properties
         Events = struct([]); Layers = struct([]); Seen = strings(0); Resets = 0
         Binds = 0; BoundWorld = []; BoundMission = []; Poses = zeros(0, 1); Reads = 0; Info = struct()
-        Inspection = []; InspectError = ""
+        ReadError = ""; Inspection = []; InspectError = ""; EvidenceFcn = []; EvidenceBinds = 0
+        StampFromLog = true     % inspect fills the frame references from the bound log; false returns Inspection as set
     end
     methods
         function onSample(obj, s), obj.Seen(end+1) = s.frame_id; end
         function ev = suspectedEvents(obj)
             %SUSPECTEDEVENTS The placeholder run "r" stands for the run this double is bound to.
             obj.Reads = obj.Reads + 1; ev = obj.Events;
+            if strlength(obj.ReadError) > 0, error('mgv2:EvidenceMissing', '%s', obj.ReadError); end
             for k = 1:numel(ev), if ev(k).run_id == "r", ev(k).run_id = obj.BoundMission.run_id; end, end
         end
         function L = mapLayers(obj), L = obj.Layers; end
@@ -21,10 +23,18 @@ classdef V2007TestDoubleSource < mgv2.ui.AnomalySource
         end
         function reset(obj), obj.Resets = obj.Resets + 1; obj.Seen = strings(0); obj.Poses = zeros(0, 1); end
         function bindRun(obj, world, cfg), obj.Binds = obj.Binds + 1; obj.BoundWorld = world; obj.BoundMission = cfg; end
+        function bindEvidence(obj, f), obj.EvidenceFcn = f; obj.EvidenceBinds = obj.EvidenceBinds + 1; end
         function onPose(obj, p), obj.Poses(end+1, 1) = double(p.tick_id); end
         function ins = inspect(obj, ~)
             if strlength(obj.InspectError) > 0, error('mgv2:EvidenceMismatch', '%s', obj.InspectError); end
             ins = obj.Inspection;
+            if ~obj.StampFromLog || ~isstruct(ins) || ~isfield(ins, 'items'), return; end
+            L = obj.EvidenceFcn().sensor_log;
+            for k = 1:numel(ins.items)
+                r = L(find(L.sensor_id == ins.items(k).sensor_id, 1), :);
+                if isempty(r), continue; end
+                ins.items(k).frame_id = r.frame_id; ins.items(k).sample_checksum = r.checksum; ins.items(k).tick_id = r.tick_id;
+            end
         end
     end
     methods (Static)

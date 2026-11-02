@@ -95,6 +95,17 @@ classdef MissionSession < handle
             end
         end
 
+        function ins = inspectCurrentRun(ses, eventId)
+            %INSPECTCURRENTRUN inspect, then refuse evidence that this run's sensor log does not hold, whatever the source says.
+            ins = ses.inspect(eventId); L = ses.Sensors.Log;
+            for it = reshape(ins.items, 1, [])
+                k = find(L.frame_id == string(it.frame_id));
+                if ~isscalar(k) || L.checksum(k) ~= string(it.sample_checksum) || L.tick_id(k) ~= it.tick_id
+                    error('mgv2:EvidenceMismatch', 'Evidence %s does not match the sensor log of the current run.', string(it.ref_id));
+                end
+            end
+        end
+
         function v = view(ses, readSource)
             %VIEW Plain-data picture of the current tick for the panels (the only thing they receive).
             if nargin < 2 || readSource, ses.readOverlay(); end
@@ -126,16 +137,17 @@ classdef MissionSession < handle
 
         function readOverlay(ses)
             %READOVERLAY Ask the source. Validation and panel redraws are skipped while its freshness tick is unchanged.
-            src = ses.Source; o = ses.Overlay; ev = src.suspectedEvents(); L = src.mapLayers(); o.source = src.sourceInfo();
-            key = NaN; if isfield(o.source, 'events_as_of_tick'), key = double(o.source.events_as_of_tick); end
-            if ~isequal(key, o.key) || isnan(key)
-                o.key = key; o.error = "";
-                try
+            %   Any failure in reading or validating shows no overlays and displays the error; the run itself continues.
+            src = ses.Source; o = ses.Overlay;
+            try
+                ev = src.suspectedEvents(); L = src.mapLayers(); o.source = src.sourceInfo();
+                key = NaN; if isfield(o.source, 'events_as_of_tick'), key = double(o.source.events_as_of_tick); end
+                if ~isequal(key, o.key) || isnan(key) || strlength(o.error) > 0
+                    o.key = key; o.error = "";
                     o.events = mgv2.ui.validateEvents(ev, ses.MissionConfig.run_id); o.layers = mgv2.ui.validateMapLayers(L);
-                catch err
-                    if ~ismember(string(err.identifier), ["mgv2:InvalidEvent", "mgv2:InvalidMapLayer", "mgv2:TruthLeak"]), rethrow(err); end
-                    o.events = struct([]); o.layers = struct([]); o.error = string(err.message);
                 end
+            catch err
+                o.key = NaN; o.events = struct([]); o.layers = struct([]); o.error = string(err.message);
             end
             ses.Overlay = o;
         end
