@@ -1,0 +1,19 @@
+{
+  "fingerprint": "fnv1a64:d6d364f988f04bb4",
+  "runs": {
+    "group": "DEMO",
+    "ticks": 1426,
+    "phase": "COMPLETE",
+    "tracks": 578,
+    "events": 78,
+    "samples_digest": "3c54e1046a9854ef80bcfc5bdefa0e3dd663c2b7158c13a66d71668eabddcc87",
+    "log_digest": "e9371cd3b1440447c34050417234f7af17827e69bfba2204384cb774821b7882",
+    "checkpoints": [
+      "8ea5d93a46d689b0e74a3a5ab966a0704ec010fd0936b82b04816fad81d1c248",
+      "bcb2900cde7575f16856dd0edd2dc6aca80f9e8307a90f5375a375b89c830802",
+      "c9c6e342b561518b3c5fe47f8610e1d223e16de8dac9aac06122f860ce90f293",
+      "767154a7c5a41b43742f7d81b186ad6700e0d602ab6e30c8558d5f5faf92596e",
+      "ac2eeacf8fdd99bd2b266306e2e4adc952672973dbbe98cc84e915f366e4ae7d"
+    ]
+  }
+}

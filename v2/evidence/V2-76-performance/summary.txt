@@ -1,0 +1,38 @@
+﻿
+## baseline sha 759f4f2
+H_NULL   n=3 s/w 2.207 2.437 2.382 | wall med 58.8 | worst 254 180 186 | rebuild med/p95/max - - - | stale med/max - - | gap p50/p95/max - - - | >250 -,-,- >1s -,-,- | late -,-,- | start 0.3 | onSample - | samples 3080 phase COMPLETE
+H_R20    n=3 s/w 1.030 1.087 1.065 | wall med 131.4 | worst 802 805 793 | rebuild med/p95/max 361 679 696 | stale med/max 0.40 0.80 | gap p50/p95/max - - - | >250 -,-,- >1s -,-,- | late -,-,- | start 0.3 | onSample 16.4 | samples 3080 phase COMPLETE
+H_R100   n=3 s/w 1.554 1.621 1.601 | wall med 87.4 | worst 789 782 778 | rebuild med/p95/max 342 672 673 | stale med/max 2.40 4.80 | gap p50/p95/max - - - | >250 -,-,- >1s -,-,- | late -,-,- | start 0.3 | onSample 15.7 | samples 3080 phase COMPLETE
+UI_NULL  n=3 s/w 1.080 1.100 1.089 | wall med 128.6 | worst 404 527 495 | rebuild med/p95/max - - - | stale med/max - - | gap p50/p95/max 78 174 495 | >250 4,3,4 >1s 0,0,0 | late 0,0,0 | start 3.3 | onSample - | samples 3080 phase COMPLETE
+UI_R20   n=3 s/w 0.669 0.673 0.675 | wall med 208.0 | worst 947 915 897 | rebuild med/p95/max 360 683 708 | stale med/max 0.40 0.90 | gap p50/p95/max 112 557 915 | >250 137,132,135 >1s 0,0,0 | late 0,0,0 | start 2.7 | onSample 17.1 | samples 3080 phase COMPLETE
+UI_R100  n=3 s/w 0.869 0.847 0.864 | wall med 161.9 | worst 882 955 909 | rebuild med/p95/max 355 686 697 | stale med/max 2.40 4.90 | gap p50/p95/max 114 213 909 | >250 31,35,30 >1s 0,0,0 | late 0,0,0 | start 3.2 | onSample 17.0 | samples 3080 phase COMPLETE
+
+## bridgefix sha 11ec53d
+H_R20    n=3 s/w 1.276 1.305 1.280 | wall med 109.3 | worst 556 544 545 | rebuild med/p95/max 224 417 433 | stale med/max 0.40 0.80 | gap p50/p95/max - - - | >250 -,-,- >1s -,-,- | late -,-,- | start 0.3 | onSample 15.8 | samples 3080 phase COMPLETE
+H_R100   n=3 s/w 1.712 1.720 1.719 | wall med 81.4 | worst 558 558 574 | rebuild med/p95/max 240 443 455 | stale med/max 2.40 4.80 | gap p50/p95/max - - - | >250 -,-,- >1s -,-,- | late -,-,- | start 0.3 | onSample 15.2 | samples 3080 phase COMPLETE
+UI_R20   n=3 s/w 0.757 0.756 0.757 | wall med 185.0 | worst 646 650 664 | rebuild med/p95/max 229 419 432 | stale med/max 0.40 0.90 | gap p50/p95/max 118 418 650 | >250 126,123,128 >1s 0,0,0 | late 0,0,0 | start 3.1 | onSample 16.7 | samples 3080 phase COMPLETE
+UI_R100  n=3 s/w 0.899 0.879 0.896 | wall med 156.2 | worst 683 699 710 | rebuild med/p95/max 246 456 465 | stale med/max 2.40 4.90 | gap p50/p95/max 113 211 699 | >250 30,32,29 >1s 0,0,0 | late 0,0,0 | start 2.9 | onSample 16.8 | samples 3080 phase COMPLETE
+
+## proposal sha 053c6ac
+H_R20    n=3 s/w 1.428 1.504 1.470 | wall med 95.2 | worst 373 354 367 | rebuild med/p95/max 110 216 245 | stale med/max 0.40 0.80 | gap p50/p95/max - - - | >250 -,-,- >1s -,-,- | late -,-,- | start 0.4 | onSample 16.0 | samples 3080 phase COMPLETE
+H_R100   n=3 s/w 1.748 1.763 1.761 | wall med 79.5 | worst 368 372 377 | rebuild med/p95/max 122 257 270 | stale med/max 2.40 4.80 | gap p50/p95/max - - - | >250 -,-,- >1s -,-,- | late -,-,- | start 0.3 | onSample 15.5 | samples 3080 phase COMPLETE
+UI_R20   n=3 s/w 0.807 0.815 0.819 | wall med 171.8 | worst 492 489 473 | rebuild med/p95/max 110 218 251 | stale med/max 0.40 0.90 | gap p50/p95/max 120 311 489 | >250 126,122,122 >1s 0,0,0 | late 0,0,0 | start 3.2 | onSample 17.0 | samples 3080 phase COMPLETE
+UI_R100  n=3 s/w 0.904 0.894 0.910 | wall med 154.7 | worst 499 496 513 | rebuild med/p95/max 134 251 275 | stale med/max 2.40 4.90 | gap p50/p95/max 119 213 499 | >250 29,32,30 >1s 0,0,0 | late 0,0,0 | start 2.9 | onSample 16.9 | samples 3080 phase COMPLETE
+
+## paced_bridgefix sha 11ec53d
+UI_R100  n=1 s/w 0.943 | wall med 148.4 | worst 688 | rebuild med/p95/max 262 453 464 | stale med/max 2.40 4.80 | gap p50/p95/max 199 267 688 | >250 43 >1s 0 | late 2783 | start 3.0 | onSample 18.0 | samples 3080 phase COMPLETE
+UI_R20   n=1 s/w 0.792 | wall med 176.7 | worst 704 | rebuild med/p95/max 229 425 462 | stale med/max 0.40 0.90 | gap p50/p95/max 206 601 704 | >250 145 >1s 0 | late 2766 | start 2.7 | onSample 17.6 | samples 3080 phase COMPLETE
+
+## paced_prop sha 053c6ac
+UI_NULL  n=1 s/w 1.000 | wall med 140.0 | worst 574 | rebuild med/p95/max - - - | stale med/max - - | gap p50/p95/max 150 207 574 | >250 5 >1s 0 | late 1707 | start 3.4 | onSample - | samples 3080 phase COMPLETE
+UI_R20   n=1 s/w 0.851 | wall med 164.4 | worst 569 | rebuild med/p95/max 110 215 257 | stale med/max 0.40 0.80 | gap p50/p95/max 214 399 569 | >250 156 >1s 0 | late 2797 | start 2.9 | onSample 18.2 | samples 3080 phase COMPLETE
+UI_R100  n=1 s/w 0.968 | wall med 144.5 | worst 612 | rebuild med/p95/max 129 249 265 | stale med/max 2.40 4.90 | gap p50/p95/max 196 257 612 | >250 42 >1s 0 | late 2698 | start 2.9 | onSample 17.7 | samples 3080 phase COMPLETE
+
+## windows_managed sha 053c6ac
+UI_NULL  n=1 s/w 1.000 | wall med 140.0 | worst 354 | rebuild med/p95/max - - - | stale med/max - - | gap p50/p95/max 144 206 354 | >250 5 >1s 0 | late 1537 | start 7.1 | onSample - | samples 3080 phase COMPLETE
+UI_R100  n=1 s/w 0.951 | wall med 147.2 | worst 614 | rebuild med/p95/max 135 265 265 | stale med/max 2.40 4.80 | gap p50/p95/max 201 260 614 | >250 49 >1s 0 | late 2780 | start 2.7 | onSample 18.0 | samples 3080 phase COMPLETE
+
+sample digests [ '016961199e09' ]
+pose digests [ 'e649b54c9d02' ]
+event digests [ '1e14af2e0e3b' ]
+fingerprints [ 'fnv1a64:d6d364f988f04bb4' ]
