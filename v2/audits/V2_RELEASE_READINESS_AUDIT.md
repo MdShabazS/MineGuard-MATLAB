@@ -50,3 +50,38 @@ Closed in this work: #87 (superseded plan), #91 and #85 (incorporated). Issues #
 ## 5. Statement
 
 MineGuard Advanced V2 — **10/10 tasks DONE on `main`**. Clean-checkout software audit on Windows: **PASS after one fix** (sample package MAT-files, #114). **The release-readiness audit is NOT PASSED as a whole**, because AC-022 and AC-024 (Mac) are NOT RUN, AC-025 FAILS, and guide approval is pending. **The Windows demonstration is verified by automated checks only, not by a human witness.**
+
+
+## 6. Acceptance closure review (2026-11-03, later the same day)
+
+Basis: the exact text of `V2_DEMO_ACCEPTANCE_MATRIX.md` Revision 1.0, which is unchanged, and committed evidence. No benchmark was rerun and no threshold was changed.
+
+**AC-025 (performance observation): PASS (Windows); the provisional ≥ 10 FPS target is NOT MET.**
+- **Criterion:** the AC-025 pass criterion reads "Actual wall time, simulation time, 3-D refresh and RGB/thermal/LiDAR update rates recorded; target usability checked, not assumed".
+- **Recorded:**
+  - wall and simulation time per mission (`V2-007.md` §3, `V2-008.md` §5);
+  - 3-D refresh rate (6.3–6.5/s at V2-007, at most 5.15/s at V2-008);
+  - sensor update rates of RGB and thermal 5 Hz, LiDAR 2 Hz and navigation 10 Hz. The 3080 samples over ticks 0–2799 equal exactly 700 + 700 + 280 + 1400 (`V2-008/app_check.txt`).
+- **Usability checked:** 1× holds only on a quiet host with MATLAB in front; 2 of 6 detector missions in plan A and 5 of 6 in plan C fell below 0.8×.
+- **Why 10 FPS is not the gate:** it appears only in matrix §3 as a "Provisional target … aim ≥ 10 FPS", and §3 says these are "engineering design targets, not passed benchmarks".
+- **Correction:** V2-009 scored AC-025 FAIL by treating the provisional target as the criterion; this corrects that. The unmet target stays recorded. §3 also asks for scene-refresh statistics on a Mac; that is part of AC-024 and NOT RUN.
+
+**AC-023 (academic objective trace): PASS (document check).** The four objectives in `V2_FINAL_ENGINEERING_REPORT.md` are character-identical to `docs/PHASE1_BASELINE.md` (script check, `V2-010.md` §2). Report §4 claims only simulated contributions and names the unachieved goals. The check was done by Claude Code, not by a human reviewer.
+
+**AC-022 and AC-024 (Mac): NOT RUN. The Windows delegation does not supersede them.**
+- **AC-022** requires that "Shabaz personally reviews full simulation … on user's Mac; signoff recorded".
+- **AC-024** requires all MUST tasks on the user's Mac from a clean checkout.
+- **Matrix §1:** a MUST item impossible on macOS must be "formally revise[d] … with Shabaz and guide". The delegation record (§"What the delegation does not cover") excludes matrix scope changes, and Shabaz has not confirmed the delegation in the repository.
+- **Requirements kept:** both original requirements are kept as written, and neither is marked PASS.
+- **Closing them needs one of:**
+  - Shabaz runs every MUST item on his Mac from a clean checkout, then reviews and signs off a full run (AC-024, then AC-022); or
+  - Shabaz **and** the guide sign a formal matrix revision accepting a Windows demonstration in place of the Mac items. The revision would be a new matrix revision; Revision 1.0 stays as history.
+
+**Revised tally:** 19 PASS, 4 PARTIAL (AC-005, 007, 009, 011), 0 FAIL, 2 NOT RUN (AC-022, AC-024).
+
+**Overall release acceptance: PENDING.** It waits on:
+- AC-022 and AC-024, or a signed scope revision;
+- guide approval;
+- a human-witnessed Windows demonstration (`v2/evidence/V2-010/windows_demo_witness_TEMPLATE.md`), if the guide wants one.
+
+Issues #68 and #69 were closed on 2026-11-03 with references to their merged fixes.
