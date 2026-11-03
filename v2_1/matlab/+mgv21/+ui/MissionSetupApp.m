@@ -590,7 +590,8 @@ classdef MissionSetupApp < handle
         end
 
         function enable(obj, names, tf)
-            for f = names, obj.Controls.(f).Enable = matlab.lang.OnOffSwitchState(tf); end
+            s = 'off'; if tf, s = 'on'; end          % uitable accepts only char on/off/inactive, not OnOffSwitchState
+            for f = names, obj.Controls.(f).Enable = s; end
         end
     end
 
