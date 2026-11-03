@@ -11,8 +11,9 @@ SIMULATION ONLY. Say this first, and leave the red banner visible throughout: ev
 1. Close Chrome and other heavy programs; plug in the laptop. Refresh rate drops under load (V2-007 evidence).
 2. From a clean checkout of `main`, in MATLAB:
    ```matlab
-   cd <repo>; addpath('v2/matlab'); app = mgv2MissionControl;
+   cd <repo>; addpath('v2/evidence/V2-010'); rec = demo_record();   % opens the dashboard and records commit, versions and log
    ```
+   During the run, `rec.shot("05_event_inspector")` saves a screenshot. At the end, `rec.finish()` saves the log. Without recording: `addpath('v2/matlab'); app = mgv2MissionControl;`
 3. Check the window opens at tick 0 with the banner, the map and all six panels.
 
 ## 1. Script

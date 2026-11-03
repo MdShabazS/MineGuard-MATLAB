@@ -85,3 +85,13 @@ Basis: the exact text of `V2_DEMO_ACCEPTANCE_MATRIX.md` Revision 1.0, which is u
 - a human-witnessed Windows demonstration (`v2/evidence/V2-010/windows_demo_witness_TEMPLATE.md`), if the guide wants one.
 
 Issues #68 and #69 were closed on 2026-11-03 with references to their merged fixes.
+
+
+## 7. Acceptance requests prepared (2026-11-04)
+
+- **Delegation:** confirmation requested from Shabaz on #103 (comment by Rahil's account, written by Claude Code). No reply yet. The delegation stays recorded on Rahil's statement only.
+- **Matrix Revision 1.1 proposal:** `v2/docs/V2_ACCEPTANCE_MATRIX_R1.1_PROPOSAL.md` proposes moving AC-022 and AC-024 from Mac to Windows. Its status is **PROPOSED**; it needs Shabaz's and the guide's signatures, and neither has signed.
+- **Guide package and request:** `v2/docs/V2_GUIDE_ACCEPTANCE_PACKAGE.md`, with a ready-to-send request (§8). **Guide approval: not received.**
+- **Witnessed demonstration:** `v2/evidence/V2-010/demo_record.m` records the commit, versions, log and screenshots of a run. Tested once by Claude Code (open, screenshot, finish); it presses nothing. **No human-witnessed run exists yet.**
+
+**Overall release acceptance: PENDING.**
