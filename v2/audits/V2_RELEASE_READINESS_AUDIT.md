@@ -38,14 +38,14 @@ The fix (#114) changed no code: `git diff --stat 2d734e9 f64508e` shows only the
 
 | PR | Disposition | Reason |
 |---|---|---|
-| #91, #85 | Recommend closing as incorporated | Their heads are ancestors of `main` (through #101). Closing was not done: Claude Code's permission check refused it, and it is Rahil's choice |
+| #91, #85 | **Closed as incorporated** (2026-11-03, at Rahil's request) | Their heads are ancestors of `main` (through #101); branches kept, reopenable |
 | #86 | Deferred: needs science review | Detector read-path proposal; changes no result, but touches the frozen detector |
 | #93 | Deferred: research | V2-006 successor proposal; no detector change in this release |
 | #72, #75, #90, #100 | Deferred: optional | Satellite map preview (ENH-002); excluded from the release by instruction |
 | #95, #98, #99 | Deferred: optional | ENH-008/009/010 orientation material; not release content |
 | #97 | Deferred | Portal status refresh from 2 Nov; superseded by `main`'s status |
 
-Closed in this work: #87 (superseded plan). Merged: #92 and #96 (issue #69), and #101 to #114 (V2-007 to V2-010, governance, this audit's fix).
+Closed in this work: #87 (superseded plan), #91 and #85 (incorporated). Issues #68 (V2-007 bridge, delivered in #101) and #69 (nested metadata, fixed by #92/#96) are resolved in `main` but still open on GitHub; closing them is recommended. Merged: #92 and #96 (issue #69), and #101 to #114 (V2-007 to V2-010, governance, this audit's fix).
 
 ## 5. Statement
 
