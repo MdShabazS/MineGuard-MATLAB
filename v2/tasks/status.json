@@ -84,8 +84,10 @@
     },
     "V2-010": {
       "owner": "Rahil",
-      "state": "TODO",
-      "evidence": null
+      "state": "IN_PROGRESS",
+      "evidence": null,
+      "startedBy": "Rahil",
+      "startedOn": "2026-11-03"
     }
   }
 }
