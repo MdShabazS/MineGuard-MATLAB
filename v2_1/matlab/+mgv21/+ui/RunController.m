@@ -67,7 +67,7 @@ classdef RunController < handle
             if isfile(f), error('mgv21:PrivateFileRefused', 'The private evaluation file already exists; it is never overwritten.'); end
             private_evaluation = struct('notice', "PRIVATE - post-run evaluation with revealed synthetic targets. Not part of the operator package. " + ...
                 mgv21.contract().eval_label, 'evaluation', ctl.LastEvaluation, 'truth', ctl.Priv.truth, 'pub', ctl.Pub, ...
-                'run_id', ctx.run_id, 'generation', ctx.generation, 'features_sha256', s.privateCommitment().features_sha256); %#ok<NASGU>
+                'run_id', ctx.run_id, 'generation', ctx.generation, 'features_sha256', s.privateCommitment().features_sha256);
             save(f, 'private_evaluation'); f = string(f);
         end
 
