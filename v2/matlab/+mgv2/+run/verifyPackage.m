@@ -62,6 +62,6 @@ V = load(fullfile(folder, "events", "evidence.mat")); X = load(fullfile(folder, 
 if numel(X.events) ~= m.counts.events, error(id, 'Event count differs from the manifest.'); end
 pkg = struct('folder', folder, 'manifest', m, 'config', cfg, 'poses', poses, ...
     'phases', readtable(fullfile(folder, "telemetry", "phases.csv"), 'TextType', 'string'), 'index', idx, ...
-    'samples', samples, 'events', E, 'event_list', X.events, 'evidence', V.evidence);
+    'samples', samples, 'events', E, 'event_list', X.events, 'evidence', {V.evidence});
 mgv2.sensors.assertPublic(rmfield(pkg, 'samples'), "package");
 end

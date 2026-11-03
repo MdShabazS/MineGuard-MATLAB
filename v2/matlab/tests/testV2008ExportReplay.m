@@ -62,7 +62,7 @@ classdef testV2008ExportReplay < matlab.uitest.TestCase
             tc.verifyGreaterThan(numel(pkg.event_list), 0, 'the nominal run lists SUSPECTED events');
             m = pkg.manifest;
             tc.verifyTrue(m.simulation_only); tc.verifyEqual(m.synthetic_targets_in_scene, 0);
-            tc.verifySubstring(string(m.label), "SUSPECTED"); tc.verifyEqual(string(m.end_state.phase), "COMPLETE");
+            tc.verifySubstring(string(m.notice), "SUSPECTED"); tc.verifyEqual(string(m.end_state.phase), "COMPLETE");
             tc.verifyEqual(m.counts.poses, height(s.Engine.poseLog()));
             tc.verifyEqual(numel(pkg.evidence), numel(pkg.event_list), 'one evidence entry per event');
             tc.verifyTrue(all(cellfun(@(e) strlength(e.error) == 0, pkg.evidence)), 'every listed event has verified evidence');
