@@ -1,0 +1,40 @@
+{
+  "schema_version": "mg-v2-runpkg/1.0",
+  "package": "V2RUN-NOMINAL-0001_g1_20261103T151722Z",
+  "simulation_only": true,
+  "notice": "SIMULATION ONLY. Every event is a SUSPECTED anomaly with an uncalibrated score. No real sensor, flight or detection.",
+  "run_id": "V2RUN-NOMINAL-0001",
+  "generation": 1,
+  "scenario": "As launched",
+  "seed": 2002,
+  "synthetic_targets_in_scene": 0,
+  "target_note": "The live scenarios place no synthetic target, so every SUSPECTED event in this run is on target-free ground.",
+  "end_state": {
+    "state": "ENDED",
+    "phase": "ABORTED",
+    "fault_code": "ABORTED_BY_OPERATOR",
+    "fault_message": "operator abort from mission control",
+    "tick": 200,
+    "t_s": 10
+  },
+  "counts": {
+    "poses": 202,
+    "samples": {
+      "VIRTUAL_GNSS_INS": 101,
+      "LIDAR_TERRAIN": 21,
+      "THERMAL_LWIR": 51,
+      "RGB_NADIR": 51
+    },
+    "events": 1
+  },
+  "world_digest": "37ea96b744afecbb479f8177ffba9d1c16bc782f08fcbfd34df38222fd6efc67",
+  "provenance": {
+    "matlab": "26.2.0.3433840 (R2026b) Update 1",
+    "platform": "PCWIN64",
+    "git_commit": "4a7f63b4be375af7f2bf3f9906283e0512f1775f",
+    "git_tree_clean": true,
+    "producer": "mgv2.ui.MissionSession"
+  },
+  "created_utc": "2026-11-03T15:17:23Z",
+  "integrity": "files.sha256 lists the SHA-256 of every other file. It detects changed, missing or extra files; it is not a signature."
+}

@@ -1,0 +1,486 @@
+{
+  "mission": {
+    "schema_version": "mg-v2-contract/1.0",
+    "run_id": "V2RUN-NOMINAL-0001",
+    "scenario_id": "V2-TRAINING-FIELD-A",
+    "seed": 2002,
+    "dt_s": 0.05,
+    "bounds_enu_m": [
+      [
+        -70,
+        70
+      ],
+      [
+        -70,
+        70
+      ],
+      [
+        -10,
+        120
+      ]
+    ],
+    "survey_polygon_enu_m": [
+      [
+        -40,
+        -30
+      ],
+      [
+        40,
+        -30
+      ],
+      [
+        40,
+        30
+      ],
+      [
+        -40,
+        30
+      ]
+    ],
+    "home_enu_m": [
+      -55,
+      -50
+    ],
+    "virtual_wgs84_origin": [
+      0,
+      0,
+      0
+    ],
+    "alt_agl_setpoint_m": 15,
+    "takeoff_agl_m": 3,
+    "speed_mps": 6,
+    "line_spacing_m": 10,
+    "survey_heading_deg": 90,
+    "preflight_s": 1,
+    "constraints": {
+      "max_speed_mps": 8,
+      "max_climb_mps": 2.5,
+      "max_descent_mps": 1.5,
+      "max_accel_mps2": 3,
+      "max_vert_accel_mps2": 2,
+      "max_tilt_deg": 25,
+      "max_yaw_rate_dps": 60,
+      "min_clearance_m": 4,
+      "corridor_halfwidth_m": 5,
+      "landing_tolerance_m": 0.05,
+      "touchdown_speed_mps": 0.35,
+      "arrive_tolerance_m": 0.75,
+      "timeout_s": 900
+    },
+    "wind": {
+      "enabled": false,
+      "mean_enu_mps": [
+        0,
+        0,
+        0
+      ],
+      "gust_sigma_mps": 0,
+      "gust_tau_s": 3
+    },
+    "feature_flags": {
+      "record_commanded": true
+    }
+  },
+  "sensors": {
+    "RGB_NADIR": {
+      "schema_version": "mg-v2-sensors/1.0",
+      "sensor_id": "RGB_NADIR",
+      "enabled": true,
+      "rate_hz": 5,
+      "mount": {
+        "sensor_id": "RGB_NADIR",
+        "kind": "camera",
+        "translation_body_m": [
+          0.055,
+          0,
+          0.09
+        ],
+        "rotation_sensor_to_body": [
+          [
+            0,
+            -1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ],
+        "T_body_sensor": [
+          [
+            0,
+            -1,
+            0,
+            0.055
+          ],
+          [
+            -1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            -1,
+            0.09
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "config_origin": "ASSUMED",
+        "contract": "mg-v2-sensors/1.0",
+        "width_px": 320,
+        "height_px": 240,
+        "hfov_deg": 70,
+        "fx": 228.50368107873834,
+        "fy": 228.50368107873834,
+        "cx": 160.5,
+        "cy": 120.5,
+        "K": [
+          [
+            228.50368107873834,
+            0,
+            160.5
+          ],
+          [
+            0,
+            228.50368107873834,
+            120.5
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "distortion": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "az_limits_deg": [],
+        "el_limits_deg": [],
+        "az_res_deg": [],
+        "el_res_deg": []
+      },
+      "model_version": "rgb-raster-lambert-v1",
+      "rng_stream_id": "RGB_NADIR/rng-v1",
+      "parameter_hash": "fnv1a64:70238e802d8b16a2",
+      "dropout_model": {
+        "frame_probability": 0,
+        "intervals_s": [],
+        "ray_probability": 0
+      },
+      "valid_range_m": [
+        0.05,
+        200
+      ],
+      "units": {
+        "image": "uint8 DN [0,255] sRGB-like proxy",
+        "geometry": "m, ENU"
+      },
+      "config_origin": "ASSUMED",
+      "params": {
+        "exposure_proxy": 1,
+        "ambient_fraction": 0.32,
+        "read_noise_dn": 1.5,
+        "shot_gain_dn": 0.04,
+        "min_valid_fraction": 0.5
+      }
+    },
+    "THERMAL_LWIR": {
+      "schema_version": "mg-v2-sensors/1.0",
+      "sensor_id": "THERMAL_LWIR",
+      "enabled": true,
+      "rate_hz": 5,
+      "mount": {
+        "sensor_id": "THERMAL_LWIR",
+        "kind": "camera",
+        "translation_body_m": [
+          0.055,
+          -0.03,
+          0.09
+        ],
+        "rotation_sensor_to_body": [
+          [
+            0,
+            -1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ],
+        "T_body_sensor": [
+          [
+            0,
+            -1,
+            0,
+            0.055
+          ],
+          [
+            -1,
+            0,
+            0,
+            -0.03
+          ],
+          [
+            0,
+            0,
+            -1,
+            0.09
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "config_origin": "ASSUMED",
+        "contract": "mg-v2-sensors/1.0",
+        "width_px": 160,
+        "height_px": 120,
+        "hfov_deg": 45,
+        "fx": 193.13708498984761,
+        "fy": 193.13708498984761,
+        "cx": 80.5,
+        "cy": 60.5,
+        "K": [
+          [
+            193.13708498984761,
+            0,
+            80.5
+          ],
+          [
+            0,
+            193.13708498984761,
+            60.5
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "distortion": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "az_limits_deg": [],
+        "el_limits_deg": [],
+        "az_res_deg": [],
+        "el_res_deg": []
+      },
+      "model_version": "thermal-sb-proxy-v1",
+      "rng_stream_id": "THERMAL_LWIR/rng-v1",
+      "parameter_hash": "fnv1a64:1c5e11bae41b9543",
+      "dropout_model": {
+        "frame_probability": 0,
+        "intervals_s": [],
+        "ray_probability": 0
+      },
+      "valid_range_m": [
+        0.05,
+        200
+      ],
+      "units": {
+        "temperature": "K (apparent)",
+        "geometry": "m, ENU"
+      },
+      "config_origin": "ASSUMED",
+      "params": {
+        "netd_K": 0.05,
+        "psf_sigma_px": 0.6,
+        "min_valid_fraction": 0.5,
+        "palette_id": "IRONBOW"
+      }
+    },
+    "LIDAR_TERRAIN": {
+      "schema_version": "mg-v2-sensors/1.0",
+      "sensor_id": "LIDAR_TERRAIN",
+      "enabled": true,
+      "rate_hz": 2,
+      "mount": {
+        "sensor_id": "LIDAR_TERRAIN",
+        "kind": "lidar",
+        "translation_body_m": [
+          -0.05,
+          0,
+          0.1
+        ],
+        "rotation_sensor_to_body": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            -1,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ],
+        "T_body_sensor": [
+          [
+            1,
+            0,
+            0,
+            -0.05
+          ],
+          [
+            0,
+            -1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            -1,
+            0.1
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "config_origin": "ASSUMED",
+        "contract": "mg-v2-sensors/1.0",
+        "width_px": [],
+        "height_px": [],
+        "hfov_deg": [],
+        "fx": [],
+        "fy": [],
+        "cx": [],
+        "cy": [],
+        "K": [],
+        "distortion": [],
+        "az_limits_deg": [
+          -180,
+          180
+        ],
+        "el_limits_deg": [
+          45,
+          89
+        ],
+        "az_res_deg": 2,
+        "el_res_deg": 2
+      },
+      "model_version": "lidar-raycast-v1",
+      "rng_stream_id": "LIDAR_TERRAIN/rng-v1",
+      "parameter_hash": "fnv1a64:4fef19cc1d65591b",
+      "dropout_model": {
+        "frame_probability": 0,
+        "intervals_s": [],
+        "ray_probability": 0.01
+      },
+      "valid_range_m": [
+        0.3,
+        100
+      ],
+      "units": {
+        "range": "m",
+        "points": "m (sensor FRD frame and ENU)",
+        "angles": "deg"
+      },
+      "config_origin": "ASSUMED",
+      "params": {
+        "range_bias_m": 0.01,
+        "range_sigma_m": 0.02,
+        "min_valid_fraction": 0.1
+      }
+    },
+    "VIRTUAL_GNSS_INS": {
+      "schema_version": "mg-v2-sensors/1.0",
+      "sensor_id": "VIRTUAL_GNSS_INS",
+      "enabled": true,
+      "rate_hz": 10,
+      "mount": [],
+      "model_version": "nav-bias-drift-noise-v1",
+      "rng_stream_id": "VIRTUAL_GNSS_INS/rng-v1",
+      "parameter_hash": "fnv1a64:bf35889f3d2ee95b",
+      "dropout_model": {
+        "frame_probability": 0,
+        "intervals_s": [],
+        "ray_probability": 0
+      },
+      "valid_range_m": [
+        0,
+        null
+      ],
+      "units": {
+        "position": "m, ENU",
+        "velocity": "m/s, ENU",
+        "attitude": "quaternion wxyz FLU->ENU; deg",
+        "geodetic": "deg, deg, m (VIRTUAL)"
+      },
+      "config_origin": "ASSUMED",
+      "params": {
+        "position_bias_sigma_m": [
+          0.8,
+          0.8,
+          1.5
+        ],
+        "position_noise_sigma_m": [
+          0.35,
+          0.35,
+          0.6
+        ],
+        "drift_amplitude_m": 0.3,
+        "velocity_noise_sigma_mps": 0.05,
+        "attitude_noise_sigma_deg": [
+          0.3,
+          0.3,
+          0.8
+        ],
+        "yaw_bias_sigma_deg": 0.5
+      }
+    }
+  },
+  "environment": {
+    "mode": "DAY_CLEAR",
+    "ambient_K": 295.15,
+    "sky_K": 265,
+    "reflected_K": 280,
+    "atm_K": 295.15,
+    "sun_azimuth_deg": 135,
+    "sun_elevation_deg": 50,
+    "irradiance_W_m2": 850,
+    "wind_mps": 2,
+    "extinction_per_m": 0.0013,
+    "moisture_amp_K": 1.5,
+    "moisture_seed": 5005
+  },
+  "scenario": "As launched"
+}

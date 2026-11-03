@@ -1,0 +1,40 @@
+TREE v2008_final SHA 4a7f63b4be375af7f2bf3f9906283e0512f1775f clean=1 desktop=1 26.2.0.3433840 (R2026b) Update 1
+testV2002MissionEngine run=22 pass=22 fail=0 incomplete=0 time=4
+testV2003Scene run=22 pass=22 fail=0 incomplete=0 time=119
+testV2005Sensors run=28 pass=28 fail=0 incomplete=0 time=495
+testV2005QualityContract run=35 pass=35 fail=0 incomplete=0 time=69
+testV2005NestedMetadataContract run=34 pass=34 fail=0 incomplete=0 time=51
+testV2006Detection run=28 pass=28 fail=0 incomplete=0 time=745
+testV2007Bridge run=42 pass=42 fail=0 incomplete=0 time=1499
+testV2007MissionControlUI run=73 pass=73 fail=0 incomplete=0 time=712
+testV2008ExportReplay run=21 pass=21 fail=0 incomplete=0 time=603
+checkcode done
+checkcode Recorder.m: 0
+checkcode digest.m: 0
+checkcode exportRun.m: 0
+checkcode fileSha256.m: 0
+checkcode listFiles.m: 0
+checkcode reproduce.m: 0
+checkcode sha256Bytes.m: 0
+checkcode verifyPackage.m: 0
+checkcode PlaybackEngine.m: 0
+checkcode PlaybackSensors.m: 0
+checkcode AnomalySource.m: 0
+checkcode ControlBar.m: 0
+checkcode EventInspectorPanel.m: 0
+checkcode LidarPanel.m: 0
+checkcode MapPanel.m: 0
+checkcode MissionControlApp.m: 0
+checkcode MissionSession.m: 0
+checkcode NullAnomalySource.m: 0
+checkcode PanelBase.m: 0
+checkcode RgbPanel.m: 0
+checkcode ScenePanel.m: 0
+checkcode SimulationBanner.m: 0
+checkcode TelemetryPanel.m: 0
+checkcode ThermalPanel.m: 0
+checkcode sampleStatus.m: 0
+checkcode theme.m: 0
+checkcode validateEvents.m: 0
+checkcode validateInspection.m: 0
+checkcode validateMapLayers.m: 0

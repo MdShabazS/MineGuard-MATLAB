@@ -1,0 +1,1 @@
+2026-11-03 high QoS applied to worker 13692 during the bddb4c2 regression (after testV2005NestedMetadataContract); timing only, results unaffected
