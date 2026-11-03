@@ -70,8 +70,11 @@ function auditPR(){
   }
   if(!same(baseMf,mf)){
     check(branch.startsWith("v2/plan-"),"V2 task plan changes need v2/plan- branch");
-    check(same(baseSt,st),"Cannot change V2 plan and V2 status in one PR");
-    return "separate proposed V2 plan update";
+    // An owner transfer must also change status.owner. Only that field may change, and only for a TODO task.
+    const moved=Object.keys(st.tasks).filter(id=>!same(baseSt.tasks[id],st.tasks[id]));
+    check(moved.every(id=>baseSt.tasks[id]?.state==="TODO"&&baseMf.tasks[id]?.owner!==mf.tasks[id].owner
+      &&same({...baseSt.tasks[id],owner:mf.tasks[id].owner},st.tasks[id])),"Cannot change V2 plan and V2 status in one PR");
+    return "separate proposed V2 plan update"+(moved.length?"; owner transfer of TODO "+moved.join(", "):"");
   }
   const changed=Object.keys(st.tasks).filter(id=>!same(baseSt.tasks[id],st.tasks[id]));
   check(changed.length<=1,"A V2 PR can transition only one task");
