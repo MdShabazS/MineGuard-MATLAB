@@ -153,6 +153,8 @@ spec  = mgv21.placement.deleteTarget(spec, k)
 spec  = mgv21.placement.addExclusionZone(spec, "CIRCLE", centerXY, radius)
 spec  = mgv21.placement.addExclusionZone(spec, "POLYGON", P)
 [ok, reason] = mgv21.placement.checkLocation(spec, pub, world, xy)    % for live SETUP feedback, no throw
+[ok, reason] = mgv21.placement.checkLocation(spec, pub, world, xy, ignoreRow)  % optional: skip manual row ignoreRow
+                                                         % (moving a target); compatible addition within 1.0
 [truth, report] = mgv21.placement.placeTargets(spec, pub, world)
 [fwd, info]     = mgv21.placement.forwardFeatures(truth, spec, pub, world)
 priv  = mgv21.placement.lockScenario(spec, pub, world)   % = placeTargets + forwardFeatures, firewall-checked
