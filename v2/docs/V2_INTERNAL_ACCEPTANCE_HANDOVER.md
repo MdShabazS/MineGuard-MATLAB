@@ -1,6 +1,7 @@
 # V2 internal acceptance and handover (project lead)
 
-**Date:** 2026-11-04 IST · **Revision:** 1.0 · **Baseline:** GitHub `main` at `7c9f97b`
+**Date:** 2026-11-04 IST · **Revision:** 1.0.1 · **Baseline:** GitHub `main` at `7c9f97b`
+**1.0.1 (Rahil's Windows session):** AC-025 wording corrected to the authoritative classification in audit §6 (PASS on Windows; provisional 10 FPS target NOT MET). Nothing else changed.
 **Recorded by:** Claude Code (Shabaz's Mac session), on Shabaz's explicit instruction in that session. Shabaz wrote the decisions in §1. Claude Code wrote this file.
 **This file is not a signature.** It is not Shabaz's handwritten signature, and it is not a new personal GitHub confirmation. It does not fill, and does not stand in for, the signature table of `V2_ACCEPTANCE_MATRIX_R1.1_PROPOSAL.md` §5.
 
@@ -12,7 +13,7 @@ SIMULATION ONLY. Every event is a SUSPECTED anomaly with an uncalibrated score. 
 2. **Basis for internal software completion:** the existing Windows MATLAB verification evidence.
 3. **Primary demonstration platform:** Rahil's Windows laptop.
 4. **Accepted known limitations for internal handover:**
-   - The provisional ≥ 10 FPS target is not met (AC-025 FAIL).
+   - The provisional ≥ 10 FPS target is not met. AC-025 itself is PASS on Windows: performance was recorded and checked (`V2_RELEASE_READINESS_AUDIT.md` §6). The 10 FPS target remains NOT MET.
    - Simulation performance depends on laptop load.
    - Some acceptance criteria are PARTIAL.
    - Final Mac compatibility testing has not been done.
@@ -62,7 +63,7 @@ No further routine development reviews or approvals by Shabaz are required for t
 
 - **AC-022** (Shabaz's personal review on his Mac): NOT RUN.
 - **AC-024** (all MUST tasks on Mac): NOT RUN.
-- **AC-025** (≥ 10 FPS scene refresh): FAIL. Measured 5–6.5 refreshes/s, and 1× pacing holds only on a quiet host.
+- **AC-025:** PASS on Windows (audit §6). The **provisional ≥ 10 FPS target remains NOT MET**: measured 5–6.5 refreshes/s, and 1× pacing holds only on a quiet host. This is a recorded limitation, not an open criterion.
 - **4 criteria PARTIAL**, as listed in `v2/evidence/V2-009.md`.
 - **Revision 1.1:** unsigned by Shabaz and the guide, so not effective.
 - **Guide approval:** not sought in this workflow, so formal acceptance stays PENDING.
