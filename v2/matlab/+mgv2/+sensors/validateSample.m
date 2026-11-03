@@ -3,11 +3,14 @@ function validateSample(s)
 %   mgv2.sensors.validateSample(s)
 %   mgv2:InvalidSample - wrong schema, missing/unknown fields (exact allowlist: envelope + modality
 %                        fields), bad types, valid/reason inconsistency, numeric invalid data not NaN,
-%                        quality outside its exact per-sensor schema or disagreeing with the sample's own data
+%                        quality outside its exact per-sensor schema or disagreeing with the sample's own data,
+%                        units or noise_parameters outside their exact schema, or a struct, cell, table, char or
+%                        other container in any other field
 %   mgv2:TruthLeak     - a forbidden truth name anywhere in the record (mgv2.sensors.assertPublic)
 c = mgv2.sensors.contract(); id = 'mgv2:InvalidSample';
 if ~isstruct(s) || ~isscalar(s), error(id, 'Sample must be a scalar struct.'); end
 mgv2.sensors.assertPublic(s, "sample");
+checkFieldKinds(s, c, id);
 if ~isfield(s, 'sensor_id') || ~ismember(s.sensor_id, c.sensor_ids), error(id, 'Unknown sensor_id.'); end
 want = [c.envelope, c.modality_fields.(char(s.sensor_id))];
 have = string(fieldnames(s))';
@@ -22,7 +25,8 @@ if s.simulated ~= true, error(id, 'simulated must be true.'); end
 if ~ismember(s.invalid_reason, c.invalid_reasons) || s.valid ~= (s.invalid_reason == "NONE"), error(id, 'valid/invalid_reason inconsistent.'); end
 if ~ismember(s.calibration_kind, c.calibration_kinds), error(id, 'calibration_kind invalid.'); end
 if size(s.footprint_enu_m, 2) ~= 2, error(id, 'footprint_enu_m must be N-by-2.'); end
-checkQuality(s, c, id);
+checkQuality(s, c, id); checkUnits(s, c, id);
+if s.sensor_id == "RGB_NADIR", checkNoise(s.noise_parameters, c, id); end
 switch s.sensor_id
     case "RGB_NADIR"
         if ~isa(s.image_rgb_uint8, 'uint8') || ~isequal(size(s.image_rgb_uint8), [s.image_height s.image_width 3]), error(id, 'RGB image shape/type.'); end
@@ -108,4 +112,32 @@ end
 
 function f = statsOf(sid)
 f = mgv2.sensors.contract().quality_fields.(char(sid)).stats;
+end
+
+function checkFieldKinds(s, c, id)
+%CHECKFIELDKINDS Only the listed fields may nest. Everything else is plain real numeric, logical or string data.
+for f = string(fieldnames(s))'
+    v = s.(f);
+    if ismember(f, c.nested_fields)
+        if ~(isstruct(v) && isscalar(v)), error(id, '%s must be a scalar struct.', f); end
+    elseif ~((isnumeric(v) && isreal(v)) || islogical(v) || isstring(v))
+        error(id, 'Field %s must hold numbers, logicals or strings, not %s.', f, class(v));
+    end
+end
+end
+
+function checkUnits(s, c, id)
+want = c.units.(char(s.sensor_id)); u = s.units; names = string(fieldnames(want))';
+if ~isempty(setxor(string(fieldnames(u)), names)), error(id, 'units fields must be exactly the contract fields for %s.', s.sensor_id); end
+for f = names
+    if ~(isstring(u.(f)) && isscalar(u.(f)) && u.(f) == want.(f)), error(id, 'units.%s must be "%s".', f, want.(f)); end
+end
+end
+
+function checkNoise(n, c, id)
+if ~isempty(setxor(string(fieldnames(n)), c.noise_fields)), error(id, 'noise_parameters fields must be exactly the contract fields.'); end
+for f = c.noise_fields
+    v = n.(f);
+    if ~(isa(v, 'double') && isscalar(v) && isreal(v) && isfinite(v) && v >= 0), error(id, 'noise_parameters.%s must be a finite non-negative double.', f); end
+end
 end
