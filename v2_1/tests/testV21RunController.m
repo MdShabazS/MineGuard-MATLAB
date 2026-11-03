@@ -66,7 +66,7 @@ classdef testV21RunController < matlab.uitest.TestCase
             [pub, world, priv] = tc.scenario("TRAINING_FIELD_A", "MANUAL");
             ctl = tc.fly(pub, world, priv, 200); s = ctl.App.Session;
             mgv21.scenario.assertPublic(s.view(), "view"); mgv21.scenario.assertPublic(s.evidenceContext(), "context");
-            for p = string(properties(ctl.App))', v = ctl.App.(p); if isstruct(v), mgv21.scenario.assertPublic(v, p); end, end
+            mgv21.scenario.assertPublic(ctl.App.Perf, "Perf"); mgv21.scenario.assertPublic(ctl.App.LastReplay, "LastReplay");   % the app's data structs (Panels holds UI objects)
             tc.verifyFalse(any(ismember(["Priv", "Truth"], string(properties(ctl)))));
             ctl.App.command("abort"); f = ctl.App.exportRun(); pkg = mgv2.run.verifyPackage(f);
             mgv21.scenario.assertPublic(rmfield(pkg, 'samples'), "package");
@@ -118,6 +118,23 @@ classdef testV21RunController < matlab.uitest.TestCase
             [pub, ~, priv] = tc.scenario("TRAINING_FIELD_A", "NONE");
             other = mgv2.scene.buildWorld(mgv2.scene.defaultSceneConfig('seed', 1));
             tc.verifyError(@() mgv21.ui.RunController(pub, other, priv, 'Visible', "off"), 'mgv21:InvalidScenario');
+        end
+
+        function privateEvaluationFileIsSeparateAndOnRequest(tc)
+            [pub, world, priv] = tc.scenario("TRAINING_FIELD_A", "MANUAL");
+            ctl = tc.fly(pub, world, priv, 150);
+            tc.verifyError(@() ctl.savePrivateEvaluation(tc.Root), 'mgv21:EvaluationTooEarly');
+            ctl.App.command("abort"); pkgDir = ctl.App.exportRun();
+            before = mgv2.run.listFiles(pkgDir);
+            tc.verifyError(@() ctl.savePrivateEvaluation(pkgDir), 'mgv21:PrivateFileRefused', 'never inside a package');
+            f = ctl.savePrivateEvaluation(fullfile(tc.Root, "private"));
+            tc.verifyTrue(isfile(f)); tc.verifySubstring(f, "_PRIVATE_EVALUATION.mat");
+            tc.verifyFalse(startsWith(f, pkgDir));
+            L = load(f); pe = L.private_evaluation;
+            tc.verifyEqual(pe.truth.targets, priv.truth.targets); tc.verifyEqual(pe.evaluation, ctl.LastEvaluation);
+            tc.verifyEqual(string(pe.features_sha256), string(mgv2.run.verifyPackage(pkgDir).manifest.private_forward_model.features_sha256));
+            tc.verifyEqual(mgv2.run.listFiles(pkgDir), before, 'the operator package is unchanged');
+            tc.verifyError(@() ctl.savePrivateEvaluation(fullfile(tc.Root, "private")), 'mgv21:PrivateFileRefused', 'no overwrite');
         end
 
         function originalV2EntryPointIsUnchanged(tc)
