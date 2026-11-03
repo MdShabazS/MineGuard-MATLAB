@@ -115,7 +115,7 @@ These are the fields of `R`.
 | Field | Content |
 |---|---|
 | `schema_version` | `"mg-v21-eval/1.0"` |
-| `label` | `"INTERACTIVE SYNTHETIC DEMO evaluation - not held-out scientific accuracy"` |
+| `notice` | `"INTERACTIVE SYNTHETIC DEMO evaluation - not held-out scientific accuracy"` (named `notice`, not `label`, because `label` is a V2 forbidden name) |
 | `run_state` | terminal phase of the run |
 | `r_match_m` | match radius |
 | `n_events`, `n_targets` | counts |
@@ -196,7 +196,7 @@ lines = mgv21.evaluation.formatReport(R)                 % string array for the 
 4. **AFTER THE RUN (terminal phase):**
    - Freeze the event list.
    - Then call `R = mgv21.evaluation.evaluateRun(events, priv.truth, engine.Phase)`.
-   - Show `formatReport(R)` with the DEMO label visible.
+   - Show `formatReport(R)` with the DEMO notice visible.
 5. **EXPORT and REPLAY:**
    - The operator export contains `pub` only.
    - If truth is kept for a guide's post-run review, it goes in a **separately named private file**, never in the operator package. Packaging it is V21-007's decision and needs its own test.
