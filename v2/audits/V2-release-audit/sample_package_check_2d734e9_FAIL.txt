@@ -1,0 +1,11 @@
+FAIL Error using mgv2.run.verifyPackage (line 24)
+Package files differ from files.sha256 (missing: config/run_config.mat, events/events.mat,
+events/evidence.mat, samples/LIDAR_TERRAIN.mat, samples/RGB_NADIR.mat, samples/THERMAL_LWIR.mat,
+samples/VIRTUAL_GNSS_INS.mat, telemetry/poses.mat; extra: ).
+
+Error in run_audit (line 9)
+    pkg = mgv2.run.verifyPackage(fullfile(repo, 'v2', 'evidence', 'V2-008', 'sample_package', 'V2RUN-NOMINAL-0001_g1_20261103T151722Z'));
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error in run (line 100)
+evalin('caller', strcat(scriptStem, ';'));
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
