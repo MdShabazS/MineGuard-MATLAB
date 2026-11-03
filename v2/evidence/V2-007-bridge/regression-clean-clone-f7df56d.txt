@@ -1,0 +1,236 @@
+V2-007 bridge regression (ordinary test suites; no TRAIN/VAL study stage; TEST not run)
+Clean clone at f7df56d498f9303f59a83fd0f6170fc5bed0605f. MATLAB 26.2.0.3433840 (R2026b) Update 1, PCWIN64. Output captured with evalc and written straight to file.
+
+=== testV2002MissionEngine | source HEAD f7df56d498f9303f59a83fd0f6170fc5bed0605f | clean before 1 | clean after 1 | 2026-11-01 18:26:49 to 2026-11-01 18:30:29 UTC
+Running testV2002MissionEngine
+.......... .......... ..
+Done testV2002MissionEngine
+__________
+
+
+--- per-test results ---
+testV2002MissionEngine/t01_phaseSequence                               P=1 F=0 I=0    25.41 s
+testV2002MissionEngine/t02_takeoff                                     P=1 F=0 I=0     0.09 s
+testV2002MissionEngine/t03_altitudeSetpointTracking                    P=1 F=0 I=0     0.02 s
+testV2002MissionEngine/t04_gridCoverage                                P=1 F=0 I=0     0.06 s
+testV2002MissionEngine/t05_continuityNoTeleport                        P=1 F=0 I=0     0.04 s
+testV2002MissionEngine/t06_velocityAccelerationTiltBounds              P=1 F=0 I=0     0.04 s
+testV2002MissionEngine/t07_headingAndAttitudeInTurns                   P=1 F=0 I=0     0.05 s
+testV2002MissionEngine/t08_returnHomeAndLanding                        P=1 F=0 I=0     9.02 s
+testV2002MissionEngine/t09_determinism                                 P=1 F=0 I=0    36.88 s
+testV2002MissionEngine/t10_pauseResume                                 P=1 F=0 I=0    11.74 s
+testV2002MissionEngine/t11_reset                                       P=1 F=0 I=0    14.83 s
+testV2002MissionEngine/t12_invalidInputs                               P=1 F=0 I=0     0.20 s
+testV2002MissionEngine/t13_terrainFaults                               P=1 F=0 I=0     4.29 s
+testV2002MissionEngine/t14_enuNedRoundTrip                             P=1 F=0 I=0     0.23 s
+testV2002MissionEngine/t15_windDisturbanceAndRecovery                  P=1 F=0 I=0    12.63 s
+testV2002MissionEngine/t16_clockConsistency                            P=1 F=0 I=0     0.05 s
+testV2002MissionEngine/t17_geofence                                    P=1 F=0 I=0     2.76 s
+testV2002MissionEngine/t18_timeoutAndAbort                             P=1 F=0 I=0     9.75 s
+testV2002MissionEngine/t19_subscribersSeeEveryTick                     P=1 F=0 I=0    12.48 s
+testV2002MissionEngine/t20_fieldSizesAndWaypointCounts                 P=1 F=0 I=0    78.10 s
+testV2002MissionEngine/t21_poseSampleContract                          P=1 F=0 I=0     0.03 s
+testV2002MissionEngine/t22_truthFirewall                               P=1 F=0 I=0     0.09 s
+testV2002MissionEngine    22 | PASS  22 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0
+
+=== testV2003Scene | source HEAD f7df56d498f9303f59a83fd0f6170fc5bed0605f | clean before 1 | clean after 1 | 2026-11-01 18:30:30 to 2026-11-01 18:32:52 UTC
+Running testV2003Scene
+.......... ....
+[Terse] Diagnostic logged (2026-11-02 00:01:35): PERF chase: 600 frames, median 52.7 ms, p95 78.8 ms, max 285.7 ms (update+drawnow, visible figure)
+
+[Terse] Diagnostic logged (2026-11-02 00:02:11): PERF follow: 600 frames, median 52.6 ms, p95 79.5 ms, max 284.9 ms (update+drawnow, visible figure)
+
+[Terse] Diagnostic logged (2026-11-02 00:02:48): PERF isometric: 600 frames, median 54.9 ms, p95 80.8 ms, max 284.0 ms (update+drawnow, visible figure)
+...... ..
+Done testV2003Scene
+__________
+
+
+--- per-test results ---
+testV2003Scene/s01_terrainInitialisation                               P=1 F=0 I=0    15.00 s
+testV2003Scene/s02_deterministicGeometry                               P=1 F=0 I=0     0.42 s
+testV2003Scene/s03_meshScaleAndRenderedVertices                        P=1 F=0 I=0     0.11 s
+testV2003Scene/s04_heightAgreesWithRenderedTriangles                   P=1 F=0 I=0     1.92 s
+testV2003Scene/s05_objectsSeatedAndOffThePad                           P=1 F=0 I=0     0.23 s
+testV2003Scene/s06_aircraftVisibleInEachMode                           P=1 F=0 I=0     2.41 s
+testV2003Scene/s07_headingAndAttitude                                  P=1 F=0 I=0     0.04 s
+testV2003Scene/s08_noBelowGroundDuringNominalFlight                    P=1 F=0 I=0     0.73 s
+testV2003Scene/s09_cameraModesKeepAircraftInView                       P=1 F=0 I=0     0.14 s
+testV2003Scene/s10_followCameraContinuity                              P=1 F=0 I=0     6.16 s
+testV2003Scene/s11_sensorMountingTransforms                            P=1 F=0 I=0     0.06 s
+testV2003Scene/s12_landmarkProjectionClosedLoop                        P=1 F=0 I=0     0.55 s
+testV2003Scene/s13_enuRenderConsistency                                P=1 F=0 I=0     0.01 s
+testV2003Scene/s14_repeatedUpdatesStable                               P=1 F=0 I=0     2.21 s
+testV2003Scene/s15_measuredPerformance                                 P=1 F=0 I=0   106.96 s
+testV2003Scene/s16_cleanupAndReinitialise                              P=1 F=0 I=0     1.99 s
+testV2003Scene/s17_uavToolboxLidarSeesSameGeometry                     P=1 F=0 I=0     0.75 s
+testV2003Scene/s18_truthFirewallAndInputs                              P=1 F=0 I=0     0.11 s
+testV2003Scene/s19_invalidPoseRejected                                 P=1 F=0 I=0     0.09 s
+testV2003Scene/s20_v2004AnalyticalFixtures                             P=1 F=0 I=0     0.14 s
+testV2003Scene/s21_nadirFootprintUnderYawAndBank                       P=1 F=0 I=0     0.17 s
+testV2003Scene/s22_rigidTransformRoundTrip                             P=1 F=0 I=0     0.30 s
+testV2003Scene            22 | PASS  22 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0
+
+=== testV2005Sensors | source HEAD f7df56d498f9303f59a83fd0f6170fc5bed0605f | clean before 1 | clean after 1 | 2026-11-01 18:32:53 to 2026-11-01 18:42:32 UTC
+Running testV2005Sensors
+.........
+[Terse] Diagnostic logged (2026-11-02 00:11:55): SC-10 mean/std K: DAY 298.64/0.729 OVERCAST 294.27/0.212 LOW_CONTRAST 284.57/0.214
+. .......... .
+[Terse] Diagnostic logged (2026-11-02 00:12:30): SC-28 environment: MATLAB 26.2.0.3433840 (R2026b) Update 1, PCWIN64
+......
+[Terse] Diagnostic logged (2026-11-02 00:12:31): SC-29 VIRTUAL_GNSS_INS n=1400 median 1.8 p95 2.3 max 23.1 ms; LIDAR_TERRAIN n=280 median 42.1 p95 82.2 max 170.8 ms; THERMAL_LWIR n=700 median 43.7 p95 53.3 max 228.5 ms; RGB_NADIR n=700 median 144.6 p95 160.1 max 476.5 ms; median sensor load 1.04 s per simulated s
+.
+Done testV2005Sensors
+__________
+
+
+--- per-test results ---
+testV2005Sensors/v01_envelopeSchema                                    P=1 F=0 I=0   492.39 s
+testV2005Sensors/v02_schedulerRates                                    P=1 F=0 I=0     0.12 s
+testV2005Sensors/v03_poseTimestampInvariant                            P=1 F=0 I=0     0.20 s
+testV2005Sensors/v04_pauseFreezesEmission                              P=1 F=0 I=0    30.00 s
+testV2005Sensors/v05_independentRngStreams                             P=1 F=0 I=0    16.88 s
+testV2005Sensors/v06_cameraTransformsAndFootprint                      P=1 F=0 I=0     0.37 s
+testV2005Sensors/v07_rgbLandmarkGeometry                               P=1 F=0 I=0     0.24 s
+testV2005Sensors/v08_rgbValidityMask                                   P=1 F=0 I=0     0.42 s
+testV2005Sensors/v09_thermalKelvinAndPaletteInvariance                 P=1 F=0 I=0     0.23 s
+testV2005Sensors/v10_thermalEnvironmentResponse                        P=1 F=0 I=0     0.79 s
+testV2005Sensors/v11_lowContrastNotForced                              P=1 F=0 I=0     0.16 s
+testV2005Sensors/v12_lidarFlatPlane                                    P=1 F=0 I=0     0.20 s
+testV2005Sensors/v13_lidarSlopedTerrain                                P=1 F=0 I=0     0.09 s
+testV2005Sensors/v14_lidarOutOfRangeAndSky                             P=1 F=0 I=0     0.11 s
+testV2005Sensors/v15_virtualNavigation                                 P=1 F=0 I=0     0.97 s
+testV2005Sensors/v16_truthFirewall                                     P=1 F=0 I=0     0.33 s
+testV2005Sensors/v17_dropoutNoStaleFrames                              P=1 F=0 I=0     5.41 s
+testV2005Sensors/v18_repeatability                                     P=1 F=0 I=0    19.74 s
+testV2005Sensors/v19_fullMissionAllSensors                             P=1 F=0 I=0     0.10 s
+testV2005Sensors/v20_rasterEqualsRayCasting                            P=1 F=0 I=0     3.03 s
+testV2005Sensors/v21_uavToolboxLidarCrossCheck                         P=1 F=0 I=0     0.63 s
+testV2005Sensors/v22_baseMatlabOnly                                    P=1 F=0 I=0     3.69 s
+testV2005Sensors/v24_lidarRangeFromValidRange                          P=1 F=0 I=0     0.15 s
+testV2005Sensors/v25_rangeConfigRejected                               P=1 F=0 I=0     0.44 s
+testV2005Sensors/v26_parameterFingerprint                              P=1 F=0 I=0     0.51 s
+testV2005Sensors/v27_fingerprintDoesNotTouchSamples                    P=1 F=0 I=0     0.19 s
+testV2005Sensors/v28_missionStillSynchronised                          P=1 F=0 I=0     0.10 s
+testV2005Sensors/v23_performanceLogged                                 P=1 F=0 I=0     0.19 s
+testV2005Sensors          28 | PASS  28 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0
+
+=== testV2006Detection | source HEAD f7df56d498f9303f59a83fd0f6170fc5bed0605f | clean before 1 | clean after 1 | 2026-11-01 18:42:38 to 2026-11-01 18:56:29 UTC
+Running testV2006Detection
+...    N1 clutter-only control (700 ticks): 66 events, all FP
+.    DEMO FIXTURE event SUS-00296 at (5.435, 3.202), error 0.081 m, score 0.859 (uncalibrated)
+.    landmark errors: [0.171 0.0978] m
+..... .......... ....    detector median ms: LIDAR_TERRAIN=3.4, RGB_NADIR=43.9, THERMAL_LWIR=53.6, VIRTUAL_GNSS_INS=0.3
+.    r  4 px: true diameter 0.60 m | measured 0.59 m | frozen detector keeps 1
+    r  5 px: true diameter 0.75 m | measured 0.77 m | frozen detector keeps 1
+    r  6 px: true diameter 0.90 m | measured 2.03 m | frozen detector keeps 0
+    r  8 px: true diameter 1.19 m | measured 2.58 m | frozen detector keeps 0
+    r 12 px: true diameter 1.79 m | measured 3.31 m | frozen detector keeps 0
+..
+Done testV2006Detection
+__________
+
+
+--- per-test results ---
+testV2006Detection/d01_detectorContractAndConfig                       P=1 F=0 I=0   557.09 s
+testV2006Detection/d02_truthFirewallStructural                         P=1 F=0 I=0     1.46 s
+testV2006Detection/d03_counterfactualTruth                             P=1 F=0 I=0     0.28 s
+testV2006Detection/d04_clutterOnlyNegativeControl                      P=1 F=0 I=0     0.03 s
+testV2006Detection/d05_demoFixturePositive                             P=1 F=0 I=0     0.04 s
+testV2006Detection/d06_geometricError                                  P=1 F=0 I=0     0.68 s
+testV2006Detection/d07_eventAudit                                      P=1 F=0 I=0     4.13 s
+testV2006Detection/d08_dropoutAndMissingModalities                     P=1 F=0 I=0     0.84 s
+testV2006Detection/d09_staleAndTimestampRejection                      P=1 F=0 I=0     5.30 s
+testV2006Detection/d10_noFutureLeakage                                 P=1 F=0 I=0   125.56 s
+testV2006Detection/d11_determinism                                     P=1 F=0 I=0    95.62 s
+testV2006Detection/d12_associationAndDedup                             P=1 F=0 I=0     0.12 s
+testV2006Detection/d13_uncertaintyReported                             P=1 F=0 I=0     2.16 s
+testV2006Detection/d14_coverageIntegrity                               P=1 F=0 I=0     0.43 s
+testV2006Detection/d15_mapInitialisation                               P=1 F=0 I=0     0.28 s
+testV2006Detection/d16_footprintsTiedToTicks                           P=1 F=0 I=0     0.19 s
+testV2006Detection/d17_offlineMapView                                  P=1 F=0 I=0     1.16 s
+testV2006Detection/d18_evidenceInspector                               P=1 F=0 I=0     0.94 s
+testV2006Detection/d19_splitManifestFrozen                             P=1 F=0 I=0     0.15 s
+testV2006Detection/d20_frozenThresholdAndValBaselines                  P=1 F=0 I=0     0.60 s
+testV2006Detection/d21_uncalibratedScoresAndWording                    P=1 F=0 I=0     1.63 s
+testV2006Detection/d22_interpretableFeatures                           P=1 F=0 I=0     0.40 s
+testV2006Detection/d23_missingModalityPolicy                           P=1 F=0 I=0     0.87 s
+testV2006Detection/d24_forwardHookBackwardCompatible                   P=1 F=0 I=0    19.34 s
+testV2006Detection/d25_performanceLogged                               P=1 F=0 I=0     0.21 s
+testV2006Detection/d26_knownLimitationRgbLargeObjectHalo               P=1 F=0 I=0     0.48 s
+testV2006Detection/d27_inspectorSelectsPublicEventId                   P=1 F=0 I=0     8.60 s
+testV2006Detection        27 | PASS  27 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0
+
+=== testV2007MissionControlUI | source HEAD f7df56d498f9303f59a83fd0f6170fc5bed0605f | clean before 1 | clean after 1 | 2026-11-01 19:06:08 to 2026-11-01 19:10:51 UTC
+Running testV2007MissionControlUI
+.......... .......... .....
+Done testV2007MissionControlUI
+__________
+
+
+--- per-test results ---
+testV2007MissionControlUI/startupAndClose                              P=1 F=0 I=0    13.05 s
+testV2007MissionControlUI/startAdvancesThenBudgetHolds                 P=1 F=0 I=0     9.97 s
+testV2007MissionControlUI/pauseButtonFreezesAndResumeContinues         P=1 F=0 I=0    12.27 s
+testV2007MissionControlUI/abortAndResetAreDeterministic                P=1 F=0 I=0    13.29 s
+testV2007MissionControlUI/sceneShowsActualPose                         P=1 F=0 I=0    19.93 s
+testV2007MissionControlUI/rgbShowsActualSample                         P=1 F=0 I=0    15.13 s
+testV2007MissionControlUI/thermalShowsKelvinWithLegend                 P=1 F=0 I=0    13.46 s
+testV2007MissionControlUI/paletteChangesDisplayNotKelvin               P=1 F=0 I=0    15.77 s
+testV2007MissionControlUI/lidarShowsValidReturnsOnly                   P=1 F=0 I=0    13.16 s
+testV2007MissionControlUI/invalidLidarAtTickZeroIsLabelled             P=1 F=0 I=0     3.44 s
+testV2007MissionControlUI/dropoutLabelsWithoutInventingData            P=1 F=0 I=0     7.70 s
+testV2007MissionControlUI/staleSampleIsNeverRestamped                  P=1 F=0 I=0     7.55 s
+testV2007MissionControlUI/telemetryUsesActualValuesAndBattery          P=1 F=0 I=0    13.36 s
+testV2007MissionControlUI/mapIsOfflineAndShowsActualGeometry           P=1 F=0 I=0    14.44 s
+testV2007MissionControlUI/eventPanelSaysDetectorNotConnected           P=1 F=0 I=0    13.27 s
+testV2007MissionControlUI/noTruthOrForbiddenClaimsDisplayed            P=1 F=0 I=0    12.92 s
+testV2007MissionControlUI/warningAlwaysVisible                         P=1 F=0 I=0    13.10 s
+testV2007MissionControlUI/layoutAdaptsToWindowSize                     P=1 F=0 I=0     4.59 s
+testV2007MissionControlUI/defaultPositionFitsDisplay                   P=1 F=0 I=0     0.00 s
+testV2007MissionControlUI/graphicsDoNotLeak                            P=1 F=0 I=0    19.12 s
+testV2007MissionControlUI/closeReleasesEverything                      P=1 F=0 I=0    18.77 s
+testV2007MissionControlUI/closingDuringRunStopsCleanly                 P=1 F=0 I=0     5.33 s
+testV2007MissionControlUI/reentryIsRefusedAndOneSubscription           P=1 F=0 I=0    10.03 s
+testV2007MissionControlUI/adapterSeamDisplaysValidatedOutput           P=1 F=0 I=0    10.60 s
+testV2007MissionControlUI/adapterSeamRejectsBadRecords                 P=1 F=0 I=0     0.20 s
+testV2007MissionControlUI  25 | PASS  25 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0
+
+=== testV2007Bridge | source HEAD f7df56d498f9303f59a83fd0f6170fc5bed0605f | clean before 1 | clean after 1 | 2026-11-01 18:56:30 to 2026-11-01 19:06:01 UTC
+Running testV2007Bridge
+.......... .......    DEMO FIXTURE only (excluded from accuracy): 80 events through the bridge mapping, SUS-00296 evidence verified
+..
+Done testV2007Bridge
+__________
+
+
+--- per-test results ---
+testV2007Bridge/b01_eventFieldMapping                                  P=1 F=0 I=0    58.60 s
+testV2007Bridge/b02_uiValidatorsAndPublicOutput                        P=1 F=0 I=0     0.16 s
+testV2007Bridge/b03_cacheAndFreshness                                  P=1 F=0 I=0     9.24 s
+testV2007Bridge/b04_freshWhenPausedOrEnded                             P=1 F=0 I=0     8.23 s
+testV2007Bridge/b05_coverageMask                                       P=1 F=0 I=0     0.13 s
+testV2007Bridge/b06_noDuplicateSubscriptions                           P=1 F=0 I=0     0.03 s
+testV2007Bridge/b07_resetAndDeterministicReplay                        P=1 F=0 I=0    59.28 s
+testV2007Bridge/b08_bindingRules                                       P=1 F=0 I=0     2.05 s
+testV2007Bridge/b09_unboundFailsClosed                                 P=1 F=0 I=0     1.02 s
+testV2007Bridge/b10_wrongRunSampleRefused                              P=1 F=0 I=0     6.90 s
+testV2007Bridge/b11_invalidSensorFrames                                P=1 F=0 I=0    19.67 s
+testV2007Bridge/b12_truthFirewall                                      P=1 F=0 I=0     4.95 s
+testV2007Bridge/b13_missingEvidence                                    P=1 F=0 I=0     0.96 s
+testV2007Bridge/b14_checksumMismatch                                   P=1 F=0 I=0     0.63 s
+testV2007Bridge/b15_inspectRealEvent                                   P=1 F=0 I=0     0.08 s
+testV2007Bridge/b16_bridgeDoesNotPerturbTheRun                         P=1 F=0 I=0    91.35 s
+testV2007Bridge/b17_noSecondRouteState                                 P=1 F=0 I=0     0.03 s
+testV2007Bridge/b18_demoFixtureEvidence                                P=1 F=0 I=0   123.84 s
+testV2007Bridge/b19_appRendersBridgeOutput                             P=1 F=0 I=0   182.53 s
+testV2007Bridge           19 | PASS  19 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0
+
+--- totals ---
+testV2002MissionEngine    22 | PASS  22 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0
+testV2003Scene            22 | PASS  22 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0
+testV2005Sensors          28 | PASS  28 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0
+testV2006Detection        27 | PASS  27 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0
+testV2007MissionControlUI  25 | PASS  25 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0
+testV2007Bridge           19 | PASS  19 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0
+TOTAL 143 | PASS 143 | FAIL 0 | INCOMPLETE 0 | SKIPPED 0 | HEAD f7df56d498f9303f59a83fd0f6170fc5bed0605f
