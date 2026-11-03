@@ -624,11 +624,11 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
             tc.log(1, sprintf("seed effect on navigation: %g m", norm(ses.Sensors.latest("VIRTUAL_GNSS_INS").reported_position_enu_m - n1)));
         end
 
-        function replayAndExportAreHonestlyPending(tc)
-            app = tc.flown(10); C = app.Controls;
-            for b = [C.ReplayButton C.ExportButton]
-                tc.verifyEqual(string(b.Enable), "off"); tc.verifySubstring(string(b.Text), "V2-008");
-            end
+        function exportIsOfferedOnlyForAFinishedRun(tc)
+            %V2-008 replaced the disabled placeholders: EXPORT needs an ended live run; REPLAY needs no active run.
+            app = tc.flown(10); C = app.Controls.Buttons;
+            tc.verifyEqual(string(C.export.Enable), "off", 'paused run'); tc.verifyEqual(string(C.replay.Enable), "on", 'paused run');
+            app.command("abort"); tc.verifyEqual(string(C.export.Enable), "on", 'ended run');
         end
 
         function repeatedPauseResumeDoesNotDriftOrDuplicate(tc)
@@ -755,7 +755,7 @@ classdef testV2007MissionControlUI < matlab.uitest.TestCase
         function compactWindowKeepsControlsUsable(tc)
             app = tc.open('Position', [40 40 960 640]); tc.settle(@() app.LayoutMode == "compact"); drawnow; pause(0.3); drawnow;
             tc.verifyEqual(app.LayoutMode, "compact"); tc.verifyEqual(string(app.Content.Scrollable), "on");
-            C = app.Controls; tc.verifyLessThanOrEqual(C.ExportButton.Position(1) + C.ExportButton.Position(3), 960);
+            C = app.Controls; tc.verifyLessThanOrEqual(C.Buttons.export.Position(1) + C.Buttons.export.Position(3), 960);
             tc.verifyGreaterThanOrEqual(C.Readout.Position(3), 850);
             tc.assertWarningVisible(app);
         end

@@ -8,15 +8,25 @@ classdef MissionSession < handle
     %   The session binds and subscribes the source once per engine/sensor pair. V2-005 has no reset or unsubscribe,
     %   so reset() replaces both objects with the same seed and configuration.
     %   A source output that fails validation is not shown: the events and layers are empty and the error is displayed.
+    %   V2-008: every public sample of a live run is recorded in memory (mgv2.run.Recorder) and folder = ses.exportRun(root)
+    %   writes a finished run as a checksummed package. ses.loadReplay(folder) verifies a package and switches to REPLAY:
+    %   the recorded poses and samples play on the same clock through the same source, and nothing is simulated.
+    %   ses.replayCheck() compares the replayed events with the recorded ones. configure() returns to a live run.
 
     properties (Constant)
-        % Thermal dropout: no valid temperature from t = 10 s to t = 40 s
-        Scenarios = ["As launched", "Low contrast", "Overcast", "Thermal dropout"]
+        % Thermal dropout: no valid temperature from t = 10 s to t = 40 s.
+        % Invalid rays: RGB and LiDAR measure only to 16 m, so off-nadir pixels and rays at 15 m AGL fall out of range,
+        %   and 20 % of LiDAR rays drop out. Mission fault: a timeout just above the planned minimum, so the run FAILS
+        %   with TIMEOUT before it lands. All live scenarios place no synthetic target.
+        Scenarios = ["As launched", "Low contrast", "Overcast", "Thermal dropout", "Invalid rays", "Mission fault (timeout)"]
     end
     properties (SetAccess = private)
         World; MissionConfig; SensorConfig; Environment
         Engine; Sensors; Source
         Scenario = "As launched"
+        Mode = "LIVE"     % "LIVE" | "REPLAY"
+        Recorder = []     % every sample of the live run; empty in a replay
+        Package = []      % the verified package being replayed
     end
     properties (Access = private)
         Launch            % configurations the session was created with
@@ -71,18 +81,83 @@ classdef MissionSession < handle
                 case "Low contrast", e = mgv2.sensors.defaultEnvironment("LOW_CONTRAST");
                 case "Overcast", e = mgv2.sensors.defaultEnvironment("OVERCAST");
                 case "Thermal dropout", c.THERMAL_LWIR.dropout_model.intervals_s = [10 40];
+                case "Invalid rays"
+                    c.RGB_NADIR.valid_range_m(2) = 16; c.LIDAR_TERRAIN.valid_range_m(2) = 16;
+                    c.LIDAR_TERRAIN.dropout_model.ray_probability = 0.2;
+                case "Mission fault (timeout)", m.constraints.timeout_s = mgv2.ui.MissionSession.shortTimeout(m);
             end
             if scenario ~= "As launched" || seed ~= m.seed
                 m.run_id = sprintf("V2RUN-UI-%s-%04d", upper(regexprep(scenario, '[^A-Za-z0-9]+', '_')), seed);
             end
             m.seed = seed; mgv2.mission.validateConfig(m);      % refused before anything changes
-            was = {ses.Scenario, ses.MissionConfig, ses.SensorConfig, ses.Environment};
-            ses.Scenario = scenario; ses.MissionConfig = m; ses.SensorConfig = c; ses.Environment = e;
+            was = {ses.Scenario, ses.MissionConfig, ses.SensorConfig, ses.Environment, ses.Mode, ses.Package};
+            ses.Scenario = scenario; ses.MissionConfig = m; ses.SensorConfig = c; ses.Environment = e; ses.Mode = "LIVE"; ses.Package = [];
             try
                 ses.reset();
             catch err
-                [ses.Scenario, ses.MissionConfig, ses.SensorConfig, ses.Environment] = was{:}; ses.reset();
+                [ses.Scenario, ses.MissionConfig, ses.SensorConfig, ses.Environment, ses.Mode, ses.Package] = was{:}; ses.reset();
                 rethrow(err);
+            end
+        end
+
+        function folder = exportRun(ses, root)
+            %EXPORTRUN Write this finished live run as a package under root (mgv2.run.exportRun). Errors, never partial success.
+            if ses.Mode ~= "LIVE", error('mgv2:ExportFailed', 'A replay is not exported again; its package already exists.'); end
+            if ses.state() ~= "ENDED", error('mgv2:ExportFailed', 'Only a finished run can be exported.'); end
+            folder = mgv2.run.exportRun(ses.packageInputs(), root);
+        end
+
+        function in = packageInputs(ses)
+            %PACKAGEINPUTS Everything exportRun writes, read from this run only. Evidence is read through the same checks
+            %   as the inspector; an event whose evidence cannot be read is exported with the reason.
+            eng = ses.Engine; v = ses.view(); ev = v.events; evidence = cell(1, numel(ev));
+            for k = 1:numel(ev)
+                try
+                    evidence{k} = struct('event_id', string(ev(k).event_id), 'inspection', ses.inspectCurrentRun(ev(k).event_id), 'error', "");
+                catch err
+                    evidence{k} = struct('event_id', string(ev(k).event_id), 'inspection', struct(), 'error', string(err.message));
+                end
+            end
+            samples = struct();
+            for id = mgv2.sensors.SensorSystem.Order, samples.(id) = ses.Recorder.samples(id); end
+            in = struct('mission', ses.MissionConfig, 'sensors', ses.Sensors.Config, 'environment', ses.Environment, ...
+                'scenario', ses.Scenario, 'generation', ses.Generation, ...
+                'end_state', struct('state', ses.state(), 'phase', eng.Phase, 'fault_code', eng.FaultCode, 'fault_message', eng.FaultMessage, ...
+                    'tick', double(eng.TickId), 't_s', eng.time()), ...
+                'poses', eng.poseLog(), 'phases', eng.PhaseLog, 'sensor_log', ses.Sensors.Log, 'samples', samples, ...
+                'events', ev, 'source', v.source, 'evidence', {evidence}, 'world_digest', mgv2.run.digest(ses.World), ...
+                'provenance', mgv2.ui.MissionSession.provenance());
+        end
+
+        function loadReplay(ses, folder)
+            %LOADREPLAY Verify a package and prepare its replay at tick 0. A refused package leaves the session unchanged.
+            if ses.state() == "ACTIVE", error('mgv2:InvalidCommand', 'Pause or end the run before a replay.'); end
+            pkg = mgv2.run.verifyPackage(folder);
+            if mgv2.run.digest(ses.World) ~= string(pkg.manifest.world_digest)
+                error('mgv2:PackageInvalid', 'The package was recorded in a different world (world_digest differs).');
+            end
+            c = pkg.config;
+            if ~ismember(string(c.scenario), ses.Scenarios), error('mgv2:PackageInvalid', 'Unknown scenario "%s" in the package.', string(c.scenario)); end
+            was = {ses.Scenario, ses.MissionConfig, ses.SensorConfig, ses.Environment, ses.Mode, ses.Package};
+            ses.Scenario = string(c.scenario); ses.MissionConfig = c.mission; ses.SensorConfig = c.sensors; ses.Environment = c.environment;
+            ses.Mode = "REPLAY"; ses.Package = pkg;
+            try
+                ses.reset();
+            catch err
+                [ses.Scenario, ses.MissionConfig, ses.SensorConfig, ses.Environment, ses.Mode, ses.Package] = was{:}; ses.reset();
+                rethrow(err);
+            end
+        end
+
+        function r = replayCheck(ses)
+            %REPLAYCHECK After a replay has ended: do the events from the replayed samples equal the recorded events?
+            r = struct('done', false, 'match', false, 'detail', "");
+            if ses.Mode ~= "REPLAY", r.detail = "not a replay"; return; end
+            if ses.state() ~= "ENDED", r.detail = "replay not finished"; return; end
+            r.done = true; now = ses.view().events; was = ses.Package.event_list;
+            r.match = isequaln(now, was);
+            if r.match, r.detail = sprintf('%d replayed events equal the %d recorded events', numel(now), numel(was));
+            else, r.detail = sprintf('replayed events (%d) differ from the recorded events (%d)', numel(now), numel(was));
             end
         end
 
@@ -126,15 +201,20 @@ classdef MissionSession < handle
             for id = sys.Order, samples.(char(id)) = sys.latest(id); end
             v = struct('pose', eng.snapshot(), 'samples', samples, 'period', sys.Period, 'state', ses.state(), ...
                 'fault_message', eng.FaultMessage, 'mission', sys.Mission, 'scenario', ses.Scenario, 'events', o.events, 'layers', o.layers, ...
-                'source', o.source, 'overlay_key', o.key, 'overlay_error', o.error);
+                'source', o.source, 'overlay_key', o.key, 'overlay_error', o.error, 'mode', ses.Mode, 'package', ses.packageName());
         end
     end
 
     methods (Access = private)
         function build(ses)
-            sys = mgv2.sensors.SensorSystem(ses.World, ses.MissionConfig, SensorConfig=ses.SensorConfig, Environment=ses.Environment);
-            eng = mgv2.engine.MissionEngine(ses.MissionConfig, mgv2.scene.terrainProvider(ses.World));
-            ses.Sensors = sys; ses.Engine = eng; ses.Generation = ses.Generation + 1;   % both built, then swapped together
+            if ses.Mode == "REPLAY"
+                sys = mgv2.replay.PlaybackSensors(ses.Package); eng = mgv2.replay.PlaybackEngine(ses.Package); rec = [];
+            else
+                sys = mgv2.sensors.SensorSystem(ses.World, ses.MissionConfig, SensorConfig=ses.SensorConfig, Environment=ses.Environment);
+                eng = mgv2.engine.MissionEngine(ses.MissionConfig, mgv2.scene.terrainProvider(ses.World));
+                rec = mgv2.run.Recorder(); sys.subscribe(@(s) rec.add(s));      % first subscriber: every sample, tick 0 included
+            end
+            ses.Sensors = sys; ses.Engine = eng; ses.Recorder = rec; ses.Generation = ses.Generation + 1;   % built, then swapped together
             src = ses.Source;
             ses.BindError = "";
             try
@@ -157,6 +237,10 @@ classdef MissionSession < handle
                 if ~ses.Building, rethrow(err); end
                 ses.BindError = string(err.message);
             end
+        end
+
+        function n = packageName(ses)
+            n = ""; if ses.Mode == "REPLAY", n = string(ses.Package.manifest.package); end
         end
 
         function clearOverlay(ses)
@@ -183,6 +267,24 @@ classdef MissionSession < handle
                 o.key = NaN; o.events = struct([]); o.layers = struct([]); o.error = string(err.message);
             end
             ses.Overlay = o;
+        end
+    end
+
+    methods (Static)
+        function t = shortTimeout(m)
+            %SHORTTIMEOUT A timeout 2 s above the engine's preflight lower bound: preflight accepts it, the flight overruns it.
+            c = mgv2.mission.validateConfig(m); k = c.constraints; route = mgv2.mission.buildRoute(c, mgv2.mission.planSurvey(c));
+            t = ceil(route.length_m / c.speed_mps + c.alt_agl_setpoint_m / k.max_climb_mps + c.alt_agl_setpoint_m / k.max_descent_mps + c.preflight_s) + 2;
+        end
+
+        function p = provenance()
+            %PROVENANCE Software that produced a package: MATLAB release, platform and, when available, the git commit.
+            here = string(fileparts(mfilename('fullpath')));
+            [st, sha] = system(sprintf('git -C "%s" rev-parse HEAD', here));
+            if st ~= 0, sha = "unknown"; end
+            [st2, dirty] = system(sprintf('git -C "%s" status --porcelain', here));
+            p = struct('matlab', string(version), 'platform', string(computer), 'git_commit', strtrim(string(sha)), ...
+                'git_tree_clean', st == 0 && st2 == 0 && strlength(strtrim(string(dirty))) == 0, 'producer', "mgv2.ui.MissionSession");
         end
     end
 end
