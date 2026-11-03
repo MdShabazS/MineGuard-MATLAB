@@ -14,8 +14,8 @@
 
 ```matlab
 addpath('v2/matlab'); addpath('v2_1/matlab');
-checkcode(dir('v2_1/matlab/+mgv21/**/*.m'))            % expect no errors
-results = runtests('v2_1/tests'); table(results)          % record pass/fail counts and the SHA in v2_1/evidence/
+f = dir('v2_1/matlab/+mgv21/**/*.m'); checkcode(fullfile({f.folder}, {f.name}))   % expect no errors
+results = runtests('v2_1/tests'); table(results)          % 44 test methods (46 points); record counts and SHA in v2_1/evidence/
 ```
 
 If a test fails because of a defect in Shabaz's foundation code:
