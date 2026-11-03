@@ -43,7 +43,7 @@ classdef MissionEngine < handle
         Route             % horizontal path (buildRoute)
         TickId = 0        % integer tick index
         Phase = "CONFIGURED"
-        FaultCode = ""    % "" | PREFLIGHT_* | CLEARANCE | TERRAIN_COLLISION | GEOFENCE | TIMEOUT | ABORTED_BY_OPERATOR
+        FaultCode = ""    % "" | PREFLIGHT_* | CLEARANCE | TERRAIN_COLLISION | GEOFENCE | TIMEOUT | ABORTED_BY_OPERATOR | SOFTWARE_FAULT
         FaultMessage = ""
         Paused = false
         HomeZ             % terrain height at home
@@ -83,11 +83,12 @@ classdef MissionEngine < handle
         function pause(eng), eng.Paused = true; end
         function resume(eng), eng.Paused = false; end
 
-        function abort(eng, reason)
-            %ABORT Operator abort: terminal ABORTED state; the simulated vehicle state is frozen.
+        function abort(eng, reason, code)
+            %ABORT Terminal ABORTED state; the simulated vehicle state is frozen. code defaults to the operator's abort.
             if nargin < 2, reason = "operator abort"; end
+            if nargin < 3, code = "ABORTED_BY_OPERATOR"; end
             if ismember(eng.Phase, ["COMPLETE","ABORTED","FAILED"]), return; end
-            eng.FaultCode = "ABORTED_BY_OPERATOR"; eng.FaultMessage = string(reason);
+            eng.FaultCode = string(code); eng.FaultMessage = string(reason);
             eng.setPhase("ABORTED"); eng.record();
         end
 
