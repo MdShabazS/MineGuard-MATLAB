@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "tasks": {
+    "V21-001": {
+      "owner": "Shabaz",
+      "state": "IN_PROGRESS",
+      "evidence": null,
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-04"
+    },
+    "V21-002": {
+      "owner": "Shabaz",
+      "state": "IN_PROGRESS",
+      "evidence": null,
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-04"
+    },
+    "V21-003": {
+      "owner": "Shabaz",
+      "state": "IN_PROGRESS",
+      "evidence": null,
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-04"
+    },
+    "V21-004": {
+      "owner": "Shabaz",
+      "state": "IN_PROGRESS",
+      "evidence": null,
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-04"
+    },
+    "V21-005": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V21-006": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V21-007": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V21-008": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    }
+  }
+}
