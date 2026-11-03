@@ -6,7 +6,11 @@
 
 Rahil stated on 2026-11-03 that Shabaz has delegated operational ownership of V2-007 to V2-010 to him. This covers technical and performance decisions, implementation, testing, PR integration, documentation and the final audit, without Shabaz's routine review.
 
-This record rests on Rahil's statement. Shabaz has not written to this repository about it. The only related repository fact is that Shabaz merged PR #101 (V2-007 work) on 2026-11-03. Shabaz can confirm or withdraw the delegation with a comment on the PR that adds this file.
+This record first rested on Rahil's statement alone.
+
+**Confirmed by Shabaz, 2026-11-03 18:37 UTC, from his own GitHub account** ([issuecomment-6612380409](https://github.com/MdShabazS/MineGuard-MATLAB/pull/103#issuecomment-6612380409)): "I confirm that I authorized Rahil to take operational ownership of MineGuard V2-007 through V2-010, including implementation, technical decisions, MATLAB verification, PR management, merges and task completion. This delegation does not constitute approval of unperformed Mac acceptance testing or academic guide signoff."
+
+The confirmation covers the work and the merges. In Shabaz's own words, it is **not** an approval of the Mac acceptance items (AC-022, AC-024) or of the guide's sign-off.
 
 ## Rules from now on (V2-007 to V2-010 only)
 
