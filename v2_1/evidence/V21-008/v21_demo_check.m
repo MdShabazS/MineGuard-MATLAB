@@ -21,6 +21,16 @@ cases = struct('name', {"manual_rocky", "random_dryflats", "target_free", "no_si
     'mode', {"MANUAL", "RANDOM", "NONE", "MANUAL"});
 for k = 1:numel(cases)
     cs = cases(k); fprintf(fid, '\n== %s (%s, %s)\n', cs.name, cs.preset, cs.mode);
+    try
+        runCase(k, cs);
+    catch err
+        check(false, sprintf('%s stopped: %s (%s)', cs.name, err.message, err.identifier));
+        fprintf(fid, '%s\n', getReport(err, 'extended', 'hyperlinks', 'off'));
+        close all force;
+    end
+end
+
+    function runCase(k, cs)
     L = mgv21MissionControl('RealTime', 0, 'Visible', "on", 'ExportRoot', fullfile(root, cs.name)); S = L.Setup;
     S.selectPreset(cs.preset);
     if cs.name == "manual_rocky", S.setGrid("line_spacing_m", 8); S.setGrid("heading_deg", 0); end
@@ -66,10 +76,11 @@ for k = 1:numel(cases)
     try, mgv21.scenario.assertPublic(rmfield(pkg, 'samples'), "package"); check(true, 'operator package passes the V2.1 truth firewall');
     catch err, check(false, "package firewall: " + err.message); end
     pf = ctl.savePrivateEvaluation(fullfile(out, 'private', cs.name)); check(isfile(pf) && ~startsWith(pf, f), 'private evaluation file written separately, on request');
-    app.replay(f); app.command("start");
+    info(sprintf('dashboard valid before replay: %d', isvalid(app)));
+    app.replay(f); app.command("start"); s = app.Session;
     check(s.Mode == "REPLAY" && app.LastReplay.match && numel(ctl.Views) == 1, "replay of recorded data: " + app.LastReplay.detail + "; not re-evaluated");
     delete(L);
-end
+    end
 
 fprintf(fid, '\n== original V2 entry point\n');
 app = mgv2MissionControl('RealTime', 0, 'Visible', "on", 'MaxTicksPerRun', 200, 'ExportRoot', fullfile(root, 'v2')); app.command("start"); app.command("abort");
