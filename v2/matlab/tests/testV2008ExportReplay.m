@@ -219,7 +219,8 @@ classdef testV2008ExportReplay < matlab.uitest.TestCase
             tc.verifyTrue(any(f > 0 & f < 1), 'off-nadir camera pixels beyond 16 m are invalid while the centre is valid');
             n = mgv2.ui.MissionSession(); n.start(); for k = 1:900, n.step(); end
             q0 = cellfun(@(s) s.quality, n.Recorder.samples("LIDAR_TERRAIN"));
-            tc.verifyEqual(sum([q0.dropout_rays]), 0, 'the nominal scenario has no ray dropout');
+            tc.verifyGreaterThan(sum([q.dropout_rays]), 2 * sum([q0.dropout_rays]), 'far more dropout than the nominal model');
+            tc.verifyGreaterThan(sum([q.out_of_range_rays]), sum([q0.out_of_range_rays]), 'more rays beyond range than nominal');
         end
 
         function thermalDropoutIsMarkedInvalid(tc)

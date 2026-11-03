@@ -149,6 +149,11 @@ classdef MissionSession < handle
             end
         end
 
+        function n = packageName(ses)
+            %PACKAGENAME Name of the package being replayed, "" in a live run.
+            n = ""; if ses.Mode == "REPLAY", n = string(ses.Package.manifest.package); end
+        end
+
         function r = replayCheck(ses)
             %REPLAYCHECK After a replay has ended: do the events from the replayed samples equal the recorded events?
             r = struct('done', false, 'match', false, 'detail', "");
@@ -237,10 +242,6 @@ classdef MissionSession < handle
                 if ~ses.Building, rethrow(err); end
                 ses.BindError = string(err.message);
             end
-        end
-
-        function n = packageName(ses)
-            n = ""; if ses.Mode == "REPLAY", n = string(ses.Package.manifest.package); end
         end
 
         function clearOverlay(ses)
