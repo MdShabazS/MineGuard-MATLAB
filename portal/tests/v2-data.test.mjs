@@ -18,8 +18,9 @@ test("V1 archive and V2 plan are independently sourced and current statuses are 
  assert.equal(summary.total,10);
  assert.equal(summary.counts.DONE+summary.counts.IN_PROGRESS+summary.counts.READY+summary.counts.BLOCKED,10);
  assert.ok(summary.percentage>=0 && summary.percentage<=100);
- assert.equal(summary.owners.find(x=>x.name==="Shabaz").total,4);
- assert.equal(summary.owners.find(x=>x.name==="Rahil").total,6);
+ // V2-009 and V2-010 moved from Shabaz to Rahil (v2/docs/V2_GOVERNANCE_DELEGATION.md)
+ assert.equal(summary.owners.find(x=>x.name==="Shabaz").total,2);
+ assert.equal(summary.owners.find(x=>x.name==="Rahil").total,8);
 });
 test("all-TODO baseline correctly displays readiness and blocks",()=>{
  const rows=buildTaskRows(mf,initial),s=summarize(rows);
