@@ -255,6 +255,8 @@ classdef testV2008ExportReplay < matlab.uitest.TestCase
             tc.verifySubstring(string(app.Controls.Notice.Text), "Replay ended");
             tc.verifyEqual(string(B.export.Enable), "off", 'a replay is not exported');
             tc.verifyEqual(string(B.resume.Enable), "off");
+            tc.press(B.reset); drawnow; tc.verifyEqual(string(app.Controls.Notice.Text), "", 'RESET clears the old notice');
+            app.configure("Overcast", 7); tc.verifyEqual(app.Session.Mode, "LIVE"); tc.verifyEqual(string(app.Controls.Notice.Text), "");
         end
 
         function dashboardShowsARefusedReplay(tc)

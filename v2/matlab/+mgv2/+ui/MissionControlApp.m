@@ -119,7 +119,7 @@ classdef MissionControlApp < handle
                     if ismember(s.state(), ["ACTIVE","PAUSED"]), s.abortRun(); app.safeRefresh(); end
                 case "reset"
                     if ~app.Running && s.state() ~= "READY"
-                        s.reset(); app.LastExport = "";
+                        s.reset(); app.LastExport = ""; app.Controls.setNotice("", false);   % a notice belongs to the run it describes
                         for f = string(fieldnames(app.Panels))', app.Panels.(f).resetDisplay(); end
                         app.safeRefresh(); app.clearPerf();
                     end
@@ -171,7 +171,7 @@ classdef MissionControlApp < handle
         function configure(app, scenario, seed)
             %CONFIGURE New scenario or mission seed before a start. Refused once a run has begun.
             if app.Running || app.Session.state() ~= "READY", return; end
-            app.Session.configure(scenario, seed); app.LastExport = "";
+            app.Session.configure(scenario, seed); app.LastExport = ""; app.Controls.setNotice("", false);
             for f = string(fieldnames(app.Panels))', app.Panels.(f).resetDisplay(); end
             app.safeRefresh(); app.clearPerf();
         end
