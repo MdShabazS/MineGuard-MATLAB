@@ -1,0 +1,10 @@
+TREE schema_427ca5d SHA 427ca5d8229a8bfcac9388e42da9652f74f0ecf2 clean=1 desktop=1 26.2.0.3433840 (R2026b) Update 1
+testV2002MissionEngine run=22 pass=22 fail=0 incomplete=0 time=5
+testV2003Scene run=22 pass=22 fail=0 incomplete=0 time=43
+testV2005Sensors run=28 pass=28 fail=0 incomplete=0 time=155
+testV2005QualityContract run=35 pass=35 fail=0 incomplete=0 time=23
+testV2005NestedMetadataContract run=34 pass=34 fail=0 incomplete=0 time=15
+testV2006Detection run=28 pass=28 fail=0 incomplete=0 time=218
+testV2007Bridge run=42 pass=42 fail=0 incomplete=0 time=559
+testV2007MissionControlUI run=73 pass=73 fail=0 incomplete=0 time=764
+checkcode done
