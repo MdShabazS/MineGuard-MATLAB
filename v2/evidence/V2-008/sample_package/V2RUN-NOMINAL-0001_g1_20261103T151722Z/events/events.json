@@ -1,0 +1,47 @@
+{
+  "events": {
+    "event_id": "SUS-00016",
+    "run_id": "V2RUN-NOMINAL-0001",
+    "t_s": 10,
+    "x_est_m": -60.827670132870111,
+    "y_est_m": -55.820177445349543,
+    "model_score": 0.30577106536051452,
+    "confidence_kind": "UNCALIBRATED_HEURISTIC_SCORE (not a probability)",
+    "modality_flags": "FUSED_RGB_THERMAL",
+    "evidence_refs": [
+      {
+        "ref_id": "OBS-33",
+        "frame_id": "V2RUN-NOMINAL-0001/THERMAL_LWIR/000050",
+        "sensor_id": "THERMAL_LWIR",
+        "tick_id": 200,
+        "pose_id": 200,
+        "t_s": 10,
+        "sample_checksum": "a583129b806a-153600-double"
+      },
+      {
+        "ref_id": "OBS-47",
+        "frame_id": "V2RUN-NOMINAL-0001/RGB_NADIR/000050",
+        "sensor_id": "RGB_NADIR",
+        "tick_id": 200,
+        "pose_id": 200,
+        "t_s": 10,
+        "sample_checksum": "5ab2ba21af38-230400-uint8"
+      }
+    ],
+    "uncertainty_m": 0.13538167145909191,
+    "status": "SUSPECTED",
+    "detector_version": "1.0.0"
+  },
+  "source": {
+    "connected": true,
+    "detector_version": "1.0.0",
+    "status_text": "V2-006 baseline 1.0.0 | SUSPECTED only | uncalibrated | as of t=10.0 s",
+    "detector_fingerprint": "fnv1a64:d6d364f988f04bb4",
+    "events_as_of_tick": 200,
+    "events_as_of_t_s": 10,
+    "current_tick": 200,
+    "stale_ticks": 0,
+    "rejected_events": 0
+  },
+  "notice": "SUSPECTED anomalies from a simulation, uncalibrated scores"
+}

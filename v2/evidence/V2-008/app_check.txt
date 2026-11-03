@@ -1,0 +1,46 @@
+PASS  launch: plain launch with real bridge, READY at tick 0
+PASS  one evidenceContext on the loaded class
+PASS  pause: PAUSED and clock frozen at tick 701
+PASS  while paused: images, LiDAR and telemetry samples present
+INFO  at pause: events=29, as of tick 701, current tick 701, stale ticks 0
+INFO  phases seen: PREFLIGHT > TAKEOFF > CLIMB > TRANSIT > SURVEY > RETURN_HOME > LANDING > COMPLETE
+PASS  full mission: takeoff, survey, return and landing reached COMPLETE
+PASS  ticks and samples: tick 2799, 3080 samples
+PASS  no missed or duplicated pose tick
+PASS  each sample's frame id is unique
+PASS  no sample refused by the detector
+PASS  suspected events listed: 84, all SUSPECTED and uncalibrated
+PASS  map layers present, including coverage and events
+INFO  layers: v2006_coverage, v2006_suspected
+PASS  fingerprint preserved
+PASS  event age is reported, zero after the mission ended
+PASS  every listed event verified: 84 of 84, RGB records 123, thermal records 296
+PASS  an event with both RGB and thermal evidence exists
+PASS  no truth field in the view, context, layers or inspections
+INFO  inspector text for SUS-00016:
+SUS-00016 | SUSPECTED | SIMULATED
+Sighted t = 10.00 to 127.80 s
+Estimated ENU: -60.83, -55.78 m
+Uncertainty (uncalibrated): 0.18 m
+Model score: 0.338 (uncalibrated), not a probability
+Sensors with evidence: RGB_NADIR, THERMAL_LWIR
+Missing or invalid: none
+8 evidence record(s), checksums verified against the sensor log
+Detector fingerprint: fnv1a64:d6d364f988f04bb4
+Record LISTED, as of t = 140.0 s, evidence age 0 ticks at inspection
+PASS  inspector: verified, uncalibrated, event id shown
+PASS  inspector: RGB and thermal crops drawn
+PASS  inspection record carries run, basis and age
+PASS  reset: tick 0, new generation, same run id, no events, selection cleared
+PASS  stale event refused in the inspector, no crops
+PASS  stale event refused by the session
+PASS  old frame is not in the new log
+PASS  same-seed reset replays the same samples, tick by tick
+PASS  abort ends the run
+PASS  thermal dropout: 151 samples in the window, all invalid, reason SENSOR_DROPOUT
+PASS  changed run: events carry the new run id
+PASS  changed run: all 17 events verify against this run's frames only
+PASS  layout at 960x640, mode compact
+PASS  layout at 1600x900, mode wide
+PASS  close: no figures or timers left
+TOTAL pass=31 fail=0

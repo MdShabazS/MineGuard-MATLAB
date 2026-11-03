@@ -5,6 +5,9 @@ classdef MissionControlApp < handle
     %   app.configure(scenario, seed)   same as the scenario and seed controls, before a start
     %   app.toggleExpand("rgb")         panel fills the window, or is restored
     %   app.selectEvent(id)             show verified evidence of one public event
+    %   folder = app.exportRun()        same as EXPORT: package of the finished live run under ExportRoot (V2-008)
+    %   app.replay(folder)              same as REPLAY: verify a package and load it for replay; START plays it
+    %   An export or replay failure is shown on the control bar and never reported as success.
     %   delete(app)            closes the window and releases every object it created
     %
     %   One run loop lives inside the START/RESUME command and returns on pause, end or close. There is
@@ -29,6 +32,9 @@ classdef MissionControlApp < handle
         RealTime; RenderEvery; SceneEvery; MaxTicksPerRun
         Perf
         StartupSeconds = NaN      % constructor including the first paint, kept apart from run statistics
+        ExportRoot                % folder that receives run packages
+        LastExport = ""           % package written for the current run, "" if none
+        LastReplay = struct('done', false, 'match', false, 'detail', "")   % replayCheck after a replay ended
     end
     properties (Access = private)
         LastStamp = NaN; PerfClock
@@ -52,7 +58,9 @@ classdef MissionControlApp < handle
                 opts.SensorConfig struct = mgv2.sensors.defaultSensorConfig()
                 opts.Environment struct = mgv2.sensors.defaultEnvironment()
                 opts.AnomalySource (1,1) mgv2.ui.AnomalySource = mgv2.ui.NullAnomalySource()
+                opts.ExportRoot (1,1) string = mgv2.ui.MissionControlApp.defaultExportRoot()
             end
+            app.ExportRoot = opts.ExportRoot;
             t0 = tic; app.PerfClock = tic;
             app.RealTime = opts.RealTime; app.RenderEvery = opts.RenderEvery; app.SceneEvery = opts.SceneEvery; app.MaxTicksPerRun = opts.MaxTicksPerRun;
             app.Session = mgv2.ui.MissionSession(MissionConfig=opts.MissionConfig, SensorConfig=opts.SensorConfig, ...
@@ -63,7 +71,7 @@ classdef MissionControlApp < handle
             app.Figure = uifigure('Name', 'MineGuard V2 Mission Control (SIMULATION ONLY)', 'Position', pos, 'Color', t.bg, 'Visible', 'off', ...
                 'AutoResizeChildren', 'off', 'CloseRequestFcn', @(~, ~) delete(app), 'Tag', 'mgv2_mission_control');
             theme(app.Figure, "dark");      % the layout is dark in any desktop theme, so its controls and table must match
-            app.Outer = uigridlayout(app.Figure, [3 1], 'RowHeight', {30, 60, '1x'}, 'ColumnWidth', {'1x'}, 'Padding', [4 4 4 4], 'RowSpacing', 4, 'BackgroundColor', t.bg);
+            app.Outer = uigridlayout(app.Figure, [3 1], 'RowHeight', {30, 78, '1x'}, 'ColumnWidth', {'1x'}, 'Padding', [4 4 4 4], 'RowSpacing', 4, 'BackgroundColor', t.bg);
             app.Banner = mgv2.ui.SimulationBanner(app.Outer); app.Banner.Layout.Row = 1;
             app.Controls = mgv2.ui.ControlBar(app.Outer); app.Controls.Layout.Row = 2;
             app.Controls.OnCommand = @(c) app.command(c);
@@ -111,19 +119,59 @@ classdef MissionControlApp < handle
                     if ismember(s.state(), ["ACTIVE","PAUSED"]), s.abortRun(); app.safeRefresh(); end
                 case "reset"
                     if ~app.Running && s.state() ~= "READY"
-                        s.reset();
+                        s.reset(); app.LastExport = ""; app.Controls.setNotice("", false);   % a notice belongs to the run it describes
                         for f = string(fieldnames(app.Panels))', app.Panels.(f).resetDisplay(); end
                         app.safeRefresh(); app.clearPerf();
                     end
+                case "export"
+                    app.exportRun();
+                case "replay"
+                    if app.Running || s.state() == "ACTIVE", return; end
+                    folder = app.LastExport;
+                    if strlength(folder) == 0
+                        folder = uigetdir(app.ExportRoot, 'Choose a MineGuard run package');
+                        if isequal(folder, 0), return; end
+                    end
+                    app.replay(folder);
                 otherwise
                     error('mgv2:InvalidCommand', 'Unknown command "%s".', string(cmd));
             end
         end
 
+        function folder = exportRun(app)
+            %EXPORTRUN Package the finished live run. The result, or the reason for failure, is shown on the control bar.
+            folder = "";
+            if app.Running, return; end
+            try
+                folder = app.Session.exportRun(app.ExportRoot); app.LastExport = folder;
+                app.Controls.setNotice("Exported " + folder, false);
+            catch err
+                app.Controls.setNotice("EXPORT FAILED: " + err.message, true);
+                if ~startsWith(err.identifier, "mgv2:"), rethrow(err); end
+            end
+            app.safeRefresh();
+        end
+
+        function replay(app, folder)
+            %REPLAY Verify a package and load it for replay. A refused package changes nothing and the reason is shown.
+            if app.Running || app.Session.state() == "ACTIVE", return; end
+            try
+                app.Session.loadReplay(folder);
+            catch err
+                app.Controls.setNotice("REPLAY REFUSED: " + err.message, true);
+                if ~startsWith(err.identifier, "mgv2:"), rethrow(err); end
+                return
+            end
+            app.LastReplay = struct('done', false, 'match', false, 'detail', "");
+            for f = string(fieldnames(app.Panels))', app.Panels.(f).resetDisplay(); end
+            app.Controls.setNotice("Replay of " + app.Session.packageName() + " ready: press START", false);
+            app.safeRefresh(); app.clearPerf();
+        end
+
         function configure(app, scenario, seed)
             %CONFIGURE New scenario or mission seed before a start. Refused once a run has begun.
             if app.Running || app.Session.state() ~= "READY", return; end
-            app.Session.configure(scenario, seed);
+            app.Session.configure(scenario, seed); app.LastExport = ""; app.Controls.setNotice("", false);
             for f = string(fieldnames(app.Panels))', app.Panels.(f).resetDisplay(); end
             app.safeRefresh(); app.clearPerf();
         end
@@ -214,6 +262,10 @@ classdef MissionControlApp < handle
             end
             app.Running = false;
             if s.state() == "ACTIVE", s.pauseRun(); end     % budget used: hold the clock, RESUME continues the sequence
+            if s.Mode == "REPLAY" && s.state() == "ENDED"
+                r = s.replayCheck(); app.LastReplay = r;
+                app.Controls.setNotice("Replay ended: " + r.detail, ~r.match);
+            end
             app.safeRefresh();
         end
 
@@ -227,7 +279,7 @@ classdef MissionControlApp < handle
 
         function refresh(app)
             %REFRESH Draw one view and measure what the display costs (wall clock, never used for timestamps).
-            tf = tic; v = app.Session.view();
+            tf = tic; v = app.Session.view(); v.exported = strlength(app.LastExport) > 0;
             v.perf = struct('sim_to_wall', app.Perf.sim_s / max(app.Perf.wall_s, eps));
             if app.Perf.wall_s == 0, v.perf.sim_to_wall = NaN; end
             for f = string(fieldnames(app.Panels))'
@@ -259,7 +311,7 @@ classdef MissionControlApp < handle
 
         function refreshStatus(app)
             %REFRESHSTATUS Scene plus telemetry, LiDAR, events and the labels and commands of the clock readout.
-            tf = tic; v = app.Session.view();
+            tf = tic; v = app.Session.view(); v.exported = strlength(app.LastExport) > 0;
             v.perf = struct('sim_to_wall', app.Perf.sim_s / max(app.Perf.wall_s, eps));
             for f = ["scene", "lidar", "telemetry", "events"]
                 t0 = tic; app.Panels.(f).present(v); app.Perf.panel_ms.(f)(end+1, 1) = 1e3 * toc(t0);
@@ -325,6 +377,12 @@ classdef MissionControlApp < handle
             sz = get(groot, 'ScreenSize');
             w = min(1500, sz(3) - 24); h = min(940, sz(4) - 90);
             pos = [sz(1) + max(0, round((sz(3) - w) / 2)), sz(2) + max(30, round((sz(4) - h) / 2) - 20), w, h];
+        end
+
+        function r = defaultExportRoot()
+            %DEFAULTEXPORTROOT <userpath>/MineGuard-runs, or the temporary folder when MATLAB has no userpath.
+            u = string(userpath); if strlength(u) == 0, u = string(tempdir); end
+            r = string(fullfile(u, "MineGuard-runs"));
         end
     end
 end
