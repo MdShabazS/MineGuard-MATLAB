@@ -1,4 +1,4 @@
-function r = reproduce(pkg)
+function r = reproduce(pkg, opts)
 %REPRODUCE Simulate a package's recorded configuration again, headless, and compare it with the package. SIMULATION ONLY.
 %   r = mgv2.run.reproduce(pkg)      pkg from mgv2.run.verifyPackage
 %   This is the determinism check, separate from replay: replay shows the recorded data and simulates nothing, while
@@ -9,9 +9,23 @@ function r = reproduce(pkg)
 %     end     - final phase and fault code
 %   r: match (all equal), poses_equal, samples_compared, samples_equal, first_mismatch, end_equal, world_equal.
 %   Operator pauses do not change a simulation, so they need not be reproduced.
-w = mgv2.scene.buildWorld(); r = struct('world_equal', mgv2.run.digest(w) == string(pkg.manifest.world_digest));
+%   r = mgv2.run.reproduce(pkg, SurfaceFeatures=F)   a mg-v2-runpkg/1.1 run made with a PRIVATE forward model can only be
+%   reproduced with those same private features; their SHA-256 must equal the package's commitment, otherwise
+%   mgv2:PrivateScenarioRequired. A package never contains the features themselves.
+arguments
+    pkg struct
+    opts.SurfaceFeatures = []
+end
 c = pkg.config; m = c.mission; e = pkg.manifest.end_state;
-sys = mgv2.sensors.SensorSystem(w, m, SensorConfig=c.sensors, Environment=c.environment);
+scene = mgv2.scene.defaultSceneConfig(); if isfield(c, 'scene_config'), scene = c.scene_config; end
+F = mgv2.sensors.validateSurfaceFeatures(opts.SurfaceFeatures); pm = struct('used', false);
+if isfield(pkg.manifest, 'private_forward_model'), pm = pkg.manifest.private_forward_model; end
+if pm.used && (isempty(F) || mgv2.run.digest(F) ~= string(pm.features_sha256))
+    error('mgv2:PrivateScenarioRequired', 'This run used a private forward model; reproduce it with the same private SurfaceFeatures.');
+end
+if ~pm.used && ~isempty(F), error('mgv2:PrivateScenarioRequired', 'This run used no private forward model.'); end
+w = mgv2.scene.buildWorld(scene); r = struct('world_equal', mgv2.run.digest(w) == string(pkg.manifest.world_digest));
+sys = mgv2.sensors.SensorSystem(w, m, SensorConfig=c.sensors, Environment=c.environment, SurfaceFeatures=F);
 eng = mgv2.engine.MissionEngine(m, mgv2.scene.terrainProvider(w));
 rec = mgv2.run.Recorder(); sys.subscribe(@(s) rec.add(s)); sys.attach(eng);
 P = pkg.poses; last = P.tick_id(end);

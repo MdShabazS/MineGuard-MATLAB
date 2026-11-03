@@ -39,9 +39,11 @@ classdef MissionControlApp < handle
     properties (Access = private)
         LastStamp = NaN; PerfClock
         StatusDue = false         % a status frame was dropped: the next sensor frame draws everything
+        EndedGeneration = NaN     % generation whose end OnRunEnded already reported
     end
     properties
         AfterRefreshFcn = []      % test and instrumentation hook: fcn(app) after each refresh
+        OnRunEnded = []           % fcn(app) once when a live run reaches a terminal phase (V2.1 post-run evaluation)
     end
 
     methods
@@ -59,12 +61,15 @@ classdef MissionControlApp < handle
                 opts.Environment struct = mgv2.sensors.defaultEnvironment()
                 opts.AnomalySource (1,1) mgv2.ui.AnomalySource = mgv2.ui.NullAnomalySource()
                 opts.ExportRoot (1,1) string = mgv2.ui.MissionControlApp.defaultExportRoot()
+                opts.SceneConfig struct = mgv2.scene.defaultSceneConfig()
+                opts.SurfaceFeatures = []          % PRIVATE: passed to the session's sensors only (V2.1)
             end
             app.ExportRoot = opts.ExportRoot;
             t0 = tic; app.PerfClock = tic;
             app.RealTime = opts.RealTime; app.RenderEvery = opts.RenderEvery; app.SceneEvery = opts.SceneEvery; app.MaxTicksPerRun = opts.MaxTicksPerRun;
             app.Session = mgv2.ui.MissionSession(MissionConfig=opts.MissionConfig, SensorConfig=opts.SensorConfig, ...
-                Environment=opts.Environment, AnomalySource=opts.AnomalySource);
+                Environment=opts.Environment, AnomalySource=opts.AnomalySource, SceneConfig=opts.SceneConfig, ...
+                SurfaceFeatures=opts.SurfaceFeatures);
             app.clearPerf();
             pos = opts.Position; if isempty(pos), pos = mgv2.ui.MissionControlApp.defaultPosition(); end
             t = mgv2.ui.theme();
@@ -116,7 +121,7 @@ classdef MissionControlApp < handle
                 case "resume"
                     if s.state() == "PAUSED" && ~app.Running, s.resumeRun(); app.runLoop(); end
                 case "abort"
-                    if ismember(s.state(), ["ACTIVE","PAUSED"]), s.abortRun(); app.safeRefresh(); end
+                    if ismember(s.state(), ["ACTIVE","PAUSED"]), s.abortRun(); app.safeRefresh(); app.notifyEnded(); end
                 case "reset"
                     if ~app.Running && s.state() ~= "READY"
                         s.reset(); app.LastExport = ""; app.Controls.setNotice("", false);   % a notice belongs to the run it describes
@@ -262,11 +267,21 @@ classdef MissionControlApp < handle
             end
             app.Running = false;
             if s.state() == "ACTIVE", s.pauseRun(); end     % budget used: hold the clock, RESUME continues the sequence
+            app.notifyEnded();
             if s.Mode == "REPLAY" && s.state() == "ENDED"
                 r = s.replayCheck(); app.LastReplay = r;
                 app.Controls.setNotice("Replay ended: " + r.detail, ~r.match);
             end
             app.safeRefresh();
+        end
+
+        function notifyEnded(app)
+            %NOTIFYENDED Call OnRunEnded once per live run that reached a terminal phase (never for a replay).
+            s = app.Session;
+            if ~isvalid(app) || isempty(app.OnRunEnded) || s.Mode ~= "LIVE" || s.state() ~= "ENDED", return; end
+            g = s.evidenceContext().generation;
+            if isequal(app.EndedGeneration, g), return; end
+            app.EndedGeneration = g; app.OnRunEnded(app);
         end
 
         function endRun(app)

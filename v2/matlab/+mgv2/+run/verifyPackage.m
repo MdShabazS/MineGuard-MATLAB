@@ -29,7 +29,7 @@ for k = 1:numel(listed)
 end
 
 m = jsondecode(fileread(fullfile(folder, "manifest.json")));
-if ~isfield(m, 'schema_version') || string(m.schema_version) ~= "mg-v2-runpkg/1.0", error(id, 'Unknown package schema.'); end
+if ~isfield(m, 'schema_version') || ~ismember(string(m.schema_version), ["mg-v2-runpkg/1.0","mg-v2-runpkg/1.1"]), error(id, 'Unknown package schema.'); end
 if ~isfield(m, 'simulation_only') || m.simulation_only ~= true, error(id, 'Package is not marked simulation only.'); end
 cfg = load(fullfile(folder, "config", "run_config.mat"));
 P = load(fullfile(folder, "telemetry", "poses.mat")); poses = P.poses;
