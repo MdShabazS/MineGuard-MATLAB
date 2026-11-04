@@ -1,6 +1,6 @@
 # V2.1 frozen cross-team contract
 
-**Contract:** `mg-v21-contract/1.0` · **Frozen:** 2026-11-04 · **Owner:** Shabaz (V21-001) · **Consumers:** Rahil (V21-005 to V21-008)
+**Contract:** `mg-v21-contract/1.1` (1.0 frozen 2026-11-04; 1.1 additive, see §6) · **Frozen:** 2026-11-04 · **Owner:** Shabaz (V21-001) · **Consumers:** Rahil (V21-005 to V21-008)
 **Code mirror:** `v2_1/matlab/+mgv21/contract.m` returns the constants below. If this file and the code disagree, that is a bug; report it on the contract PR.
 
 SIMULATION ONLY. Targets are private synthetic hypotheses. Every detector output stays a SUSPECTED anomaly. The V2.1 evaluation is an **INTERACTIVE SYNTHETIC DEMO evaluation**, not held-out scientific accuracy.
@@ -115,7 +115,7 @@ These are the fields of `R`.
 | Field | Content |
 |---|---|
 | `schema_version` | `"mg-v21-eval/1.0"` |
-| `label` | `"INTERACTIVE SYNTHETIC DEMO evaluation - not held-out scientific accuracy"` |
+| `notice` | `"INTERACTIVE SYNTHETIC DEMO evaluation - not held-out scientific accuracy"` (named `notice`, not `label`, because `label` is a V2 forbidden name) |
 | `run_state` | terminal phase of the run |
 | `r_match_m` | match radius |
 | `n_events`, `n_targets` | counts |
@@ -125,8 +125,9 @@ These are the fields of `R`.
 | `FN_visible`, `FN_no_signature`, `TP_no_signature` | counts |
 | `match_error_m` | per match |
 | `mean_match_error_m`, `max_match_error_m` | `NaN` if there are no matches |
-| `matched_event_index` | per match |
-| `placement_mode`, `placement_seed` | from the truth |
+| `matched_event_index` | per match: row of the event list |
+| `matched_target_index` | per match: row of `truth.targets`; pair k is (`matched_event_index(k)`, `matched_target_index(k)`) at `match_error_m(k)`. 1×0 with no match. A target is MISSED iff its row is absent. (1.1) |
+| `placement_mode`, `placement_seed` | from the truth; the seed is meaningful for RANDOM only, and `formatReport` shows it for RANDOM only (1.1) |
 
 ## 3. Function signatures (frozen)
 
@@ -153,6 +154,8 @@ spec  = mgv21.placement.deleteTarget(spec, k)
 spec  = mgv21.placement.addExclusionZone(spec, "CIRCLE", centerXY, radius)
 spec  = mgv21.placement.addExclusionZone(spec, "POLYGON", P)
 [ok, reason] = mgv21.placement.checkLocation(spec, pub, world, xy)    % for live SETUP feedback, no throw
+[ok, reason] = mgv21.placement.checkLocation(spec, pub, world, xy, ignoreRow)  % optional: skip manual row ignoreRow
+                                                         % (moving a target); added in 1.1
 [truth, report] = mgv21.placement.placeTargets(spec, pub, world)
 [fwd, info]     = mgv21.placement.forwardFeatures(truth, spec, pub, world)
 priv  = mgv21.placement.lockScenario(spec, pub, world)   % = placeTargets + forwardFeatures, firewall-checked
@@ -178,6 +181,7 @@ lines = mgv21.evaluation.formatReport(R)                 % string array for the 
 | `mgv2:TruthLeak` | private names in a public record (V2 firewall, reused) |
 | `mgv21:EvaluationTooEarly` | `evaluateRun` called before the run reached a terminal phase |
 | `mgv21:InvalidEvents` | events are not finite N×2 positions |
+| `mgv21:EvaluationMismatch` | internal guard (1.1): the target assignment does not reproduce the V2 evaluator's event pairs; nothing is reported |
 
 ## 5. Integration rules for Rahil (V21-005 to V21-008)
 
@@ -196,7 +200,7 @@ lines = mgv21.evaluation.formatReport(R)                 % string array for the 
 4. **AFTER THE RUN (terminal phase):**
    - Freeze the event list.
    - Then call `R = mgv21.evaluation.evaluateRun(events, priv.truth, engine.Phase)`.
-   - Show `formatReport(R)` with the DEMO label visible.
+   - Show `formatReport(R)` with the DEMO notice visible.
 5. **EXPORT and REPLAY:**
    - The operator export contains `pub` only.
    - If truth is kept for a guide's post-run review, it goes in a **separately named private file**, never in the operator package. Packaging it is V21-007's decision and needs its own test.
@@ -205,3 +209,10 @@ lines = mgv21.evaluation.formatReport(R)                 % string array for the 
    - call `mgv2.eval.runScenario` on a TEST group;
    - change V2 detector thresholds;
    - claim LiDAR detects buried targets (surface features are flat, so LiDAR cannot see them).
+
+## 6. Changelog
+
+| Version | Change | Compatibility |
+|---|---|---|
+| 1.0 | First freeze (#122) | — |
+| 1.1 | `DemoEvaluation.matched_target_index` added; `formatReport` shows the placement seed for RANDOM only; `checkLocation` optional `ignoreRow`; error id `mgv21:EvaluationMismatch` | Additive. No field or function renamed or removed. `mg-v21-eval/1.0` schema string unchanged. The matching rule is still `mgv2.eval.evaluateEvents`, unchanged. |

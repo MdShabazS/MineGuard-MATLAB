@@ -1,6 +1,6 @@
 # V2.1 integration handoff: Shabaz → Rahil
 
-**Contract:** `mg-v21-contract/1.0` (`V21_CONTRACT.md`). Integrate against the function names in §3 of that file. They are frozen.
+**Contract:** `mg-v21-contract/1.1` (`V21_CONTRACT.md`). Integrate against the function names in §3 of that file. They are frozen.
 
 ## Delivered by Shabaz (Mac, no MATLAB execution)
 
@@ -14,8 +14,8 @@
 
 ```matlab
 addpath('v2/matlab'); addpath('v2_1/matlab');
-checkcode(dir('v2_1/matlab/+mgv21/**/*.m'))            % expect no errors
-results = runtests('v2_1/tests'); table(results)          % record pass/fail counts and the SHA in v2_1/evidence/
+f = dir('v2_1/matlab/+mgv21/**/*.m'); checkcode(fullfile({f.folder}, {f.name}))   % expect no errors
+results = runtests('v2_1/tests'); table(results)          % 48 test methods (50 points); record counts and SHA in v2_1/evidence/
 ```
 
 If a test fails because of a defect in Shabaz's foundation code:
@@ -35,6 +35,12 @@ If a test fails because of a defect in Shabaz's foundation code:
    - Draw only `setupMarkers(spec, phase)`.
    - Lock button: `lockScenario`, then redraw. Markers are gone.
 4. **Results panel:** after the engine reaches `COMPLETE`, `ABORTED` or `FAILED`, freeze the events, then show `formatReport(evaluateRun(events, priv.truth, phase))`.
+   - **Matched/missed colouring (1.1):**
+     - Matched targets are `R.matched_target_index`.
+     - Missed targets are `setdiff(1:R.n_targets, R.matched_target_index)`.
+     - True-positive events are `R.matched_event_index`; every other event is a false positive.
+     - Draw a line for pair k between event `matched_event_index(k)` and target `matched_target_index(k)`.
+     - Do not re-match by nearest distance in the UI; it can disagree with the one-to-one assignment.
 5. **Export:** `pub` only. Truth files, if any, go in a separate private file (V21-007 decision and test).
 
 ## Known limitations
