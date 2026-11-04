@@ -16,7 +16,7 @@ Every result is NOT RUN until a real MATLAB run is recorded with its commit SHA.
 | AC21-10 | Zero targets is valid. An impossible RANDOM request throws `mgv21:PlacementInfeasible`. | V21-003 | `testV21Placement` | NOT RUN |
 | AC21-11 | `pub` and the forward features pass the firewall. `pub` does not depend on `spec`. Markers are empty after LOCK and never shown for RANDOM. | V21-003 | `testV21Placement` | NOT RUN |
 | AC21-12 | NONE-signature targets do not change the forward features (counterfactual). Clutter is always present, and visible features overlap the clutter distributions. | V21-003 | `testV21Placement` | NOT RUN |
-| AC21-13 | Post-run evaluation reports TP, FP, FN, precision, recall, match distances, TN = NaN and NaN for undefined ratios. It refuses to run before a terminal phase and carries the DEMO label. | V21-004 | `testV21Evaluation` | NOT RUN |
+| AC21-13 | Post-run evaluation reports TP, FP, FN, precision, recall, match distances, TN = NaN and NaN for undefined ratios. It reports matched target and event indices of the same one-to-one pairs, shows the placement seed for RANDOM only, refuses to run before a terminal phase, and carries the DEMO notice. | V21-004 | `testV21Evaluation` | NOT RUN |
 | AC21-14 | No V1 or V2 sealed TEST group is run. V2 detector thresholds and V2 evidence are unchanged. | all | `git diff main -- v2/` is empty for V21-001 to V21-004 | PASS (static, per PR diff) |
 | AC21-15 | The UI shows SETUP markers only before LOCK, and the results panel only after a terminal phase. | V21-005/006 | Windows GUI check | NOT RUN |
 | AC21-16 | The operator export has no private truth. Replay reproduces the V2.1 public configuration. | V21-007 | Windows tests | NOT RUN |

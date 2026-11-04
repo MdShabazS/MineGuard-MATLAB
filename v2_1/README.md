@@ -13,7 +13,7 @@ V2.1 builds on V2 (`v2/matlab`) without modifying it. V2 code, tasks, evidence a
 |---|---|
 | `docs/V21_RESEARCH.md` | V2 facts, MathWorks pages and design conclusions |
 | `docs/V21_ARCHITECTURE.md` | data flow, visibility, ownership |
-| `docs/V21_CONTRACT.md` | **frozen** cross-team contract `mg-v21-contract/1.0` |
+| `docs/V21_CONTRACT.md` | **frozen** cross-team contract `mg-v21-contract/1.1` |
 | `docs/V21_ACCEPTANCE_MATRIX.md` | V2.1 criteria and actual results |
 | `docs/V21_INTEGRATION_HANDOFF.md` | what Rahil integrates and runs |
 | `tasks/manifest.json`, `tasks/status.json` | V21-001 to V21-008 |

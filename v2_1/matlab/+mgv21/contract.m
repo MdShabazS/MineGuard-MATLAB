@@ -1,10 +1,10 @@
 function c = contract()
-%CONTRACT Frozen V2.1 cross-team constants (mg-v21-contract/1.0, v2_1/docs/V21_CONTRACT.md). SIMULATION ONLY.
+%CONTRACT Frozen V2.1 cross-team constants (mg-v21-contract/1.1, v2_1/docs/V21_CONTRACT.md). SIMULATION ONLY.
 %   c = mgv21.contract()
 %   Schema versions, preset ids, placement modes, surface signatures, terminal run phases, limits and the
 %   V2.1 private names that must never appear in a public record (in addition to mgv2.sensors.contract().forbidden).
 c = struct();
-c.version = "mg-v21-contract/1.0";
+c.version = "mg-v21-contract/1.1";              % 1.1: R.matched_target_index, checkLocation ignoreRow (additive)
 c.schemas = struct('survey', "mg-v21-survey/1.0", 'public', "mg-v21-public/1.0", 'placement', "mg-v21-placement/1.0", ...
     'private', "mg-v21-private/1.0", 'truth', "mg-v21-truth/1.0", 'eval', "mg-v21-eval/1.0");
 c.preset_ids = ["TRAINING_FIELD_A","ROCKY_UPLAND","DRY_FLATS"];
@@ -34,5 +34,5 @@ c.limits = struct( ...
 c.private_names = ["placement","placement_spec","privatetargettruth","private_target_truth","targets","target_xy", ...
     "surface_features","exclusion_zones","manual","priv"];
 c.error_ids = ["mgv21:UnknownPreset","mgv21:InvalidSurvey","mgv21:InvalidPlacement","mgv21:PlacementInfeasible", ...
-    "mgv2:TruthLeak","mgv21:EvaluationTooEarly","mgv21:InvalidEvents"];
+    "mgv2:TruthLeak","mgv21:EvaluationTooEarly","mgv21:InvalidEvents","mgv21:EvaluationMismatch"];
 end
