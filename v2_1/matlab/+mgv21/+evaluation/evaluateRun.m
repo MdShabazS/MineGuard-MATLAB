@@ -8,7 +8,9 @@ function R = evaluateRun(events, truth, runState, opts)
 %   Metrics are mgv2.eval.evaluateEvents unchanged: one-to-one greedy match within RMatch (default 1.0 m, as V2);
 %   TP matched events, FP unmatched events (a duplicate on one target is FP), FN unmatched targets, TN NaN
 %   (undefined at event level), precision/recall NaN when the denominator is 0. Adds mean/max match distance
-%   (NaN with no match) and the notice: this is NOT held-out scientific accuracy. No sealed V1/V2 TEST group is
+%   (NaN with no match), matched_target_index (row k of truth.targets matched by event matched_event_index(k):
+%   the SAME one-to-one pairs, 1-by-0 when there is no match; a target is missed iff its row is absent) and the
+%   notice: this is NOT held-out scientific accuracy. placement_seed is meaningful only for RANDOM placement. No sealed V1/V2 TEST group is
 %   touched (evaluateEvents is called with an explicit RMatch and a V2.1 truth only).
 arguments
     events
@@ -35,12 +37,17 @@ if ~(isfield(truth, 'schema_version') && truth.schema_version == c.schemas.truth
 end
 TT = struct('group_id', "V21-INTERACTIVE", 'split', "V21-DEMO", 'family', "V21-" + truth.preset_id, 'demo_fixture', false, ...
     'targets', truth.targets);
-E = mgv2.eval.evaluateEvents(xy, TT, opts.RMatch);
+E = mgv2.eval.evaluateEvents(xy, TT, opts.RMatch);             % the V2 evaluator, unchanged
+pairs = greedyPairs(xy, [truth.targets.x_east_m truth.targets.y_north_m], E.r_match_m);
+if ~(isequal(pairs(:, 1)', E.matched_event_index) && isequal(pairs(:, 3)', E.match_error_m))
+    error('mgv21:EvaluationMismatch', 'Target assignment disagrees with mgv2.eval.evaluateEvents; refusing to report.');
+end
 me = E.match_error_m;
 if isempty(me), mean_e = NaN; max_e = NaN; else, mean_e = mean(me); max_e = max(me); end
 R = struct('schema_version', c.schemas.eval, 'notice', c.eval_label, 'run_state', runState, 'r_match_m', E.r_match_m, ...
     'n_events', E.n_events, 'n_targets', E.n_targets, 'TP', E.TP, 'FP', E.FP, 'FN', E.FN, 'TN', E.TN, ...
     'precision', E.precision, 'recall', E.recall, 'FN_visible', E.FN_visible, 'FN_no_signature', E.FN_no_signature, ...
     'TP_no_signature', E.TP_no_signature, 'match_error_m', me, 'mean_match_error_m', mean_e, 'max_match_error_m', max_e, ...
-    'matched_event_index', E.matched_event_index, 'placement_mode', truth.mode, 'placement_seed', truth.seed);
+    'matched_event_index', E.matched_event_index, 'matched_target_index', pairs(:, 2)', ...
+    'placement_mode', truth.mode, 'placement_seed', truth.seed);
 end

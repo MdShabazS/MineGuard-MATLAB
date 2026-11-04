@@ -109,6 +109,56 @@ classdef testV21Evaluation < matlab.unittest.TestCase
             tc.verifyTrue(any(contains(txt, "SUSPECTED")));
         end
 
+        function matchedTargetsAndEventsAreTheSamePairs(tc)
+            T = testV21Evaluation.truth([10 5; -10 -5; 20 -15]);
+            R = mgv21.evaluation.evaluateRun([20 -15.2; 0 0; 10 5.3], T, "COMPLETE");
+            tc.verifyEqual(R.TP, 2);
+            tc.verifyEqual(R.matched_event_index, [1 3]);
+            tc.verifyEqual(R.matched_target_index, [3 1]);
+            ev = [20 -15.2; 0 0; 10 5.3]; tx = [T.targets.x_east_m T.targets.y_north_m];
+            d = hypot(ev(R.matched_event_index, 1) - tx(R.matched_target_index, 1), ev(R.matched_event_index, 2) - tx(R.matched_target_index, 2))';
+            tc.verifyEqual(d, R.match_error_m, 'AbsTol', 1e-12, 'each pair is one event and one target at the reported distance');
+            tc.verifyEqual(numel(unique(R.matched_target_index)), R.TP);
+            tc.verifyEqual(setdiff(1:R.n_targets, R.matched_target_index), 2, 'missed target = FN');
+            tc.verifyEqual(R.n_targets - numel(R.matched_target_index), R.FN);
+        end
+
+        function duplicatesAndTiesFollowTheV2Rule(tc)
+            R = mgv21.evaluation.evaluateRun([0 0.1; 0.2 0; 0 -0.3], testV21Evaluation.truth([0 0]), "COMPLETE");
+            tc.verifyEqual([R.matched_event_index R.matched_target_index], [1 1], 'nearest duplicate wins; the others are FP');
+            R = mgv21.evaluation.evaluateRun([0 0], testV21Evaluation.truth([0.5 0; -0.5 0]), "COMPLETE");
+            tc.verifyEqual([R.TP R.FN R.matched_target_index], [1 1 1], 'tie between targets: lower target index (stable sort)');
+            R = mgv21.evaluation.evaluateRun([0.5 0; -0.5 0], testV21Evaluation.truth([0 0]), "COMPLETE");
+            tc.verifyEqual([R.TP R.FP R.matched_event_index R.matched_target_index], [1 1 1 1], 'tie between events: lower event index');
+            V2 = mgv2.eval.evaluateEvents([0.5 0; -0.5 0], struct('group_id', "G", 'split', "S", 'family', "F", ...
+                'demo_fixture', false, 'targets', testV21Evaluation.truth([0 0]).targets), 1.0);
+            tc.verifyEqual(R.matched_event_index, V2.matched_event_index);
+        end
+
+        function noMatchOrNoTargetGivesEmptyRows(tc)
+            cases = {[30 30], testV21Evaluation.truth([0 0]); [1 1], testV21Evaluation.truth(zeros(0, 2)); ...
+                zeros(0, 2), testV21Evaluation.truth([0 0]); zeros(0, 2), testV21Evaluation.truth(zeros(0, 2))};
+            for k = 1:size(cases, 1)
+                R = mgv21.evaluation.evaluateRun(cases{k, 1}, cases{k, 2}, "COMPLETE");
+                tc.verifyEqual(size(R.matched_target_index), [1 0], sprintf('case %d', k));
+                tc.verifyEqual(size(R.matched_event_index), [1 0], sprintf('case %d', k));
+                tc.verifyEqual(R.TP, 0);
+            end
+        end
+
+        function seedIsShownForRandomPlacementOnly(tc)
+            T = testV21Evaluation.truth([0 0]);
+            for m = ["MANUAL", "NONE"]
+                T.mode = m; txt = mgv21.evaluation.formatReport(mgv21.evaluation.evaluateRun([0 0], T, "COMPLETE"));
+                tc.verifyTrue(any(contains(txt, "placement: " + m + " ")), m);
+                tc.verifyFalse(any(contains(txt, "seed")), m);
+            end
+            T.mode = "RANDOM"; T.seed = 42;
+            R = mgv21.evaluation.evaluateRun([0 0], T, "COMPLETE");
+            tc.verifyTrue(any(contains(mgv21.evaluation.formatReport(R), "placement: RANDOM (seed 42)")));
+            tc.verifyEqual(R.placement_seed, 42, 'the field is unchanged for every mode (backward compatible)');
+        end
+
         function endToEndWithPlacement(tc)
             pub = mgv21.scenario.buildPublicMission("TRAINING_FIELD_A", mgv21.scenario.defaultSurvey());
             W = struct('objects', table("ROCK-001", "rock", 0, 0, 0.5, 'VariableNames', {'object_id','kind','x_east_m','y_north_m','radius_m'}), ...
@@ -118,6 +168,7 @@ classdef testV21Evaluation < matlab.unittest.TestCase
             xy = [priv.truth.targets.x_east_m priv.truth.targets.y_north_m];
             R = mgv21.evaluation.evaluateRun(xy(1:4, :) + 0.2, priv.truth, "COMPLETE");
             tc.verifyEqual([R.TP R.FP R.FN R.n_targets], [4 0 2 6]);
+            tc.verifyEqual(sort(R.matched_target_index), 1:4);
             tc.verifyEqual([R.placement_mode R.placement_seed], ["RANDOM" "11"]);
         end
     end
