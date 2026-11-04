@@ -11,6 +11,8 @@ classdef EvaluationView < handle
     properties (SetAccess = private)
         Figure; Axes; ReportArea
         Counts            % struct: n_events, n_targets, TP, FP, FN, matched_targets_known
+        TargetSets        % rows of truth.targets drawn as: matched, missed, missed_no_signature (from R only)
+        EventSets         % event indices drawn as: matched, false_alarm (from R.matched_event_index only)
     end
 
     methods
@@ -81,6 +83,8 @@ classdef EvaluationView < handle
             set(ax, 'XColor', 'w', 'YColor', 'w'); xlabel(ax, 'E [m]'); ylabel(ax, 'N [m]');
             title(ax, sprintf('%d events, %d virtual targets', nE, nT), 'Color', 'w');
             obj.Counts = struct('n_events', nE, 'n_targets', nT, 'TP', R.TP, 'FP', R.FP, 'FN', R.FN, 'matched_targets_known', known);
+            obj.TargetSets = struct('matched', find(mT)', 'missed', find(~mT & ~none)', 'missed_no_signature', find(~mT & none)');
+            obj.EventSets = struct('matched', find(mE)', 'false_alarm', find(~mE)');
         end
 
         function s = legendNote(~)
