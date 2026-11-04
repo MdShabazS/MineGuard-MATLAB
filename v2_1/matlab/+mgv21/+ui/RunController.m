@@ -21,6 +21,7 @@ classdef RunController < handle
     end
     properties (Access = private)
         Priv              % PRIVATE scenario (mg-v21-private/1.0): truth and surface features
+        Salt              % PRIVATE random salt of the export commitment (F1, #132)
         World
     end
 
@@ -42,9 +43,9 @@ classdef RunController < handle
             if mgv2.run.digest(world) ~= mgv2.run.digest(mgv21.scenario.buildWorld(pub))
                 error('mgv21:InvalidScenario', 'The world is not the one pub.scene_config builds.');
             end
-            ctl.Pub = pub; ctl.World = world; ctl.Priv = priv;
+            ctl.Pub = pub; ctl.World = world; ctl.Priv = priv; ctl.Salt = mgv2.ui.MissionSession.newSalt();
             ctl.App = mgv2.ui.MissionControlApp('MissionConfig', pub.mission, 'SceneConfig', pub.scene_config, ...
-                'Environment', mgv2.sensors.defaultEnvironment(pub.environment_mode), 'SurfaceFeatures', priv.surface_features, ...
+                'Environment', mgv2.sensors.defaultEnvironment(pub.environment_mode), 'SurfaceFeatures', priv.surface_features, 'CommitmentSalt', ctl.Salt, ...
                 'AnomalySource', mgv2.bridge.V2006AnomalySource(), 'RealTime', opts.RealTime, 'Visible', opts.Visible, ...
                 'MaxTicksPerRun', opts.MaxTicksPerRun, 'ExportRoot', opts.ExportRoot);
             ctl.App.OnRunEnded = @(app) ctl.evaluate(app);
@@ -67,14 +68,15 @@ classdef RunController < handle
             if isfile(f), error('mgv21:PrivateFileRefused', 'The private evaluation file already exists; it is never overwritten.'); end
             private_evaluation = struct('notice', "PRIVATE - post-run evaluation with revealed synthetic targets. Not part of the operator package. " + ...
                 mgv21.contract().eval_label, 'evaluation', ctl.LastEvaluation, 'truth', ctl.Priv.truth, 'pub', ctl.Pub, ...
-                'run_id', ctx.run_id, 'generation', ctx.generation, 'features_sha256', s.privateCommitment().features_sha256);
+                'run_id', ctx.run_id, 'generation', ctx.generation, 'features_sha256', s.privateCommitment().features_sha256, ...
+                'surface_features', ctl.Priv.surface_features, 'commitment_salt', ctl.Salt);   % enough to reproduce the run
             save(f, 'private_evaluation'); f = string(f);
         end
 
         function delete(ctl)
             for k = 1:numel(ctl.Views), if isvalid(ctl.Views{k}), delete(ctl.Views{k}); end, end
             if ~isempty(ctl.App) && isvalid(ctl.App), delete(ctl.App); end
-            ctl.Priv = [];
+            ctl.Priv = []; ctl.Salt = [];
         end
     end
 
