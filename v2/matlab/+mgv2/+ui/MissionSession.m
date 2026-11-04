@@ -12,6 +12,9 @@ classdef MissionSession < handle
     %   writes a finished run as a checksummed package. ses.loadReplay(folder) verifies a package and switches to REPLAY:
     %   the recorded poses and samples play on the same clock through the same source, and nothing is simulated.
     %   ses.replayCheck() compares the replayed events with the recorded ones. configure() returns to a live run.
+    %   V2.1 seam: SceneConfig=cfg builds the world from that V2 scene config (default: the V2 field, unchanged), and
+    %   SurfaceFeatures=F is a PRIVATE forward-model input passed only to SensorSystem. F is never in a view, the
+    %   evidence context, an export or any public property; an export records only its SHA-256 commitment.
 
     properties (Constant)
         % Thermal dropout: no valid temperature from t = 10 s to t = 40 s.
@@ -27,6 +30,7 @@ classdef MissionSession < handle
         Mode = "LIVE"     % "LIVE" | "REPLAY"
         Recorder = []     % every sample of the live run; empty in a replay
         Package = []      % the verified package being replayed
+        SceneConfig       % V2 scene config the world was built from (public)
     end
     properties (Access = private)
         Launch            % configurations the session was created with
@@ -34,6 +38,7 @@ classdef MissionSession < handle
         Generation = 0    % engine/sensor pairs built so far: tells apart two runs with the same run id
         Building = false  % true only while the tick-0 samples are emitted
         BindError = ""    % why the source refused this run; the mission flies without it and the error stays displayed
+        PrivateFeatures   % PRIVATE forward-model surface features (mgv2.sensors.validateSurfaceFeatures); empty in V2
     end
 
     methods
@@ -43,8 +48,11 @@ classdef MissionSession < handle
                 opts.SensorConfig struct = mgv2.sensors.defaultSensorConfig()
                 opts.Environment struct = mgv2.sensors.defaultEnvironment()
                 opts.AnomalySource (1,1) mgv2.ui.AnomalySource = mgv2.ui.NullAnomalySource()
+                opts.SceneConfig struct = mgv2.scene.defaultSceneConfig()
+                opts.SurfaceFeatures = []
             end
-            ses.World = mgv2.scene.buildWorld(); ses.MissionConfig = opts.MissionConfig;
+            ses.SceneConfig = opts.SceneConfig; ses.PrivateFeatures = mgv2.sensors.validateSurfaceFeatures(opts.SurfaceFeatures);
+            ses.World = mgv2.scene.buildWorld(opts.SceneConfig); ses.MissionConfig = opts.MissionConfig;
             ses.SensorConfig = opts.SensorConfig; ses.Environment = opts.Environment; ses.Source = opts.AnomalySource;
             ses.Launch = struct('mission', opts.MissionConfig, 'sensors', opts.SensorConfig, 'environment', opts.Environment);
             ses.Source.bindEvidence(@() ses.evidenceContext());
@@ -126,7 +134,8 @@ classdef MissionSession < handle
                     'tick', double(eng.TickId), 't_s', eng.time()), ...
                 'poses', eng.poseLog(), 'phases', eng.PhaseLog, 'sensor_log', ses.Sensors.Log, 'samples', samples, ...
                 'events', ev, 'source', v.source, 'evidence', {evidence}, 'world_digest', mgv2.run.digest(ses.World), ...
-                'provenance', mgv2.ui.MissionSession.provenance());
+                'provenance', mgv2.ui.MissionSession.provenance(), 'scene_config', ses.SceneConfig, ...
+                'private_forward_model', ses.privateCommitment());
         end
 
         function loadReplay(ses, folder)
@@ -147,6 +156,13 @@ classdef MissionSession < handle
                 [ses.Scenario, ses.MissionConfig, ses.SensorConfig, ses.Environment, ses.Mode, ses.Package] = was{:}; ses.reset();
                 rethrow(err);
             end
+        end
+
+        function c = privateCommitment(ses)
+            %PRIVATECOMMITMENT Public record that a private forward model was used: a SHA-256 commitment, never the features.
+            n = numel(ses.PrivateFeatures);
+            c = struct('used', n > 0, 'features_sha256', "");
+            if n > 0, c.features_sha256 = mgv2.run.digest(ses.PrivateFeatures); end
         end
 
         function n = packageName(ses)
@@ -215,7 +231,8 @@ classdef MissionSession < handle
             if ses.Mode == "REPLAY"
                 sys = mgv2.replay.PlaybackSensors(ses.Package); eng = mgv2.replay.PlaybackEngine(ses.Package); rec = [];
             else
-                sys = mgv2.sensors.SensorSystem(ses.World, ses.MissionConfig, SensorConfig=ses.SensorConfig, Environment=ses.Environment);
+                sys = mgv2.sensors.SensorSystem(ses.World, ses.MissionConfig, SensorConfig=ses.SensorConfig, Environment=ses.Environment, ...
+                    SurfaceFeatures=ses.PrivateFeatures);
                 eng = mgv2.engine.MissionEngine(ses.MissionConfig, mgv2.scene.terrainProvider(ses.World));
                 rec = mgv2.run.Recorder(); sys.subscribe(@(s) rec.add(s));      % first subscriber: every sample, tick 0 included
             end

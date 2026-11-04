@@ -48,6 +48,8 @@ try
     end
     writetable(L, fullfile(tmp, "samples", "index.csv"));
     cfg = struct('mission', in.mission, 'sensors', in.sensors, 'environment', in.environment, 'scenario', in.scenario);
+    v21 = isfield(in, 'scene_config') && (~isequaln(in.scene_config, mgv2.scene.defaultSceneConfig()) || in.private_forward_model.used);
+    if v21, cfg.scene_config = in.scene_config; schema = "mg-v2-runpkg/1.1"; end   % 1.0 stays byte-for-byte V2
     save(fullfile(tmp, "config", "run_config.mat"), '-struct', 'cfg');
     writeText(fullfile(tmp, "config", "run_config.json"), jsonencode(cfg, 'PrettyPrint', true));
     poses = in.poses;
@@ -70,6 +72,7 @@ try
         'world_digest', in.world_digest, 'provenance', in.provenance, ...
         'created_utc', string(datetime('now', 'TimeZone', 'UTC', 'Format', 'yyyy-MM-dd''T''HH:mm:ss''Z''')), ...
         'integrity', "files.sha256 lists the SHA-256 of every other file. It detects changed, missing or extra files; it is not a signature.");
+    if v21, m.private_forward_model = in.private_forward_model; end   % 1.1 only: SHA-256 commitment, never positions
     mgv2.sensors.assertPublic(m, "manifest");
     writeText(fullfile(tmp, "manifest.json"), jsonencode(m, 'PrettyPrint', true));
 
