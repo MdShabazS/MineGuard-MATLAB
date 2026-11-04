@@ -69,6 +69,39 @@ classdef testV21EvaluationView < matlab.unittest.TestCase
             tc.verifySubstring(txt, "MANUAL"); tc.verifyFalse(contains(txt, "seed"), 'no seed shown for MANUAL');
         end
 
+        function duplicateEventsOnOneTargetGiveOneMatch(tc)
+            [pub, world, truth] = tc.scenario(); T = [truth.targets.x_east_m truth.targets.y_north_m];
+            ev = tc.events([T(1, :) + [0.2 0]; T(1, :) + [0 0.4]]);     % two events on target 1
+            R = mgv21.evaluation.evaluateRun(ev, truth, "COMPLETE");
+            tc.View = mgv21.ui.EvaluationView(world, pub, tc.poses(pub), ev, truth, R, 'Visible', "off");
+            tc.verifyEqual(R.TP, 1); tc.verifyEqual(R.FP, 1);
+            tc.verifyEqual(tc.View.TargetSets.matched, 1); tc.verifyEqual(tc.View.EventSets.matched, R.matched_event_index);
+            tc.verifyEqual(numel(tc.View.EventSets.false_alarm), 1, 'the duplicate is a false alarm');
+        end
+
+        function equalDistanceTieFollowsTheEvaluatorPairing(tc)
+            [pub, world, truth] = tc.scenario(); T = [truth.targets.x_east_m truth.targets.y_north_m];
+            ev = tc.events([T(2, :) + [0.5 0]; T(2, :) - [0.5 0]]);     % exactly equidistant from target 2
+            R = mgv21.evaluation.evaluateRun(ev, truth, "COMPLETE");
+            tc.View = mgv21.ui.EvaluationView(world, pub, tc.poses(pub), ev, truth, R, 'Visible', "off");
+            tc.verifyEqual(R.TP, 1);
+            tc.verifyEqual(tc.View.EventSets.matched, R.matched_event_index, 'whichever event the evaluator paired, the view shows that one');
+            tc.verifyEqual(tc.View.TargetSets.matched, R.matched_target_index);
+        end
+
+        function noneAndRandomSeedDisplay(tc)
+            id = "TRAINING_FIELD_A"; [pub, ~] = mgv21.scenario.buildPublicMission(id, mgv21.scenario.defaultSurvey(id)); world = mgv21.scenario.buildWorld(pub);
+            n = mgv21.placement.lockScenario(mgv21.placement.defaultPlacement("NONE"), pub, world);
+            Rn = mgv21.evaluation.evaluateRun(zeros(0, 2), n.truth, "COMPLETE");
+            tc.View = mgv21.ui.EvaluationView(world, pub, tc.poses(pub), struct([]), n.truth, Rn, 'Visible', "off");
+            tc.verifyFalse(contains(strjoin(string(tc.View.ReportArea.Value), " "), "seed"), 'no seed for NONE');
+            delete(tc.View);
+            spec = mgv21.placement.defaultPlacement("RANDOM"); spec.count = 3; spec.seed = 4321;
+            r = mgv21.placement.lockScenario(spec, pub, world); Rr = mgv21.evaluation.evaluateRun(zeros(0, 2), r.truth, "COMPLETE");
+            tc.View = mgv21.ui.EvaluationView(world, pub, tc.poses(pub), struct([]), r.truth, Rr, 'Visible', "off");
+            tc.verifySubstring(strjoin(string(tc.View.ReportArea.Value), " "), "seed 4321", 'RANDOM shows its actual seed');
+        end
+
         function viewNeverRematches(tc)
             % a falsified R (no match) must be drawn as given, even though an event sits on a target
             [pub, world, truth] = tc.scenario(); T = [truth.targets.x_east_m truth.targets.y_north_m];
