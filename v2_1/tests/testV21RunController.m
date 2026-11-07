@@ -132,7 +132,11 @@ classdef testV21RunController < matlab.uitest.TestCase
             tc.verifyFalse(startsWith(f, pkgDir));
             L = load(f); pe = L.private_evaluation;
             tc.verifyEqual(pe.truth.targets, priv.truth.targets); tc.verifyEqual(pe.evaluation, ctl.LastEvaluation);
-            tc.verifyEqual(string(pe.features_sha256), string(mgv2.run.verifyPackage(pkgDir).manifest.private_forward_model.features_sha256));
+            pkg = mgv2.run.verifyPackage(pkgDir);
+            tc.verifyEqual(string(pe.features_sha256), string(pkg.manifest.private_forward_model.features_sha256));
+            tc.verifyTrue(mgv2.run.reproduce(pkg, SurfaceFeatures=pe.surface_features, CommitmentSalt=pe.commitment_salt).match, ...
+                'the private file holds exactly what reproduction needs');
+            tc.verifyError(@() mgv2.run.reproduce(pkg, SurfaceFeatures=pe.surface_features), 'mgv2:PrivateScenarioRequired');
             tc.verifyEqual(mgv2.run.listFiles(pkgDir), before, 'the operator package is unchanged');
             tc.verifyError(@() ctl.savePrivateEvaluation(fullfile(tc.Root, "private")), 'mgv21:PrivateFileRefused', 'no overwrite');
         end
