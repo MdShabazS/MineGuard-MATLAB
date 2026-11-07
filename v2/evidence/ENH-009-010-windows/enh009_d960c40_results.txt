@@ -1,0 +1,27 @@
+SHA d960c40645a89301a57d1033ce29d001585be765 clean=1 desktop=1 26.2.0.3433840 (R2026b) Update 1
+testENH009OfflineContext run=6 pass=6 fail=0 incomplete=0
+checkcode renderOfflineCampusContext.m: 0
+checkcode testENH009OfflineContext.m: 7
+  L12 A Code Analyzer message was once suppressed here, but the message is no longer generated.
+  L17 A Code Analyzer message was once suppressed here, but the message is no longer generated.
+  L19 A Code Analyzer message was once suppressed here, but the message is no longer generated.
+  L26 A Code Analyzer message was once suppressed here, but the message is no longer generated.
+  L36 A Code Analyzer message was once suppressed here, but the message is no longer generated.
+  L38 A Code Analyzer message was once suppressed here, but the message is no longer generated.
+  L50 A Code Analyzer message was once suppressed here, but the message is no longer generated.
+asset case 1 expected=NOT_REQUESTED got=NOT_REQUESTED images=0 rectangles=5 georef=0
+asset case 2 expected=MISSING_SCHEMATIC_USED got=MISSING_SCHEMATIC_USED images=0 rectangles=5 georef=0
+asset case 3 expected=PRESENT_NOT_APPROVED_SCHEMATIC_USED got=PRESENT_NOT_APPROVED_SCHEMATIC_USED images=0 rectangles=5 georef=0
+asset case 4 expected=PRESENT_NOT_APPROVED_SCHEMATIC_USED got=PRESENT_NOT_APPROVED_SCHEMATIC_USED images=0 rectangles=5 georef=0
+asset case 5 expected=MISSING_SCHEMATIC_USED got=MISSING_SCHEMATIC_USED images=0 rectangles=5 georef=0
+corrupt asset unchanged=1
+repeat 60: figures delta=0 timers delta=0 memory delta MB=108.8 render median ms=898.3 max ms=4403.2
+offline shadow: blocked calls=0 error=""
+process TCP connections before=0 after=0 (not an OS network-denied run)
+ENH009_schematic light text "Arbitrary diagram units — no re" extent x=[7.322 92.678] of card [-47.293 147.293] fits=1 contrast=11.02
+ENH009_schematic light text "SCHEMATIC CAMPUS CONTEXT       " extent x=[23.788 76.212] of card [-47.293 147.293] fits=1 contrast=10.59
+ENH009_schematic light banner "ILLUSTRATIVE / NOT SURVEYED / SIMULATION CONTEXT" contrast=10.67 against figure
+ENH009_schematic dark text "Arbitrary diagram units — no re" extent x=[7.322 92.678] of card [-47.293 147.293] fits=1 contrast=11.02
+ENH009_schematic dark text "SCHEMATIC CAMPUS CONTEXT       " extent x=[23.788 76.212] of card [-47.293 147.293] fits=1 contrast=10.59
+ENH009_schematic dark banner "ILLUSTRATIVE / NOT SURVEYED / SIMULATION CONTEXT" contrast=10.67 against figure
+DONE
