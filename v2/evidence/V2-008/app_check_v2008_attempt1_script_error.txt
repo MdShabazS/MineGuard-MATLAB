@@ -1,0 +1,24 @@
+INFO  git bddb4c2509ad8cbb9755ac5f31730b9fd1407a7d | 26.2.0.3433840 (R2026b) Update 1
+PASS  EXPORT disabled before a run
+PASS  nominal run COMPLETE at tick 2799
+INFO  84 SUSPECTED events listed (live scene has no synthetic target)
+PASS  EXPORT enabled after the run ended
+PASS  export written in 18.7 s: C:\Users\rahil\Documents\MineGuard-V2-007-close\app_v8\packages\V2RUN-NOMINAL-0001_g1_20261103T073921Z
+PASS  control bar reports the export
+PASS  EXPORT disabled after one export
+INFO  package: 15 files, 275.8 MB
+INFO  verifyPackage passed in 35.9 s
+PASS  manifest: simulation only, no synthetic target
+PASS  REPLAY loaded and labelled
+PASS  replay reached the recorded last tick
+PASS  replay check: 84 replayed events equal the 84 recorded events
+PASS  replay used recorded samples, no sensor simulation
+PASS  reproduction: poses 1, samples 3080/3080, end 1 (186 s)
+FAIL  scenario choice returns to a live run
+FAIL  mission fault: FAILED with TIMEOUT at tick 2799
+FAIL  fault message shown: 
+PASS  invalid rays: 243938 out of range, 26749 dropped, ranges NaN
+PASS  RGB pixels beyond 16 m invalid: valid fraction 0.00 to 1.00 in flight
+PASS  tampered package refused: REPLAY REFUSED: Package files differ from files.sha256 (missing: telemetry/phases.csv; extra: ).
+PASS  close: no figures or timers left
+TOTAL pass=16 fail=3

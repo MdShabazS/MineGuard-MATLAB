@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "project": "MineGuard Advanced V2.1 - interactive synthetic scenarios",
+  "phase": "V2.1",
+  "contract": "mg-v21-contract/1.0",
+  "enforcement": "dependency-dag (manual review; no CI gate yet)",
+  "notes": "Independent of V1 (tasks/) and V2 (v2/tasks/). V2 code and evidence are not modified. Status changes only with evidence; no task is DONE without executed MATLAB tests on record.",
+  "tasks": {
+    "V21-001": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [],
+      "title": "Research, architecture, frozen cross-team contract and task tracking",
+      "evidence": "v2_1/evidence/V21-001.md"
+    },
+    "V21-002": {
+      "owner": "Shabaz",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V21-001"
+      ],
+      "title": "Selectable synthetic environments, survey boundaries, grid/route configuration and geometry validation",
+      "evidence": "v2_1/evidence/V21-002.md"
+    },
+    "V21-003": {
+      "owner": "Shabaz",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V21-002"
+      ],
+      "title": "Manual and reproducible random placement of private synthetic targets with private forward-model features",
+      "evidence": "v2_1/evidence/V21-003.md"
+    },
+    "V21-004": {
+      "owner": "Shabaz",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V21-003"
+      ],
+      "title": "Independent post-mission INTERACTIVE SYNTHETIC DEMO evaluation contract and MATLAB helpers",
+      "evidence": "v2_1/evidence/V21-004.md"
+    },
+    "V21-005": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V21-002",
+        "V21-003"
+      ],
+      "title": "Mission-setup UI: environment, survey and placement editing, SETUP-only markers, lock",
+      "evidence": "v2_1/evidence/V21-005.md"
+    },
+    "V21-006": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V21-004",
+        "V21-005"
+      ],
+      "title": "Runtime wiring: private scenario slot in the session, SurfaceFeatures to sensors, post-run evaluation panel",
+      "evidence": "v2_1/evidence/V21-006.md"
+    },
+    "V21-007": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V21-006"
+      ],
+      "title": "Export and replay integration of V2.1 public configuration; private truth never in the operator package",
+      "evidence": "v2_1/evidence/V21-007.md"
+    },
+    "V21-008": {
+      "owner": "Rahil",
+      "kind": "TEST",
+      "dependsOn": [
+        "V21-007"
+      ],
+      "title": "Windows MATLAB verification of all V2.1 tests, integrated smoke run and evidence",
+      "evidence": "v2_1/evidence/V21-008.md"
+    }
+  }
+}

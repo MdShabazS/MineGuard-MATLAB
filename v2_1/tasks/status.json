@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "tasks": {
+    "V21-001": {
+      "owner": "Shabaz",
+      "state": "DONE",
+      "evidence": "v2_1/evidence/V21-001.md",
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-04",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-11-04"
+    },
+    "V21-002": {
+      "owner": "Shabaz",
+      "state": "DONE",
+      "evidence": "v2_1/evidence/V21-002.md",
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-04",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-11-04"
+    },
+    "V21-003": {
+      "owner": "Shabaz",
+      "state": "DONE",
+      "evidence": "v2_1/evidence/V21-003.md",
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-04",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-11-04"
+    },
+    "V21-004": {
+      "owner": "Shabaz",
+      "state": "DONE",
+      "evidence": "v2_1/evidence/V21-004.md",
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-04",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-11-04"
+    },
+    "V21-005": {
+      "owner": "Rahil",
+      "state": "DONE",
+      "evidence": "v2_1/evidence/V21-005.md",
+      "startedBy": "Rahil",
+      "startedOn": "2026-11-04",
+      "completedBy": "Rahil",
+      "completedOn": "2026-11-04"
+    },
+    "V21-006": {
+      "owner": "Rahil",
+      "state": "DONE",
+      "evidence": "v2_1/evidence/V21-006.md",
+      "startedBy": "Rahil",
+      "startedOn": "2026-11-04",
+      "completedBy": "Rahil",
+      "completedOn": "2026-11-04"
+    },
+    "V21-007": {
+      "owner": "Rahil",
+      "state": "DONE",
+      "evidence": "v2_1/evidence/V21-007.md",
+      "startedBy": "Rahil",
+      "startedOn": "2026-11-04",
+      "completedBy": "Rahil",
+      "completedOn": "2026-11-04"
+    },
+    "V21-008": {
+      "owner": "Rahil",
+      "state": "DONE",
+      "evidence": "v2_1/evidence/V21-008.md",
+      "startedBy": "Rahil",
+      "startedOn": "2026-11-04",
+      "completedBy": "Rahil",
+      "completedOn": "2026-11-04"
+    }
+  }
+}

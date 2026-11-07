@@ -18,6 +18,8 @@ codegen/
 *.mat
 !tests/fixtures/*.mat
 !results/approved/*.mat
+# V2-008 sample run package: every file is hashed in files.sha256, so its MAT-files must be committed
+!v2/evidence/V2-008/sample_package/**/*.mat
 # Local env and private credentials
 .env
 .env.*

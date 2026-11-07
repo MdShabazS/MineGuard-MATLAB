@@ -1,0 +1,74 @@
+=== mgv2BridgeBenchmark APP_NULL | HEAD f7df56d498f9303f59a83fd0f6170fc5bed0605f | 2026-11-01 19:50:19 UTC
+{
+  "mode": "APP_NULL",
+  "max_ticks": null,
+  "render_every": 4,
+  "refresh_ticks": 20,
+  "perf": {
+    "ticks": 2799,
+    "sim_s": 139.95000000000002,
+    "wall_s": 320.2563959,
+    "sim_to_wall": 0.43699361446539037,
+    "late_ticks": 0,
+    "refreshes": 702,
+    "stalls_over_100ms": 551,
+    "step_ms": {
+      "median": 7.8142000000000005,
+      "p95": 238.3902,
+      "max": 476.0394
+    },
+    "present_ms": {
+      "median": 24.38125,
+      "p95": 30.5137,
+      "max": 116.5296
+    },
+    "drawnow_ms": {
+      "median": 228.2954,
+      "p95": 370.3341,
+      "max": 4308.0898000000007
+    },
+    "frame_ms": {
+      "median": 253.75705,
+      "p95": 398.0951,
+      "max": 4425.3193
+    },
+    "scene_ms": {
+      "median": 4.9898,
+      "p95": 5.7353,
+      "max": 23.7191
+    },
+    "map_ms": {
+      "median": 3.1895,
+      "p95": 3.875,
+      "max": 11.592
+    },
+    "rgb_ms": {
+      "median": 1.6271499999999999,
+      "p95": 1.9909,
+      "max": 6.7088
+    },
+    "thermal_ms": {
+      "median": 7.4219500000000007,
+      "p95": 8.4997,
+      "max": 28.720599999999997
+    },
+    "lidar_ms": {
+      "median": 0.6079,
+      "p95": 4.7326,
+      "max": 12.439
+    },
+    "telemetry_ms": {
+      "median": 2.5014,
+      "p95": 3.2041999999999997,
+      "max": 12.2508
+    },
+    "events_ms": {
+      "median": 0.2026,
+      "p95": 0.2582,
+      "max": 7.9764999999999988
+    }
+  },
+  "ticks": 2799,
+  "phase": "COMPLETE"
+}
+
