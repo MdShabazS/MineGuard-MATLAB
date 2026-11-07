@@ -1,0 +1,49 @@
+mgv2PerfProfile at 11ec53d2fa94d14ffaf85a91b527bfc98a35cd1b
+                      ticks: 2799
+                      phase: "COMPLETE"
+                     growth: [4×28 table]
+                     ingest: [4×5 table]
+          on_sample_total_s: 17.1713
+    detector_ingest_total_s: 13.8712
+
+    <strong>OriginalVariableNames</strong>    <strong>Var1</strong>    <strong>Var2</strong>    <strong>Var3</strong>    <strong>Var4</strong>
+    <strong>_____________________</strong>    <strong>____</strong>    <strong>____</strong>    <strong>____</strong>    <strong>____</strong>
+
+     {'tick'          }       700    1400    2100    2799
+     {'n_looks'       }       352     702    1052    1400
+     {'n_obs'         }      2288    5096    8213    9996
+     {'n_tracks'      }       519    1006    1551    1734
+     {'live'          }       434     820    1264    1393
+     {'n_evidence'    }      1303    2571    4038    4522
+     {'trackTable_ms' }        98     159     253     273
+     {'looks_loop_ms' }        10      21      33      43
+     {'track_scan_ms' }         5      14      23      25
+     {'lidar_ms'      }        51      84     117     127
+     {'landmark_ms'   }         1       0       0       0
+     {'events_ms'     }       111     185     302     333
+     {'events_only_ms'}        13      26      49      59
+     {'convert_ms'    }       100     159     282     308
+     {'snapshot_ms'   }         9      16      23      30
+     {'layers_ms'     }         1       1       1       1
+     {'uiValidate_ms' }         3       5       7       8
+     {'view_cached_ms'}         7       7       3       9
+     {'det_MB'        }        24      44      67      75
+     {'Ob_MB'         }         0       1       2       2
+     {'Tr_MB'         }         0       0       0       0
+     {'Looks_MB'      }         0       0       0       0
+     {'Ev_MB'         }        19      39      62      69
+     {'Lg_MB'         }         3       3       3       3
+     {'Log_MB'        }         0       0       0       1
+     {'map_MB'        }         2       2       3       4
+     {'Footprints_MB' }         1       1       2       3
+     {'sensorLog_MB'  }         0       0       1       1
+
+        <strong>sensor_id</strong>         <strong>GroupCount</strong>    <strong>median_proc_ms</strong>    <strong>max_proc_ms</strong>    <strong>sum_proc_ms</strong>
+    <strong>__________________</strong>    <strong>__________</strong>    <strong>______________</strong>    <strong>___________</strong>    <strong>___________</strong>
+
+    "LIDAR_TERRAIN"           280           1.7238          8.0745         507.85   
+    "RGB_NADIR"               700            11.14          25.711         7388.4   
+    "THERMAL_LWIR"            700           8.4205           24.93         5948.1   
+    "VIRTUAL_GNSS_INS"       1400           0.0128           2.637         26.896   
+
+

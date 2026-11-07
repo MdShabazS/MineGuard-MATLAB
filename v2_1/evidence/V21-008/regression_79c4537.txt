@@ -1,0 +1,19 @@
+TREE v21_integration SHA 79c453715b9e42706077787732145da95246488e clean=1 desktop=1 26.2.0.3433840 (R2026b) Update 1
+v2\matlab\tests\testV2002MissionEngine.m run=22 pass=22 fail=0 incomplete=0 time=6
+v2\matlab\tests\testV2003Scene.m run=22 pass=22 fail=0 incomplete=0 time=142
+v2\matlab\tests\testV2005Sensors.m run=28 pass=28 fail=0 incomplete=0 time=519
+v2\matlab\tests\testV2005QualityContract.m run=35 pass=35 fail=0 incomplete=0 time=65
+v2\matlab\tests\testV2005NestedMetadataContract.m run=34 pass=34 fail=0 incomplete=0 time=31
+v2\matlab\tests\testV2006Detection.m run=28 pass=28 fail=0 incomplete=0 time=728
+v2\matlab\tests\testV2007Bridge.m run=42 pass=42 fail=0 incomplete=0 time=1503
+v2\matlab\tests\testV2007MissionControlUI.m run=73 pass=73 fail=0 incomplete=0 time=1489
+v2\matlab\tests\testV2008ExportReplay.m run=21 pass=21 fail=0 incomplete=0 time=1952
+v2_1\tests\testV21Scenario.m run=20 pass=20 fail=0 incomplete=0 time=1
+v2_1\tests\testV21Placement.m run=15 pass=15 fail=0 incomplete=0 time=2
+v2_1\tests\testV21Evaluation.m run=15 pass=15 fail=0 incomplete=0 time=1
+v2_1\tests\testV21RuntimeSeam.m run=9 pass=9 fail=0 incomplete=0 time=123
+v2_1\tests\testV21RunController.m run=9 pass=9 fail=0 incomplete=0 time=416
+v2_1\tests\testV21SetupUI.m run=12 pass=12 fail=0 incomplete=0 time=81
+v2_1\tests\testV21EvaluationView.m run=4 pass=4 fail=0 incomplete=0 time=1
+checkcode files=59 messages=0
+DONE

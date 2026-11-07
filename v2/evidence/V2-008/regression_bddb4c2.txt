@@ -1,0 +1,21 @@
+TREE v2008 SHA bddb4c2509ad8cbb9755ac5f31730b9fd1407a7d clean=1 desktop=1 26.2.0.3433840 (R2026b) Update 1
+testV2002MissionEngine run=22 pass=22 fail=0 incomplete=0 time=6
+testV2003Scene run=22 pass=22 fail=0 incomplete=0 time=49
+testV2005Sensors run=28 pass=28 fail=0 incomplete=0 time=499
+testV2005QualityContract run=35 pass=35 fail=0 incomplete=0 time=67
+testV2005NestedMetadataContract run=34 pass=34 fail=0 incomplete=0 time=45
+testV2006Detection run=28 pass=28 fail=0 incomplete=0 time=591
+testV2007Bridge run=42 pass=42 fail=0 incomplete=0 time=554
+testV2007MissionControlUI run=73 pass=73 fail=0 incomplete=0 time=770
+testV2008ExportReplay run=21 pass=21 fail=0 incomplete=0 time=595
+checkcode done
+checkcode Recorder.m: 0
+checkcode digest.m: 0
+checkcode exportRun.m: 0
+checkcode fileSha256.m: 0
+checkcode listFiles.m: 0
+checkcode reproduce.m: 0
+checkcode sha256Bytes.m: 0
+checkcode verifyPackage.m: 0
+checkcode PlaybackEngine.m: 0
+checkcode PlaybackSensors.m: 0

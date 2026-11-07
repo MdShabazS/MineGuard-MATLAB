@@ -79,11 +79,11 @@
         "V2-006",
         "V2-007"
       ],
-      "title": "Verify export, replay, fault cases and macOS simulation performance",
+      "title": "Verify export, replay and fault cases with Windows simulation performance; macOS NOT RUN (AC-024 not met)",
       "evidence": "v2/evidence/V2-008.md"
     },
     "V2-009": {
-      "owner": "Shabaz",
+      "owner": "Rahil",
       "kind": "DOC",
       "dependsOn": [
         "V2-008"
@@ -92,7 +92,7 @@
       "evidence": "v2/evidence/V2-009.md"
     },
     "V2-010": {
-      "owner": "Shabaz",
+      "owner": "Rahil",
       "kind": "DOC",
       "dependsOn": [
         "V2-009"

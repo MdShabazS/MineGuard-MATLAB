@@ -57,25 +57,39 @@
     },
     "V2-007": {
       "owner": "Rahil",
-      "state": "IN_PROGRESS",
-      "evidence": null,
+      "state": "DONE",
+      "evidence": "v2/evidence/V2-007.md",
       "startedBy": "Rahil",
-      "startedOn": "2026-11-02"
+      "startedOn": "2026-11-02",
+      "completedBy": "Rahil",
+      "completedOn": "2026-11-03"
     },
     "V2-008": {
       "owner": "Rahil",
-      "state": "TODO",
-      "evidence": null
+      "state": "DONE",
+      "evidence": "v2/evidence/V2-008.md",
+      "startedBy": "Rahil",
+      "startedOn": "2026-11-03",
+      "completedBy": "Rahil",
+      "completedOn": "2026-11-03"
     },
     "V2-009": {
-      "owner": "Shabaz",
-      "state": "TODO",
-      "evidence": null
+      "owner": "Rahil",
+      "state": "DONE",
+      "evidence": "v2/evidence/V2-009.md",
+      "startedBy": "Rahil",
+      "startedOn": "2026-11-03",
+      "completedBy": "Rahil",
+      "completedOn": "2026-11-03"
     },
     "V2-010": {
-      "owner": "Shabaz",
-      "state": "TODO",
-      "evidence": null
+      "owner": "Rahil",
+      "state": "DONE",
+      "evidence": "v2/evidence/V2-010.md",
+      "startedBy": "Rahil",
+      "startedOn": "2026-11-03",
+      "completedBy": "Rahil",
+      "completedOn": "2026-11-03"
     }
   }
 }

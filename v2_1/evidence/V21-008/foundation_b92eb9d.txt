@@ -1,0 +1,1 @@
+SHA b92eb9d (v21/V21-003-004-placement-eval), Windows MATLAB R2026b: checkcode 0 messages over 26 files; runtests v2_1/tests: 46/46 passed (testV21Evaluation 11, testV21Placement 15, testV21Scenario 20), 0 failed, 0 incomplete. Run by Claude Code, Rahil's laptop, 2026-11-04.
