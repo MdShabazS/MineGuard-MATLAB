@@ -1,0 +1,7 @@
+SHA 081cecbc38fef725374ea4f7f1f22cc0231fe070 desktop=1 26.2.0.3433840 (R2026b) Update 1
+testV2002MissionEngine run=22 pass=22 fail=0 incomplete=0 time=18.9
+testV2003Scene run=22 pass=22 fail=0 incomplete=0 time=46.6
+testV2005Sensors run=28 pass=28 fail=0 incomplete=0 time=531.3
+testV2006Detection run=28 pass=28 fail=0 incomplete=0 time=693.9
+testV2007MissionControlUI run=60 pass=60 fail=0 incomplete=0 time=665.9
+testV2007Bridge run=37 pass=37 fail=0 incomplete=0 time=1188.8

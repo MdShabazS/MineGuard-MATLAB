@@ -1,0 +1,12 @@
+g1 gatePassed 1 waited 45 s outside 102.5
+g2 gatePassed 0 waited 303 s outside 364.7
+g3 gatePassed 1 waited 268 s outside 139.9
+g4 gatePassed 1 waited 146 s outside 78
+g5 gatePassed 1 waited 25 s outside 60
+g6 gatePassed 1 waited 25 s outside 58.5
+g7 gatePassed 1 waited 25 s outside 48.2
+g8 gatePassed 1 waited 25 s outside 2.9
+g9 gatePassed 1 waited 40 s outside 76.9
+g10 gatePassed 1 waited 25 s outside 61
+g11 gatePassed 1 waited 45 s outside 74.4
+g12 gatePassed 1 waited 25 s outside 66.6

@@ -1,0 +1,2 @@
+# Run package files are hashed byte for byte (files.sha256): never convert line endings.
+* -text

@@ -3,6 +3,8 @@ function cfg = validateSensorConfig(cfg)
 %   cfg = mgv2.sensors.validateSensorConfig(cfg)    throws mgv2:InvalidSensorConfig or mgv2:TruthLeak
 %   Top level: exactly the four controlled sensor ids. Per channel: exactly the common SensorConfig fields;
 %   unknown fields (e.g. TargetTruth) are rejected so private scenario data cannot ride along.
+%   Units: exactly the contract's fields and text for that sensor, so an accepted config cannot produce samples
+%   that mgv2.sensors.validateSample refuses.
 %   Range: valid_range_m = [min max] is the single effective measurement range; a mount carrying its own
 %   range fields is rejected (no second, contradictory source).
 %   Returns cfg with every channel's parameter_hash RECOMPUTED as mgv2.sensors.configFingerprint of that
@@ -21,6 +23,7 @@ for sid = c.sensor_ids
     if s.schema_version ~= c.schema_version || s.sensor_id ~= sid, error(id, '%s: schema/sensor_id mismatch.', sid); end
     if ~(isscalar(s.rate_hz) && isfinite(s.rate_hz) && s.rate_hz > 0), error(id, '%s: rate_hz must be positive.', sid); end
     if ~ismember(s.config_origin, ["ASSUMED","CHARACTERIZED","MEASURED"]), error(id, '%s: config_origin invalid.', sid); end
+    checkUnits(s.units, c.units.(sid), sid, id);
     d = s.dropout_model;
     if ~isstruct(d) || ~isempty(setxor(string(fieldnames(d))', ["frame_probability","intervals_s","ray_probability"])) ...
             || ~(d.frame_probability >= 0 && d.frame_probability <= 1 && d.ray_probability >= 0 && d.ray_probability <= 1) ...
@@ -36,5 +39,15 @@ for sid = c.sensor_ids
     if sid == "LIDAR_TERRAIN" && v(1) <= 0, error(id, 'LIDAR_TERRAIN: valid_range_m(1) must be > 0 (blind zone guards self-intersection).'); end
     if ~isstruct(s.params), error(id, '%s: params must be a struct.', sid); end
     cfg.(sid).parameter_hash = mgv2.sensors.configFingerprint(s);
+end
+end
+
+function checkUnits(u, want, sid, id)
+names = string(fieldnames(want))';
+if ~(isstruct(u) && isscalar(u)) || ~isempty(setxor(string(fieldnames(u))', names))
+    error(id, '%s: units must have exactly the fields %s.', sid, strjoin(names, ', '));
+end
+for f = names
+    if ~(isstring(u.(f)) && isscalar(u.(f)) && u.(f) == want.(f)), error(id, '%s: units.%s must be "%s".', sid, f, want.(f)); end
 end
 end
