@@ -1,0 +1,21 @@
+SESSION SHA 4ca2ead11d8c19281e8001c43a1c1288b5f3e2fe clean=1 desktop=1 26.2.0.3433840 (R2026b) Update 1
+testV2007Bridge run=41 pass=41 fail=0 incomplete=0 time=1276.9
+checkcode +mgv2/+bridge/V2006AnomalySource.m: 0
+checkcode +mgv2/+bridge/checkEvidence.m: 0
+checkcode +mgv2/+bridge/toUiEvents.m: 0
+checkcode +mgv2/+bridge/toMapLayers.m: 0
+checkcode +mgv2/+ui/AnomalySource.m: 0
+checkcode +mgv2/+ui/MissionSession.m: 0
+checkcode mgv2PerfRun.m: 0
+checkcode mgv2BridgeBenchmark.m: 0
+checkcode mgv2PerfProfile.m: 0
+checkcode tests/testV2007Bridge.m: 2
+  L43 Value assigned to variable might be unused.
+  L377 A Code Analyzer message was once suppressed here, but the message is no longer generated.
+mission H_R100 phase=COMPLETE ticks=2799 samples=3080 invalid=3 events=84
+  sample 016961199e092dcbcf17466c91ec18b8c59766de71a3bbce35636547f88c239a
+  pose e649b54c9d02f9d56ce4d5eeea1879f583cf52a00713229b76d799c6dc5dc042
+  event 1e14af2e0e3bac137c731f882f8f0efdadc30d2718c6e73fd9051af1fe9bc33a
+  fingerprint fnv1a64:d6d364f988f04bb4
+  sim_to_wall=0.590 rebuilds=28 rebuild_median_ms=1210.2 rebuild_max_ms=2293.0 convert_median_ms=306.5 layers_median_ms=111.7 (one headless run, diagnostic)
+DONE

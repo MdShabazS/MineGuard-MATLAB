@@ -1,0 +1,28 @@
+=== mgv2BridgeBenchmark NULL | HEAD f7df56d498f9303f59a83fd0f6170fc5bed0605f | 2026-11-01 19:12:56 UTC
+{
+  "mode": "NULL",
+  "max_ticks": null,
+  "render_every": 4,
+  "refresh_ticks": 20,
+  "ticks": 2799,
+  "phase": "COMPLETE",
+  "sim_s": 139.95000000000002,
+  "wall_s": 117.6823208,
+  "sim_to_wall": 1.1892185593267126,
+  "step_ms": {
+    "n": 2799,
+    "median": 3.9665999999999997,
+    "p95": 167.10559999999998,
+    "max": 442.43100000000004
+  },
+  "view_ms": {
+    "n": 699,
+    "median": 0.79560000000000008,
+    "p95": 1.3045,
+    "max": 4.6191
+  },
+  "views": 699,
+  "final_view_ms": 0.90979999999999994,
+  "final_events": 0
+}
+

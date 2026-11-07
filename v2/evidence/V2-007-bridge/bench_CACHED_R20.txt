@@ -1,0 +1,155 @@
+=== mgv2BridgeBenchmark CACHED | HEAD f7df56d498f9303f59a83fd0f6170fc5bed0605f | 2026-11-01 19:17:26 UTC
+{
+  "mode": "CACHED",
+  "max_ticks": null,
+  "render_every": 4,
+  "refresh_ticks": 20,
+  "ticks": 2799,
+  "phase": "COMPLETE",
+  "sim_s": 139.95000000000002,
+  "wall_s": 266.6653715,
+  "sim_to_wall": 0.524815048961091,
+  "step_ms": {
+    "n": 2799,
+    "median": 5.2367000000000008,
+    "p95": 244.70159999999998,
+    "max": 565.2697
+  },
+  "view_ms": {
+    "n": 699,
+    "median": 10.0058,
+    "p95": 1095.9378,
+    "max": 1424.1947
+  },
+  "views": 699,
+  "final_view_ms": 1396.4503,
+  "final_events": 84,
+  "memory_bytes": [
+    [
+      700,
+      2.35394E+7,
+      1.672904E+6
+    ],
+    [
+      1400,
+      4.3984464E+7,
+      2.336032E+6
+    ],
+    [
+      2100,
+      6.7479608E+7,
+      3.000184E+6
+    ]
+  ],
+  "rebuilds": 141,
+  "requests": 1400,
+  "samples": 3080,
+  "refused": 0,
+  "on_sample_mean_ms": 14.931006785714283,
+  "on_sample_max_ms": 145.60219999999998,
+  "rebuild_ms": {
+    "n": 141,
+    "median": 701.0999,
+    "p95": 1290.3271,
+    "max": 1398.4512
+  },
+  "convert_ms": {
+    "n": 141,
+    "median": 284.5021,
+    "p95": 555.9478,
+    "max": 644.8811
+  },
+  "layers_ms": {
+    "n": 141,
+    "median": 26.893,
+    "p95": 51.2902,
+    "max": 61.6929
+  },
+  "rebuild_growth": [
+    {
+      "tick": 4,
+      "events": 0,
+      "rebuild_ms": 125.72,
+      "convert_ms": 2.1719999999999997,
+      "layers_ms": 19.063299999999998
+    },
+    {
+      "tick": 404,
+      "events": 14,
+      "rebuild_ms": 150.4775,
+      "convert_ms": 76.6811,
+      "layers_ms": 8.7963
+    },
+    {
+      "tick": 804,
+      "events": 32,
+      "rebuild_ms": 460.5516,
+      "convert_ms": 220.4882,
+      "layers_ms": 15.8078
+    },
+    {
+      "tick": 1204,
+      "events": 38,
+      "rebuild_ms": 584.1239,
+      "convert_ms": 239.2027,
+      "layers_ms": 21.587
+    },
+    {
+      "tick": 1604,
+      "events": 46,
+      "rebuild_ms": 690.3772,
+      "convert_ms": 265.1903,
+      "layers_ms": 35.5361
+    },
+    {
+      "tick": 2004,
+      "events": 76,
+      "rebuild_ms": 1036.2906999999998,
+      "convert_ms": 540.30279999999993,
+      "layers_ms": 33.5357
+    },
+    {
+      "tick": 2404,
+      "events": 85,
+      "rebuild_ms": 1304.5846999999999,
+      "convert_ms": 556.374,
+      "layers_ms": 42.471599999999995
+    },
+    {
+      "tick": 2798,
+      "events": 84,
+      "rebuild_ms": 1378.8532,
+      "convert_ms": 483.7812,
+      "layers_ms": 61.6929
+    }
+  ],
+  "detector_proc_ms": [
+    {
+      "sensor_id": "LIDAR_TERRAIN",
+      "GroupCount": 280,
+      "median_proc_ms": 3.42805
+    },
+    {
+      "sensor_id": "RGB_NADIR",
+      "GroupCount": 700,
+      "median_proc_ms": 20.433100000000003
+    },
+    {
+      "sensor_id": "THERMAL_LWIR",
+      "GroupCount": 700,
+      "median_proc_ms": 27.370800000000003
+    },
+    {
+      "sensor_id": "VIRTUAL_GNSS_INS",
+      "GroupCount": 1400,
+      "median_proc_ms": 0.0792
+    }
+  ],
+  "objects": {
+    "detector_log_rows": 3080,
+    "route_points": 2800,
+    "footprints": 1680,
+    "pose_subscriptions": 1
+  }
+}
+

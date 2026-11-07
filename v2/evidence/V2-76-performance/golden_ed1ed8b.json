@@ -1,0 +1,85 @@
+{
+  "fingerprint": "fnv1a64:d6d364f988f04bb4",
+  "runs": [
+    {
+      "group": "G01",
+      "ticks": 1427,
+      "phase": "COMPLETE",
+      "tracks": 573,
+      "events": 65,
+      "samples_digest": "bc1c078d338198c059797b7127b21f5e8c39ae54db5d3258f87f39fea757c6e4",
+      "log_digest": "5891c9f667fe4133ac93acbe225f6b72a35dc848839badd650e6419a9a0646d5",
+      "checkpoints": [
+        "6c1b4009cd211d7942ae721f4c9cbf8d0c0c9524c654e9203a155c7fa11d95a0",
+        "3cbd0bd7b1541b5b4945bce8d1d3d6dc2212aca834cbd93fae87fd0ac75f7d5f",
+        "0cbd604c71d7bcaea5727e0020fdcb6a75d23450e942744b2748d9dfca74b47d",
+        "e539f65423ea850232f2a7383d3ebe2f0329847cdb9aad7b852daf9613d3258d",
+        "61bf854df75158cb79b193e06db82416ca9694f2ad7ffa4b669429415ce3ea59"
+      ]
+    },
+    {
+      "group": "G03",
+      "ticks": 1425,
+      "phase": "COMPLETE",
+      "tracks": 617,
+      "events": 75,
+      "samples_digest": "1a37ff092400da5f060f1e9033dbaea86527c2dd5bf4cdf653aca5ad2a8e08b7",
+      "log_digest": "fec4999343d2f96bb5e4b66976637019438adc27c832d7d27f5c44c92dfe77b5",
+      "checkpoints": [
+        "9a831d64f838dd9f564f9d887f99109b44e1b7b3fa12ee63d994353ffc474f77",
+        "303874aae14d3ece5aa3502842fcfe9bc79d1e2432d6f1411d76728cc2a8f95d",
+        "c9f19ff2b9b307a2b6426dc0531d0bc02374b2cd9640890245c2f432e071f4fc",
+        "1972cd9307870bad2857c786aa24aae70427ffd0672980b779e18ea11fa93e50",
+        "aca4312e5365acdf4808cf85df78fa17bde511f3bde5309dd97a14cd83abcf39"
+      ]
+    },
+    {
+      "group": "G05",
+      "ticks": 1426,
+      "phase": "COMPLETE",
+      "tracks": 52,
+      "events": 12,
+      "samples_digest": "5a97974129f8e113e41df5715ec4e11472f8bcd89e057d6376bd6b63746d9f08",
+      "log_digest": "1d06113036fd44d47fc3e01da425c77578935df6cca4992762cef9fce8db5d20",
+      "checkpoints": [
+        "1c9d3cc2043171e1e01671d81f65595c629eae4a5fd10cfad72d61e3721afb71",
+        "4dec6a03872f6b4965f7f7a4c61cc52b307cbc824385dbadefd6e6856303a5cd",
+        "0b4fb3c903e06c80a18f9e6ec0cf2cadd3effdaf5db492a218751d7e039c0522",
+        "48c07602f2c7a6431287f1c02c010d6283e04c2bd307cf16e4a818350b3951df",
+        "004c9caefd78fed392cf47faafdea1464cc674f1db66efa878c9477d8c1b740d"
+      ]
+    },
+    {
+      "group": "G06",
+      "ticks": 1427,
+      "phase": "COMPLETE",
+      "tracks": 534,
+      "events": 62,
+      "samples_digest": "60775c4084fb4df427a3dc5d2086532de0ca4bae687c1d23f8098ceec5158e7b",
+      "log_digest": "49bbe47f55ff67be9d8ee20fb5f57d9cec43e0e4d9a4e3529473610519b52b8f",
+      "checkpoints": [
+        "b3d7f55927a822f0d050686a5dd51313d90bf0de16c9f2f34a9b92fe107c30fa",
+        "dbdb05dd1ff905335c8b3eb5e03e876521dec29791664f220ea7a56059a108e0",
+        "b36c40f9dfb71c5107a81dbe65591058356e8102a752c8c77c99164135761a4d",
+        "ead9ef6c1a2d39acb87492c244bc6bdd8a6d0e1ff7da97d818ae81be965a7c6c",
+        "14e164ce9c9b4b332eea2bf3cd1756add6d70a7bfe38d226c6f22d5b8188a7c5"
+      ]
+    },
+    {
+      "group": "DEMO",
+      "ticks": 1426,
+      "phase": "COMPLETE",
+      "tracks": 578,
+      "events": 78,
+      "samples_digest": "3c54e1046a9854ef80bcfc5bdefa0e3dd663c2b7158c13a66d71668eabddcc87",
+      "log_digest": "e9371cd3b1440447c34050417234f7af17827e69bfba2204384cb774821b7882",
+      "checkpoints": [
+        "989183dce1d4d379abfbaadead354f1eaf0d6730c19504701fc66c32ecd20108",
+        "12ed241277000df14fb7305827a38d65b0a9febd8cffa60392d30424e4ff76dd",
+        "5cb2d23dca276d6e77503b69ea74d8c3579ac57cc361f6794930f7c5a6727c78",
+        "77268aaa174d446c99014737c045c76ecb41ebe29998f13d1babaa36a80b5f6d",
+        "541a076bac926294276ca68b35187692ff92ac91ed1d455c45bb0f223db45122"
+      ]
+    }
+  ]
+}

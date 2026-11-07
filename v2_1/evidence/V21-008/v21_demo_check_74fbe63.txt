@@ -1,0 +1,76 @@
+INFO  git 74fbe63722ae46d0f7f57e55b0f306ddef94ff40 clean=true | 26.2.0.3433840 (R2026b) Update 1
+
+== manual_rocky (ROCKY_UPLAND, MANUAL)
+PASS  route previewed for ROCKY_UPLAND
+INFO  manual targets after add x5, move x1, delete x1: 4 (markers drawn 4)
+PASS  locked: every target marker removed, editing disabled
+PASS  flight world is the selected preset world
+PASS  flight uses the selected boundary and grid (spacing 8.0 m, heading 0 deg)
+INFO  flight: phase COMPLETE at tick 3175, 693 s wall
+PASS  mission reached a terminal phase
+PASS  no private name in the live view or evidence context
+PASS  post-run evaluation opened once, after the end
+INFO  RESULT manual_rocky: events 38, targets 4, TP 0, FP 38, FN 4 (FN no-signature 1), precision 0, recall 0
+PASS  evaluation counts are consistent
+PASS  export is mg-v2-runpkg/1.1 and verifies
+PASS  operator package passes the V2.1 truth firewall
+PASS  private evaluation file written separately, on request
+INFO  dashboard valid before replay: 1
+PASS  replay of recorded data: 38 replayed events equal the 38 recorded events; not re-evaluated
+
+== random_dryflats (DRY_FLATS, RANDOM)
+PASS  route previewed for DRY_FLATS
+PASS  locked: every target marker removed, editing disabled
+PASS  flight world is the selected preset world
+PASS  flight uses the selected boundary and grid (spacing 10.0 m, heading 90 deg)
+INFO  flight: phase COMPLETE at tick 3830, 258 s wall
+PASS  mission reached a terminal phase
+PASS  no private name in the live view or evidence context
+PASS  post-run evaluation opened once, after the end
+INFO  RESULT random_dryflats: events 26, targets 8, TP 0, FP 26, FN 8 (FN no-signature 1), precision 0, recall 0
+PASS  evaluation counts are consistent
+PASS  export is mg-v2-runpkg/1.1 and verifies
+PASS  operator package passes the V2.1 truth firewall
+PASS  private evaluation file written separately, on request
+INFO  dashboard valid before replay: 1
+PASS  replay of recorded data: 26 replayed events equal the 26 recorded events; not re-evaluated
+
+== target_free (TRAINING_FIELD_A, NONE)
+PASS  route previewed for TRAINING_FIELD_A
+PASS  locked: every target marker removed, editing disabled
+PASS  flight world is the selected preset world
+PASS  flight uses the selected boundary and grid (spacing 10.0 m, heading 90 deg)
+INFO  flight: phase COMPLETE at tick 2799, 198 s wall
+PASS  mission reached a terminal phase
+PASS  no private name in the live view or evidence context
+PASS  post-run evaluation opened once, after the end
+INFO  RESULT target_free: events 112, targets 0, TP 0, FP 112, FN 0 (FN no-signature 0), precision 0, recall NaN
+PASS  evaluation counts are consistent
+PASS  zero targets: recall undefined (NaN), not 0 or 100 %
+PASS  export is mg-v2-runpkg/1.1 and verifies
+PASS  operator package passes the V2.1 truth firewall
+PASS  private evaluation file written separately, on request
+INFO  dashboard valid before replay: 1
+PASS  replay of recorded data: 112 replayed events equal the 112 recorded events; not re-evaluated
+
+== no_signature (TRAINING_FIELD_A, MANUAL)
+PASS  route previewed for TRAINING_FIELD_A
+PASS  locked: every target marker removed, editing disabled
+PASS  flight world is the selected preset world
+PASS  flight uses the selected boundary and grid (spacing 10.0 m, heading 90 deg)
+INFO  flight: phase COMPLETE at tick 2799, 198 s wall
+PASS  mission reached a terminal phase
+PASS  no private name in the live view or evidence context
+PASS  post-run evaluation opened once, after the end
+INFO  RESULT no_signature: events 112, targets 1, TP 0, FP 112, FN 1 (FN no-signature 1), precision 0, recall 0
+PASS  evaluation counts are consistent
+PASS  export is mg-v2-runpkg/1.1 and verifies
+PASS  operator package passes the V2.1 truth firewall
+PASS  private evaluation file written separately, on request
+INFO  dashboard valid before replay: 1
+PASS  replay of recorded data: 112 replayed events equal the 112 recorded events; not re-evaluated
+
+== original V2 entry point
+PASS  mgv2MissionControl: default V2 world, no evaluation hook, export still mg-v2-runpkg/1.0
+PASS  all windows closed
+TOTAL pass=51 fail=0

@@ -1,0 +1,13 @@
+RELEASE main SHA 81888041d6f9838f86db926622cef202ab7a4118 clean=1 desktop=1 26.2.0.3433840 (R2026b) Update 1
+TOOLBOXES Aerospace Toolbox 26.2; Computer Vision Toolbox 26.2; Deep Learning Toolbox 26.2; Image Processing Toolbox 26.2; MATLAB 26.2; MATLAB Copilot 26.2; MATLAB MCP Server Toolbox 0.5.0; Mapping Toolbox 26.2; Navigation Toolbox 26.2; Reinforcement Learning Toolbox 26.2; Simulink 26.2; Stateflow 26.2; UAV Toolbox 26.2
+v2_1\tests\testV21Scenario.m run=20 pass=20 fail=0 incomplete=0 time=2
+v2_1\tests\testV21Placement.m run=15 pass=15 fail=0 incomplete=0 time=2
+v2_1\tests\testV21Evaluation.m run=15 pass=15 fail=0 incomplete=0 time=1
+v2_1\tests\testV21RuntimeSeam.m run=9 pass=9 fail=0 incomplete=0 time=211
+v2_1\tests\testV21RunController.m run=9 pass=9 fail=0 incomplete=0 time=393
+v2_1\tests\testV21SetupUI.m run=12 pass=12 fail=0 incomplete=0 time=91
+v2_1\tests\testV21EvaluationView.m run=7 pass=7 fail=0 incomplete=0 time=5
+v2\matlab\tests\testV2002MissionEngine.m run=22 pass=22 fail=0 incomplete=0 time=18
+v2\matlab\tests\testV2007MissionControlUI.m run=73 pass=73 fail=0 incomplete=0 time=904
+v2\matlab\tests\testV2008ExportReplay.m run=21 pass=21 fail=0 incomplete=0 time=627
+DONE
