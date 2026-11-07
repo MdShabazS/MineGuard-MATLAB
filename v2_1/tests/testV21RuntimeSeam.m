@@ -70,22 +70,34 @@ classdef testV21RuntimeSeam < matlab.unittest.TestCase
             tc.verifyFalse(contains(txt, "-53") || contains(txt, "-57"), 'no feature coordinate in any text file');
         end
 
-        function privateRunExportsAsV11WithCommitment(tc)
-            F = tc.features(); s = tc.fly(mgv2.ui.MissionSession(SceneConfig=tc.scene(), SurfaceFeatures=F), tc.Ticks);
-            s.abortRun(); pkg = mgv2.run.verifyPackage(s.exportRun(tc.Root));
+        function privateRunExportsAsV11WithSaltedCommitment(tc)
+            F = tc.features(); s = tc.fly(mgv2.ui.MissionSession(SceneConfig=tc.scene(), SurfaceFeatures=F, CommitmentSalt="seam-test-salt"), tc.Ticks);
+            s.abortRun(); f = s.exportRun(tc.Root); pkg = mgv2.run.verifyPackage(f); h = string(pkg.manifest.private_forward_model.features_sha256);
             tc.verifyEqual(string(pkg.manifest.schema_version), "mg-v2-runpkg/1.1");
             tc.verifyEqual(pkg.config.scene_config.seed, 4242);
             tc.verifyTrue(pkg.manifest.private_forward_model.used);
-            tc.verifyEqual(string(pkg.manifest.private_forward_model.features_sha256), mgv2.run.digest(mgv2.sensors.validateSurfaceFeatures(F)));
+            tc.verifyEqual(h, mgv2.ui.MissionSession.commit(F, "seam-test-salt"));
+            tc.verifyNotEqual(h, mgv2.run.digest(mgv2.sensors.validateSurfaceFeatures(F)), 'F1: the unsalted hash of a guessed layout must not match');
+            txt = ""; for p = mgv2.run.listFiles(f)', if endsWith(p, [".json", ".csv"]), txt = txt + string(fileread(fullfile(f, p))); end, end
+            tc.verifyFalse(contains(txt, "seam-test-salt"), 'the salt is never in the package');
+        end
+
+        function featuresWithoutASaltGetARandomOne(tc)
+            a = mgv2.ui.MissionSession(SceneConfig=tc.scene(), SurfaceFeatures=tc.features());
+            b = mgv2.ui.MissionSession(SceneConfig=tc.scene(), SurfaceFeatures=tc.features());
+            tc.verifyNotEqual(a.privateCommitment().features_sha256, b.privateCommitment().features_sha256, 'a fresh random salt per session');
+            tc.verifyFalse(any(strcmp(properties(a), 'CommitmentSalt')));
         end
 
         function reproductionNeedsTheSamePrivateFeatures(tc)
-            F = tc.features(); s = tc.fly(mgv2.ui.MissionSession(SceneConfig=tc.scene(), SurfaceFeatures=F), tc.Ticks);
+            F = tc.features(); s = tc.fly(mgv2.ui.MissionSession(SceneConfig=tc.scene(), SurfaceFeatures=F, CommitmentSalt="salt-1"), tc.Ticks);
             s.abortRun(); pkg = mgv2.run.verifyPackage(s.exportRun(tc.Root));
             tc.verifyError(@() mgv2.run.reproduce(pkg), 'mgv2:PrivateScenarioRequired');
+            tc.verifyError(@() mgv2.run.reproduce(pkg, SurfaceFeatures=F), 'mgv2:PrivateScenarioRequired', 'features without the salt');
+            tc.verifyError(@() mgv2.run.reproduce(pkg, SurfaceFeatures=F, CommitmentSalt="salt-2"), 'mgv2:PrivateScenarioRequired', 'wrong salt');
             G = F; G(1).delta_T_K = 2;
-            tc.verifyError(@() mgv2.run.reproduce(pkg, SurfaceFeatures=G), 'mgv2:PrivateScenarioRequired');
-            tc.verifyTrue(mgv2.run.reproduce(pkg, SurfaceFeatures=F).match);
+            tc.verifyError(@() mgv2.run.reproduce(pkg, SurfaceFeatures=G, CommitmentSalt="salt-1"), 'mgv2:PrivateScenarioRequired');
+            tc.verifyTrue(mgv2.run.reproduce(pkg, SurfaceFeatures=F, CommitmentSalt="salt-1").match);
         end
 
         function replayNeedsTheSameWorldAndNoFeatures(tc)

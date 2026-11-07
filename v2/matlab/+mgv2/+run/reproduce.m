@@ -9,19 +9,21 @@ function r = reproduce(pkg, opts)
 %     end     - final phase and fault code
 %   r: match (all equal), poses_equal, samples_compared, samples_equal, first_mismatch, end_equal, world_equal.
 %   Operator pauses do not change a simulation, so they need not be reproduced.
-%   r = mgv2.run.reproduce(pkg, SurfaceFeatures=F)   a mg-v2-runpkg/1.1 run made with a PRIVATE forward model can only be
-%   reproduced with those same private features; their SHA-256 must equal the package's commitment, otherwise
-%   mgv2:PrivateScenarioRequired. A package never contains the features themselves.
+%   r = mgv2.run.reproduce(pkg, SurfaceFeatures=F, CommitmentSalt=s)   a mg-v2-runpkg/1.1 run made with a PRIVATE forward
+%   model can only be reproduced with those same private features and the private salt (kept in the private evaluation
+%   file): the salted SHA-256 must equal the package's commitment, otherwise mgv2:PrivateScenarioRequired.
+%   A package never contains the features or the salt.
 arguments
     pkg struct
     opts.SurfaceFeatures = []
+    opts.CommitmentSalt (1,1) string = ""
 end
 c = pkg.config; m = c.mission; e = pkg.manifest.end_state;
 scene = mgv2.scene.defaultSceneConfig(); if isfield(c, 'scene_config'), scene = c.scene_config; end
 F = mgv2.sensors.validateSurfaceFeatures(opts.SurfaceFeatures); pm = struct('used', false);
 if isfield(pkg.manifest, 'private_forward_model'), pm = pkg.manifest.private_forward_model; end
-if pm.used && (isempty(F) || mgv2.run.digest(F) ~= string(pm.features_sha256))
-    error('mgv2:PrivateScenarioRequired', 'This run used a private forward model; reproduce it with the same private SurfaceFeatures.');
+if pm.used && (isempty(F) || mgv2.ui.MissionSession.commit(F, opts.CommitmentSalt) ~= string(pm.features_sha256))
+    error('mgv2:PrivateScenarioRequired', 'This run used a private forward model; reproduce it with the same private SurfaceFeatures and CommitmentSalt.');
 end
 if ~pm.used && ~isempty(F), error('mgv2:PrivateScenarioRequired', 'This run used no private forward model.'); end
 w = mgv2.scene.buildWorld(scene); r = struct('world_equal', mgv2.run.digest(w) == string(pkg.manifest.world_digest));
