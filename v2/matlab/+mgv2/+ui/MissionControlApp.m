@@ -63,13 +63,14 @@ classdef MissionControlApp < handle
                 opts.ExportRoot (1,1) string = mgv2.ui.MissionControlApp.defaultExportRoot()
                 opts.SceneConfig struct = mgv2.scene.defaultSceneConfig()
                 opts.SurfaceFeatures = []          % PRIVATE: passed to the session's sensors only (V2.1)
+                opts.CommitmentSalt (1,1) string = ""   % PRIVATE salt of the export commitment (V2.1)
             end
             app.ExportRoot = opts.ExportRoot;
             t0 = tic; app.PerfClock = tic;
             app.RealTime = opts.RealTime; app.RenderEvery = opts.RenderEvery; app.SceneEvery = opts.SceneEvery; app.MaxTicksPerRun = opts.MaxTicksPerRun;
             app.Session = mgv2.ui.MissionSession(MissionConfig=opts.MissionConfig, SensorConfig=opts.SensorConfig, ...
                 Environment=opts.Environment, AnomalySource=opts.AnomalySource, SceneConfig=opts.SceneConfig, ...
-                SurfaceFeatures=opts.SurfaceFeatures);
+                SurfaceFeatures=opts.SurfaceFeatures, CommitmentSalt=opts.CommitmentSalt);
             app.clearPerf();
             pos = opts.Position; if isempty(pos), pos = mgv2.ui.MissionControlApp.defaultPosition(); end
             t = mgv2.ui.theme();

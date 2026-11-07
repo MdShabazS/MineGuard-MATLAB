@@ -39,6 +39,7 @@ classdef MissionSession < handle
         Building = false  % true only while the tick-0 samples are emitted
         BindError = ""    % why the source refused this run; the mission flies without it and the error stays displayed
         PrivateFeatures   % PRIVATE forward-model surface features (mgv2.sensors.validateSurfaceFeatures); empty in V2
+        CommitmentSalt = ""   % PRIVATE random salt of the export commitment (F1); never in a view or package
     end
 
     methods
@@ -50,8 +51,11 @@ classdef MissionSession < handle
                 opts.AnomalySource (1,1) mgv2.ui.AnomalySource = mgv2.ui.NullAnomalySource()
                 opts.SceneConfig struct = mgv2.scene.defaultSceneConfig()
                 opts.SurfaceFeatures = []
+                opts.CommitmentSalt (1,1) string = ""      % PRIVATE; generated when features are given without one
             end
             ses.SceneConfig = opts.SceneConfig; ses.PrivateFeatures = mgv2.sensors.validateSurfaceFeatures(opts.SurfaceFeatures);
+            ses.CommitmentSalt = opts.CommitmentSalt;
+            if ~isempty(ses.PrivateFeatures) && strlength(ses.CommitmentSalt) == 0, ses.CommitmentSalt = mgv2.ui.MissionSession.newSalt(); end
             ses.World = mgv2.scene.buildWorld(opts.SceneConfig); ses.MissionConfig = opts.MissionConfig;
             ses.SensorConfig = opts.SensorConfig; ses.Environment = opts.Environment; ses.Source = opts.AnomalySource;
             ses.Launch = struct('mission', opts.MissionConfig, 'sensors', opts.SensorConfig, 'environment', opts.Environment);
@@ -159,10 +163,14 @@ classdef MissionSession < handle
         end
 
         function c = privateCommitment(ses)
-            %PRIVATECOMMITMENT Public record that a private forward model was used: a SHA-256 commitment, never the features.
+            %PRIVATECOMMITMENT Public record that a private forward model was used: a SALTED SHA-256 commitment, never the
+            %   features. The salt is private (F1, #132): without it a guessed layout cannot be confirmed against a package.
             n = numel(ses.PrivateFeatures);
-            c = struct('used', n > 0, 'features_sha256', "");
-            if n > 0, c.features_sha256 = mgv2.run.digest(ses.PrivateFeatures); end
+            c = struct('used', n > 0, 'features_sha256', "", 'commitment', "");
+            if n > 0
+                c.features_sha256 = mgv2.ui.MissionSession.commit(ses.PrivateFeatures, ses.CommitmentSalt);
+                c.commitment = "sha256 of mgv2.run.digest over {salt, features}; the salt is private";
+            end
         end
 
         function n = packageName(ses)
@@ -289,6 +297,17 @@ classdef MissionSession < handle
     end
 
     methods (Static)
+        function h = commit(F, salt)
+            %COMMIT Salted commitment to private surface features (used by export and reproduce).
+            h = mgv2.run.digest(struct('salt', string(salt), 'features', mgv2.sensors.validateSurfaceFeatures(F)));
+        end
+
+        function s = newSalt()
+            %NEWSALT 128 random bits from the Java SecureRandom generator, as hex.
+            b = typecast(java.security.SecureRandom().generateSeed(16), 'uint8');
+            s = string(lower(reshape(dec2hex(b, 2)', 1, [])));
+        end
+
         function t = shortTimeout(m)
             %SHORTTIMEOUT A timeout 2 s above the engine's preflight lower bound: preflight accepts it, the flight overruns it.
             c = mgv2.mission.validateConfig(m); k = c.constraints; route = mgv2.mission.buildRoute(c, mgv2.mission.planSurvey(c));
