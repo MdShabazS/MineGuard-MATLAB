@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "tasks": {
+    "V22-T1": {
+      "owner": "Shabaz",
+      "state": "DONE",
+      "evidence": "v2_2/evidence/V22-T1.md",
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-15",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-11-15"
+    },
+    "V22-T2": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V22-T3": {
+      "owner": "Danish",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V22-T4": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V22-T5": {
+      "owner": "Danish",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V22-T6": {
+      "owner": "Rahil",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V22-T7": {
+      "owner": "Shabaz",
+      "state": "TODO",
+      "evidence": null
+    },
+    "V22-T8": {
+      "owner": "Danish",
+      "state": "TODO",
+      "evidence": null
+    }
+  }
+}

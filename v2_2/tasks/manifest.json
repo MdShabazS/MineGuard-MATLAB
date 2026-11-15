@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "project": "MineGuard Advanced V2.2 - BITM satellite view",
+  "phase": "V2.2",
+  "enforcement": "dependency-dag, owner merges (scripts/v22-gate.mjs)",
+  "notes": "Owner builds, tests, self-reviews and merges once CI passes and every dependency is DONE on main. Independent tasks continue; dependent tasks wait. No map tiles or screenshots are committed unless V22-T3 allows it. Detector, sealed TEST data and V2/V2.1 behaviour stay unchanged.",
+  "tasks": {
+    "V22-T1": {
+      "owner": "Shabaz",
+      "kind": "DOC",
+      "dependsOn": [],
+      "title": "Phase plan, task tracking, owner-merges rule and V2.2 CI gate",
+      "evidence": "v2_2/evidence/V22-T1.md",
+      "acceptance": [
+        "v2_2/tasks manifest and status with V22-T1..T8, owners and dependencies",
+        "docs/TEAM.md and CLAUDE.md record the owner builds, self-reviews and merges rule",
+        "scripts/v22-gate.mjs validates the plan and PR transitions and runs in CI, with tests"
+      ]
+    },
+    "V22-T2": {
+      "owner": "Shabaz",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V22-T1"
+      ],
+      "title": "Guide live dashboard replacing the existing Render portal",
+      "evidence": "v2_2/evidence/V22-T2.md",
+      "acceptance": [
+        "One simple page at the existing portal URL: V2.2 tasks, owner, status, ready/blocked, dependencies",
+        "Live work from GitHub: open PRs per task, last commit time and CI result, refreshed every minute, marked as not merged",
+        "Earlier phases (V1, V2, V2.1) reduced to one small history link",
+        "Portal tests updated and passing; the deployed page checked after merge"
+      ]
+    },
+    "V22-T3": {
+      "owner": "Danish",
+      "kind": "DOC",
+      "dependsOn": [
+        "V22-T1"
+      ],
+      "title": "Satellite map source, licence terms and approved BITM location and boundary",
+      "evidence": "v2_2/evidence/V22-T3.md",
+      "acceptance": [
+        "Decision on the satellite source (MATLAB online basemap) with exact on-screen credit text",
+        "What may be committed to the public repository (code yes; map tiles and screenshots only if the terms allow) and what may be shown in a demo",
+        "BITM campus centre (WGS84) and boundary from a named approved source, with the source recorded",
+        "Builds on v2/research/ENH-008-GEOGRAPHIC-DECISION.md and issue #135"
+      ]
+    },
+    "V22-T4": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V22-T3"
+      ],
+      "title": "Clean satellite preview module rebuilt on current main",
+      "evidence": "v2_2/evidence/V22-T4.md",
+      "acceptance": [
+        "Standalone module from the retired PRs #72, #75 and #100: satellite basemap centred on the T3 BITM location",
+        "WGS84 <-> virtual ENU conversion, on-screen credits, dark and light theme",
+        "Honest status: provider metadata and actual tile load reported separately; no network shown as unavailable",
+        "Tests (incl. the old #100 cases) run on Windows R2026b with SHA and checkcode recorded; no tiles or screenshots committed unless T3 allows"
+      ]
+    },
+    "V22-T5": {
+      "owner": "Danish",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V22-T4"
+      ],
+      "title": "Virtual V2.1 mission route drawn over BITM and synced with the 3-D demo",
+      "evidence": "v2_2/evidence/V22-T5.md",
+      "acceptance": [
+        "V2.1 boundary, planned route and live drone position drawn on the satellite view at the BITM origin",
+        "Everything labelled VIRTUAL; no mine, target or anomaly markers over real property",
+        "Route position stays in step with the 3-D mission clock (ENH-011)",
+        "Tests run on Windows R2026b"
+      ]
+    },
+    "V22-T6": {
+      "owner": "Rahil",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V22-T5"
+      ],
+      "title": "Satellite tab integrated into V2.1 mission control with offline fallback",
+      "evidence": "v2_2/evidence/V22-T6.md",
+      "acceptance": [
+        "Satellite tab in the V2.1 application, optional and separate from the offline ENU mission map",
+        "No network: falls back to the ENH-009 offline campus schematic with a clear notice",
+        "Offline mission, detector, sealed TEST data and V2/V2.1 behaviour unchanged; startup and frame cost measured",
+        "Full V2 + V2.1 + V2.2 regression on Windows recorded"
+      ]
+    },
+    "V22-T7": {
+      "owner": "Shabaz",
+      "kind": "TEST",
+      "dependsOn": [
+        "V22-T6"
+      ],
+      "title": "Mac verification of the satellite view at the final commit",
+      "evidence": "v2_2/evidence/V22-T7.md",
+      "acceptance": [
+        "Short satellite tests only (no full regression) on Mac MATLAB R2026b at the final SHA",
+        "Tile load, credits, theme and offline fallback observed on the Mac; log committed, no tiles committed unless T3 allows"
+      ]
+    },
+    "V22-T8": {
+      "owner": "Danish",
+      "kind": "TEST",
+      "dependsOn": [
+        "V22-T6"
+      ],
+      "title": "Windows acceptance, guide demo script and V2.2 release record",
+      "evidence": "v2_2/evidence/V22-T8.md",
+      "acceptance": [
+        "Full regression and a satellite acceptance run on Windows at the final SHA",
+        "Demo script updated with the ENH-010 Ballari-to-BITM storyboard and the satellite tab",
+        "Release record with limitations: virtual route, no detection claim, map terms"
+      ]
+    }
+  }
+}

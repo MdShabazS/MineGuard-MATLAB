@@ -25,11 +25,20 @@ jobs:
           node --check portal/core.mjs
           node --check portal/app.mjs
           node --check scripts/v2-gate.mjs
+          node --check scripts/v22-gate.mjs
+          node --check scripts/v22-gate-core.mjs
           node --check scripts/verify-render-portal.mjs
       - name: Validate task DAG and evidence
         run: node scripts/task-gate.mjs validate
       - name: Validate independent V2 task DAG
         run: node scripts/v2-gate.mjs validate
+      - name: Validate V2.2 task DAG (owner merges)
+        run: node scripts/v22-gate.mjs validate
+      - name: Confirm V2.2 status changes respect target branch dependencies
+        if: github.event_name == 'pull_request'
+        env:
+          PR_HEAD_REF: ${{ github.head_ref }}
+        run: node scripts/v22-gate.mjs pr
       - name: Confirm V2 status changes respect target branch dependencies
         if: github.event_name == 'pull_request'
         env:
@@ -48,5 +57,6 @@ jobs:
         run: |
           node scripts/task-gate.mjs ready
           node scripts/v2-gate.mjs ready
+          node scripts/v22-gate.mjs ready
       - name: Scope note
         run: echo 'Static CI does NOT execute MATLAB, visit Render, or verify science.'
