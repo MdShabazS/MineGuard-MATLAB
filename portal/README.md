@@ -7,14 +7,14 @@ One page for the project guide. It shows:
 - **who is doing what**: each team member's Claude session, its current task, open pull request, last commit time and CI result;
 - a single link to the project history (V1, V2, V2.1).
 
-## Where the data comes from (refreshed every 60 s, no server, no credentials)
+## Where the data comes from (refreshed every 3 minutes, no server, no credentials)
 
 | Data | Source |
 |---|---|
 | Official status | `v2_2/tasks/manifest.json` and `status.json` at the latest `main` commit, read from `raw.githubusercontent.com` by commit SHA |
-| Live work | GitHub REST API: open pull requests and Task Gate runs. A PR on `task/V22-Tn-*` is shown against task V22-Tn as **not merged** work |
+| Live work | GitHub REST API, 2 requests per refresh: the Actions runs list (CI results and the latest `main` commit) and open pull requests. A PR on `task/V22-Tn-*` is shown against task V22-Tn as **not merged** work |
 
-The GitHub API allows 60 unauthenticated requests per hour per viewer. The page uses conditional requests: unchanged data returns "304 Not Modified", which does not count against that limit. If the limit is reached anyway, the page says so and keeps showing merged status.
+The GitHub API allows 60 unauthenticated requests per hour per network, and for unauthenticated visitors even "304 Not Modified" replies count. The page therefore makes 2 requests every 3 minutes (about 40 per hour). If the limit is reached, for example by many reloads or several viewers on one network, it stops calling the API, says when live data resumes, and keeps showing the merged status read from `raw.githubusercontent.com`, which has no such limit.
 
 ## Files
 

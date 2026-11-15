@@ -1,12 +1,12 @@
 // Guide live dashboard: fetches GitHub data and renders it. All text is inserted as text, never HTML.
-import {REPO, PHASE, buildTasks, attachPRs, summarize, whoIsDoingWhat, fileUrl, ago} from "./core.mjs";
+import {REPO, PHASE, buildTasks, attachPRs, summarize, whoIsDoingWhat, fileUrl, ago, mainShaFromRuns} from "./core.mjs";
 
 const API = "https://api.github.com/repos/" + REPO;
 const RAW = "https://raw.githubusercontent.com/" + REPO + "/";
-const REFRESH_MS = 60000;
+const REFRESH_MS = 180000;      // 2 API requests per refresh: about 40 of the 60 unauthenticated requests per hour
 const $ = id => document.getElementById(id);
 const LABEL = {DONE: "Done", IN_PROGRESS: "In progress", READY: "Ready", BLOCKED: "Waiting"};
-let busy = false, lastGood = null;
+let busy = false, lastGood = null, pausedUntil = 0;
 
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
@@ -16,13 +16,17 @@ function el(tag, attrs = {}, ...children) {
 }
 function link(href, text) { return href ? el("a", {href, target: "_blank", rel: "noopener noreferrer"}, text) : document.createTextNode(text); }
 
-// "no-cache" makes the browser revalidate with the ETag; GitHub's 304 replies do not use the hourly API limit.
+// Unauthenticated: every request (even a 304) counts towards GitHub's 60 per hour per viewer, so back off at the limit.
 async function api(path) {
+  if (Date.now() < pausedUntil) throw Object.assign(Error("paused"), {rate: true});
   const r = await fetch(API + path, {cache: "no-cache", headers: {Accept: "application/vnd.github+json"}});
+  const left = Number(r.headers.get("x-ratelimit-remaining")), reset = Number(r.headers.get("x-ratelimit-reset"));
+  if (r.status === 403 || r.status === 429 || left === 0) pausedUntil = Number.isFinite(reset) && reset > 0 ? reset * 1000 : Date.now() + 600000;
   if (r.status === 403 || r.status === 429) throw Object.assign(Error("GitHub rate limit reached"), {rate: true});
   if (!r.ok) throw Error("GitHub API " + r.status);
   return r.json();
 }
+const resumeAt = () => new Date(pausedUntil).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
 async function raw(ref, file, cache) {
   const r = await fetch(RAW + ref + "/" + file, {cache});
   if (!r.ok) throw Error(file + " " + r.status);
@@ -30,16 +34,15 @@ async function raw(ref, file, cache) {
 }
 
 async function load() {
-  let sha = "main", notes = [];
-  try { sha = (await api("/commits/main")).sha; } catch (e) { notes.push(e.rate ? "GitHub rate limit: task status may be a few minutes old." : "Could not read the latest main commit."); }
+  let runs = null, pulls = null, notes = [];
+  try { [runs, pulls] = await Promise.all([api("/actions/runs?per_page=60"), api("/pulls?state=open&per_page=50")]); }
+  catch (e) { notes.push(e.rate ? "GitHub's hourly limit for this network is reached: live pull-request data resumes at " + resumeAt() + "; task status below may be a few minutes old." : "Live pull-request data is unavailable; showing merged status only."); }
+  const sha = mainShaFromRuns(runs?.workflow_runs) || "main";
   const byRef = sha === "main" ? "no-store" : "force-cache";        // a commit SHA never changes, so it may be cached
   const [manifest, status] = await Promise.all([raw(sha, PHASE.manifest, byRef), raw(sha, PHASE.status, byRef)]);
   const tasks = buildTasks(manifest, status);
-  let other = [], live = true;
-  try {
-    const [pulls, runs] = await Promise.all([api("/pulls?state=open&per_page=50"), api("/actions/runs?event=pull_request&per_page=60")]);
-    other = attachPRs(tasks, pulls, runs.workflow_runs);
-  } catch (e) { live = false; notes.push((e.rate ? "GitHub rate limit: " : "") + "live pull-request data is paused; showing merged status only."); }
+  const live = !!(runs && pulls);
+  const other = live ? attachPRs(tasks, pulls, runs.workflow_runs) : [];
   return {tasks, other, live, sha, notes};
 }
 

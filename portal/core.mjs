@@ -37,6 +37,13 @@ export function ciFor(runs, sha) {
   return run.conclusion === "success" ? {state: "pass", label: "CI passed", url: run.html_url} : {state: "fail", label: "CI " + (run.conclusion || "failed"), url: run.html_url};
 }
 
+// Latest main commit that CI ran on (Task Gate runs on every push to main), from the same runs listing.
+export function mainShaFromRuns(runs) {
+  const r = (runs || []).filter(x => x.head_branch === "main" && x.event === "push" && (x.name === "Task Gate" || x.path?.includes("task-gate")))
+    .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))[0];
+  return r ? r.head_sha : null;
+}
+
 // Attach open PRs to their tasks. Returns PRs that are not task PRs as `other`.
 export function attachPRs(tasks, pulls, runs) {
   const byId = Object.fromEntries(tasks.map(t => [t.id, t]));
