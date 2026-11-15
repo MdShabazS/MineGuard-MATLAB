@@ -22,11 +22,13 @@ The following source-controlled documents define the required V2 capabilities **
 
 A published architecture is not a completed MATLAB V2 simulation. Follow the separate TODO → IN_PROGRESS → DONE PR lifecycle for V2-001. Subsystems V2-002/V2-003/V2-004 remain blocked until its final DONE status merges to main.
 
-## Two-member ownership
+## Ownership during V2 (historical)
+
+> Since 2026-11-15 the team is Shabaz's Claude (lead), Rahil's Claude and Danish's Claude; ChatGPT is no longer used. See [docs/TEAM.md](../docs/TEAM.md).
 
 | Member | Tool | Primary responsibility |
 |---|---|---|
-| Shabaz | ChatGPT | Requirements, architecture, independent verification, scientific limitations, guide material, acceptance and documentation |
+| Shabaz | ChatGPT (until 2026-11-15) | Requirements, architecture, independent verification, scientific limitations, guide material, acceptance and documentation |
 | Rahil | Claude Code | MATLAB engineering, 3-D scene and flight simulation, virtual sensor integration, integrated UI, reproducible tests and code evidence |
 
 Human team members own tasks. AI tools are assistants, not execution evidence.

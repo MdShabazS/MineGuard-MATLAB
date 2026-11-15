@@ -2,7 +2,9 @@
 **Machine authority:** `tasks/manifest.json` and merged `tasks/status.json` on `main`, not this explanatory page. This page explains reasons and recommended execution waves.
 
 ## Roles
-**Shabaz (ChatGPT):** research, objective preservation, specs, experiment design, review, documentation; also may run independent MATLAB on Mac after environment verified. **Rahil (Claude Code):** MATLAB installed environment, code, test/execution logs, bug fixes, technical handoff. Both inspect PRs; nobody self-approves.
+> Current team since 2026-11-15: see [TEAM.md](TEAM.md); ChatGPT is no longer used. The V1 roles below are kept for history.
+
+**Shabaz (V1):** research, objective preservation, specs, experiment design, review, documentation; also may run independent MATLAB on Mac after environment verified. **Rahil (V1, Claude Code):** MATLAB installed environment, code, test/execution logs, bug fixes, technical handoff. Both inspect PRs; nobody self-approves.
 
 ## Task dependency table
 | Task | Owner | Needs | Why / handoff |

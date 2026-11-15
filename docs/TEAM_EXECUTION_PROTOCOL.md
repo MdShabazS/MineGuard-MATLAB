@@ -1,7 +1,9 @@
-# Two-Owner AI-Led Execution Protocol
+# Team Execution Protocol
+
+> **Updated 2026-11-15:** the team is three Claude Code sessions: Shabaz's Claude (lead and decision maker), Rahil's Claude and Danish's Claude. ChatGPT is no longer used. The current team and rules are in [TEAM.md](TEAM.md); the task split for the next phase will be defined there. The table below shows the V1 split, for history.
 
 ## Owner responsibilities
-| Work | Shabaz / ChatGPT | Rahil / Claude Code |
+| Work (V1) | Shabaz | Rahil |
 |---|---|---|
 | Guide requirements, objective preservation | Accountable | Reviewer |
 | Literature/publication and licences | Primary | Cross-check while coding |
@@ -15,7 +17,7 @@
 | User's physical computer environment | Cannot remotely install without actual access | Runs commands/installer and shares sanitized results |
 
 ## Autonomy boundaries
-AI performs research and prepares code/tests within accessible environments. **Claude Code must actually execute MATLAB locally through the user-authorized toolkit**, while ChatGPT may review live GitHub state and evidence. Neither claims background activity or auto-completion without a running mechanism.
+AI performs research and prepares code/tests within accessible environments. **Claude Code must actually execute MATLAB locally through the user-authorized toolkit**, while the lead session (Shabaz's Claude) reviews live GitHub state and evidence. Neither claims background activity or auto-completion without a running mechanism.
 
 ## Task protocol
 1. Query latest authoritative `main` task states.
@@ -27,7 +29,7 @@ AI performs research and prepares code/tests within accessible environments. **C
 7. Work journal `tasks/updates.json`: only factual dated summary of executed changes, next steps and linked evidence.
 
 ## Rahil help desk
-On receiving any MATLAB error, Shabaz/ChatGPT should ask for **one missing diagnostic detail only if genuinely required**, otherwise give the next exact check. Use release-specific docs; do not tell Rahil to reinstall MATLAB when a missing add-on or path error is more likely. All troubleshooting fixes require another test and evidence.
+On receiving any MATLAB error, Shabaz's Claude should ask for **one missing diagnostic detail only if genuinely required**, otherwise give the next exact check. Use release-specific docs; do not tell Rahil to reinstall MATLAB when a missing add-on or path error is more likely. All troubleshooting fixes require another test and evidence.
 
 ## Offline/temporary files
 Use local MATLAB project checkouts to execute; GitHub remains canonical. Never commit cache, credentials or unlicensed third-party datasets. Any report screenshot or trained checkpoint must have provenance.

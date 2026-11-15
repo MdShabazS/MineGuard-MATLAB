@@ -1,8 +1,9 @@
 # GitHub-first Dependency DAG Governance
 
-## Two members, two AI tools
-- **Shabaz** with ChatGPT: source research, guide-required unchanged problem/objectives, research references, specifications, acceptance tests, independent verification, approved documentation.
-- **Rahil** with Claude Code: MATLAB/Simulink code, models, automated experiments, debugging and execution proof. Shabaz may manually test MATLAB if environment permits.
+## Team
+- **Shabaz's Claude** (Mac): project lead and decision maker. Plans, defines and splits tasks, reviews, decides merges, owns documentation.
+- **Rahil's Claude** (Windows) and **Danish's Claude**: assigned work. Rahil's laptop is the primary MATLAB verification machine.
+- ChatGPT and Codex are no longer used. Details: [TEAM.md](TEAM.md).
 - GitHub `main` is authoritative. No unpushed working copy, chat statement or AI summary is an accepted task outcome.
 
 ## Task DAG

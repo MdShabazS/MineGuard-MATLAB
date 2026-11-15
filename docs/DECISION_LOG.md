@@ -33,3 +33,13 @@ Review/merge PR #1 after docs QA. Then record approved MG-000 completion and ena
 - Primary original slide deck is absent from new repository, so original-wording verification remains PENDING. Wording itself has not been changed.
 - Zenodo DRC 2026 candidate added as research only, **licence not established** and no data downloaded.
 - Read-only guide portal Task Gate CI presentation will filter to actual `main` runs.
+
+## 2026-11-15 — Team change: Claude-only, three sessions
+
+- **Decision (Shabaz):** MineGuard is a MATLAB-only project worked on by three Claude Code sessions:
+  - **Shabaz's Claude** (Mac): project lead and decision maker.
+  - **Rahil's Claude** (Windows).
+  - **Danish's Claude**.
+- **ChatGPT and Codex are no longer used.**
+- **Work split:** the split for the next phase will be defined later in [TEAM.md](TEAM.md).
+- **Earlier entries in this log** and all earlier evidence keep their original wording.

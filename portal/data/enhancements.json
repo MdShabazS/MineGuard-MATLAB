@@ -20,7 +20,7 @@
     {
       "id": "ENH-002",
       "title": "Optional real satellite mission-map preview",
-      "owner": "Shabaz + ChatGPT; Mac Claude verification",
+      "owner": "Shabaz (Mac Claude)",
       "status": "TESTED_BLOCKED",
       "priority": "P1",
       "detail": "Original PR #72 Mac verification: 7/7 coordinate tests PASS and actual online satellite imagery loaded. Required Esri attribution was absent and light-theme axis text failed contrast; PR #75 correction is still untested.",
@@ -32,7 +32,7 @@
     {
       "id": "ENH-003",
       "title": "Innovative Mission Intelligence UI & Focus Mode",
-      "owner": "Shabaz (Mac Claude + ChatGPT)",
+      "owner": "Shabaz (Mac Claude)",
       "status": "PLANNED",
       "priority": "P1",
       "detail": "A clearer map/3-D hierarchy, expandable sensor/evidence panels, mission-stage ribbon and legible presentation-friendly controls.",

@@ -13,7 +13,7 @@ Install MATLAB and toolboxes through authorised student/college entitlements. Th
 Reference: https://github.com/matlab/matlab-agentic-toolkit
 
 ## AI agent governance
-- Claude Code and ChatGPT can research, author and test only with actual accessible tools; they must not hallucinate execution.
+- The team's Claude Code sessions can research, author and test only with actual accessible tools; they must not hallucinate execution.
 - Require review of proposed file edits, tool commands and public communication.
 - AI-generated report passages must be checked for fabricated bibliography and numeric claims.
 - Keep one actual human reviewer independent of PR author; release remains a human decision.
