@@ -3,129 +3,55 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b1220">
-  <meta name="mineguard-portal-build" content="2026-11-02-status-fix-1">
-  <meta name="description" content="MineGuard MATLAB project: live academic guide overview sourced from GitHub task records.">
-  <title>MineGuard · Guide's Project Observatory</title>
-  <link rel="stylesheet" href="./styles.css?v=20261102-statusfix1">
-  <script type="module" src="./app.mjs?v=20261102-statusfix1"></script>
+  <meta name="mineguard-dashboard" content="v22-live-1">
+  <meta name="description" content="MineGuard: live view of who is doing what, read from GitHub.">
+  <title>MineGuard · Live team dashboard</title>
+  <link rel="stylesheet" href="./styles.css?v=v22-live-1">
+  <script type="module" src="./app.mjs?v=v22-live-1"></script>
 </head>
 <body>
-<a class="skip" href="#main">Skip to project status</a>
-<div class="shell">
-  <header class="topbar">
-    <div class="brand"><div class="mark" aria-hidden="true">M<span>G</span></div><div><div class="brand-name">MineGuard <span class="light">/ MATLAB</span></div><div class="brand-sub">PROJECT OBSERVATORY</div></div></div>
-    <div class="top-actions"><span class="pill soft">READ-ONLY GUIDE VIEW</span><a class="external" href="https://github.com/MdShabazS/MineGuard-MATLAB" target="_blank" rel="noopener noreferrer">GitHub repository <span aria-hidden="true">↗</span></a></div>
+<main class="shell">
+  <header class="top">
+    <div>
+      <div class="kicker"><span class="dot" aria-hidden="true"></span> LIVE FROM GITHUB · REFRESHES EVERY MINUTE</div>
+      <h1>MineGuard · Live team dashboard</h1>
+      <p class="phase" id="phase">Loading current phase…</p>
+    </div>
+    <div class="sync">
+      <div class="muted">Last checked</div>
+      <div id="lastChecked" aria-live="polite">Checking…</div>
+      <button id="refresh" type="button">↻ Refresh</button>
+    </div>
   </header>
-  <main id="main">
-    <div class="page-heading">
-      <div><div class="eyebrow"><span class="live-dot" aria-hidden="true"></span> SOURCE: GITHUB MAIN BRANCH <span class="separator">/</span> REFRESHES EVERY 5 MINUTES</div>
-        <h1>Project overview</h1>
-        <p class="lede">Real progress, current work and technical evidence — no manual status reports needed.</p>
-      </div>
-      <div class="sync-box"><div class="sync-label">LAST CHECKED</div><div id="lastChecked" class="sync-time" aria-live="polite">Checking…</div><button id="refresh" class="refresh" type="button">↻ Refresh now</button></div>
-    </div>
-    <div id="alert" role="status" class="alert" hidden></div>
-    <section id="v2" class="v2-stage" aria-labelledby="v2Title">
-      <div class="v2-hero">
-        <div class="v2-intro">
-          <div class="section-kicker">ADVANCED V2 / NEW DEVELOPMENT PHASE</div>
-          <h2 id="v2Title">Real-time 3-D UAV research simulation</h2>
-          <p>Building toward a complete virtual takeoff, autonomous survey, synchronized synthetic RGB / thermal / LiDAR, suspected-anomaly mapping, return and landing. <strong>Planned work is not completed work.</strong></p>
-          <div class="v2-links"><a href="https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/v2/README.md" target="_blank" rel="noopener noreferrer">V2 scope &amp; workflow ↗</a><a href="https://github.com/MdShabazS/MineGuard-MATLAB/tree/main/v2/tasks" target="_blank" rel="noopener noreferrer">Authoritative V2 tasks ↗</a></div>
-          <div class="v2-state" id="v2SourceStatus" role="status">Checking V2 records on GitHub main…</div>
-        </div>
-        <div class="v2-progress" aria-label="V2 task completion">
-          <strong id="v2Percent">—</strong><span>V2 COMPLETION</span><small id="v2Done">Awaiting records</small>
-        </div>
-      </div>
-      <div class="v2-metrics" aria-label="V2 task metrics">
-        <div class="v2-metric"><span>Completed</span><strong id="v2DoneCount">—</strong></div>
-        <div class="v2-metric"><span>In progress</span><strong id="v2ActiveCount">—</strong></div>
-        <div class="v2-metric"><span>Ready</span><strong id="v2ReadyCount">—</strong></div>
-        <div class="v2-metric"><span>Blocked</span><strong id="v2BlockedCount">—</strong></div>
-      </div>
-      <div class="two-col">
-        <section class="panel" aria-labelledby="v2CurrentTitle">
-          <div class="panel-head"><div><div class="section-kicker">V2 / NOW AND NEXT</div><h3 id="v2CurrentTitle">Current development</h3></div></div>
-          <div class="stack" id="v2Current"><p class="muted">Awaiting published V2 task records…</p></div>
-        </section>
-        <section class="panel" aria-labelledby="v2OwnersTitle">
-          <div class="panel-head"><div><div class="section-kicker">TEAM MATLAB DEVELOPMENT</div><h3 id="v2OwnersTitle">Owner progress</h3></div></div>
-          <div class="stack" id="v2Owners"><p class="muted">Awaiting assigned tasks…</p></div>
-          <p class="note"><strong>All MATLAB work is done by the team's Claude sessions.</strong> Team since 2026-11-15: Shabaz's Claude (Mac) is the project lead and decision maker; Rahil's Claude (Windows) is the primary MATLAB verification session; Danish's Claude joins for assigned work. ChatGPT and Codex are no longer used. <strong>Rahil remains the V2-007 task owner.</strong> Contributions on draft or unmerged PRs are not counted as DONE.</p>
-        </section>
-      </div>
-      <section class="panel" aria-labelledby="v2TaskTitle">
-        <div class="panel-head split">
-          <div><div class="section-kicker">ADVANCED V2 / INDEPENDENT TASK PLAN</div><h3 id="v2TaskTitle">V2 task tracker <span id="v2TaskTotal" class="count-hint"></span></h3></div>
-          <div class="filters" id="v2Filters" aria-label="Filter V2 tasks">
-            <button class="filter selected" type="button" data-filter="ALL" aria-pressed="true">All</button>
-            <button class="filter" type="button" data-filter="IN_PROGRESS" aria-pressed="false">In progress</button>
-            <button class="filter" type="button" data-filter="READY" aria-pressed="false">Ready</button>
-            <button class="filter" type="button" data-filter="BLOCKED" aria-pressed="false">Blocked</button>
-            <button class="filter" type="button" data-filter="DONE" aria-pressed="false">Done</button>
-          </div>
-        </div>
-        <div class="table-scroller"><table><thead><tr><th>Task / deliverable</th><th>Owner</th><th>Status</th><th>Dependency / evidence</th></tr></thead>
-          <tbody id="v2TaskRows"><tr><td colspan="4" class="muted">Loading V2 tasks from GitHub main…</td></tr></tbody></table></div>
-      </section>
-      <section class="panel enhancements-panel" aria-labelledby="enhancementsTitle">
-        <div class="panel-head">
-          <div><div class="section-kicker">RESEARCH-BACKED / SEPARATE FROM OFFICIAL V2 TASKS</div>
-            <h3 id="enhancementsTitle">Mission Intelligence enhancement roadmap</h3>
-            <p class="roadmap-intro">Engineering upgrades and four new BITM/Ballari presentation ideas, each with an owner, evidence link, dependency and reviewed status. <strong>Planning, locally tested code and feature-branch merges do not equal accepted V2 completion.</strong></p>
-          </div>
-          <a class="tiny-link" href="https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/v2/roadmap/enhancements.json" target="_blank" rel="noopener noreferrer">Roadmap data ↗</a>
-        </div>
-        <p id="roadmapStatus" class="roadmap-source" role="status">Loading the enhancement plan from GitHub main…</p>
-        <p id="roadmapBreakdown" class="roadmap-breakdown" aria-live="polite">Awaiting enhancement status breakdown…</p>
-        <div id="roadmapItems" class="enhancement-grid"><p class="muted">Enhancement data is not yet available.</p></div>
-        <p class="note">Enhancement statuses are maintained in GitHub and reviewed before publication; they are <strong>not real-time PR automation</strong>. These entries do <strong>not</strong> change the ten official V2 tasks. Campus imagery is geographic context only—never real flight telemetry or suspected-mine geolocation. MATLAB functionality is accepted only after recorded tests.</p>
-      </section>
-      <p class="v2-note">3-D animation feasibility was demonstrated locally, but it is not yet a committed, independently reviewed V2 build. MATLAB simulation is not live flight telemetry, actual buried-mine detection, or mine-clearance validation.</p>
-    </section>
-    <div class="phase-divider" id="v1Archive"><div class="section-kicker">COMPLETED BASELINE / V1 ARCHIVE</div><h2>MineGuard V1 · 22-task research baseline</h2><p>V1 task completion is shown separately below. It must not be confused with Advanced V2 readiness or field validation.</p></div>
-    <section class="hero" aria-labelledby="heroTitle">
-      <div class="hero-left">
-        <div class="tagline">V1 RESEARCH BASELINE / 2026</div><h2 id="heroTitle">MineGuard — Autonomous Aerial Landmine Detection System</h2>
-        <p>MATLAB/Simulink research simulation · Original problem statement and four objectives unchanged</p>
-        <div class="hero-links"><a href="https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/docs/PHASE1_BASELINE.md" target="_blank" rel="noopener noreferrer">Original objectives ↗</a><a href="https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/docs/INDEX.md" target="_blank" rel="noopener noreferrer">A–Z documentation ↗</a></div>
-        <div class="deadline">COLLEGE DEADLINE <strong>02 NOV 2026</strong> <span id="deadlineState"></span></div>
-      </div>
-      <div class="progress-ring" id="progressRing" style="--progress: 0"><div><span id="percent">—</span><small>TASKS COMPLETE</small></div></div>
-    </section>
-    <section class="metrics" aria-label="Task overview">
-      <div class="metric"><span>Completed</span><strong id="doneCount">—</strong><small>Evidence-linked tasks</small></div>
-      <div class="metric"><span>In progress</span><strong id="activeCount">—</strong><small>Currently being worked on</small></div>
-      <div class="metric"><span>Ready</span><strong id="readyCount">—</strong><small>No outstanding dependencies</small></div>
-      <div class="metric"><span>Blocked</span><strong id="blockedCount">—</strong><small>Waiting for other work</small></div>
-    </section>
-    <div class="two-col">
-      <section class="panel" aria-labelledby="currentTitle"><div class="panel-head"><div><div class="section-kicker">NOW</div><h2 id="currentTitle">What the team is doing</h2></div></div><div id="currentTasks" class="stack"><p class="muted">Loading GitHub task data…</p></div></section>
-      <section class="panel" aria-labelledby="ownersTitle"><div class="panel-head"><div><div class="section-kicker">ACCOUNTABILITY</div><h2 id="ownersTitle">Member progress</h2></div></div><div id="owners" class="stack"><p class="muted">Awaiting task data…</p></div></section>
-    </div>
-    <section class="panel" aria-labelledby="taskTitle">
-      <div class="panel-head split"><div><div class="section-kicker">COMPLETE WORK PLAN</div><h2 id="taskTitle">Task tracker <span id="taskTotal" class="count-hint"></span></h2></div><div class="filters" id="filters" aria-label="Filter tasks">
-        <button class="filter selected" type="button" data-filter="ALL" aria-pressed="true">All</button>
-        <button class="filter" type="button" data-filter="IN_PROGRESS" aria-pressed="false">In progress</button>
-        <button class="filter" type="button" data-filter="READY" aria-pressed="false">Ready</button>
-        <button class="filter" type="button" data-filter="BLOCKED" aria-pressed="false">Blocked</button>
-        <button class="filter" type="button" data-filter="DONE" aria-pressed="false">Done</button>
-      </div></div>
-      <div class="table-scroller"><table><thead><tr><th>Task / Deliverable</th><th>Owner</th><th>Status</th><th>Dependency / Evidence</th></tr></thead><tbody id="taskRows"><tr><td colspan="4" class="muted">Loading task records…</td></tr></tbody></table></div>
-    </section>
-    <div class="two-col">
-      <section class="panel" aria-labelledby="prsTitle"><div class="panel-head"><div><div class="section-kicker">REVIEW QUEUE</div><h2 id="prsTitle">Pull requests</h2></div><a class="tiny-link" href="https://github.com/MdShabazS/MineGuard-MATLAB/pulls" target="_blank" rel="noopener noreferrer">View all ↗</a></div><div id="pullRequests" class="stack"><p class="muted">Loading PR history…</p></div></section>
-      <section class="panel" aria-labelledby="checksTitle"><div class="panel-head"><div><div class="section-kicker">ENGINEERING EVIDENCE</div><h2 id="checksTitle">Verification status</h2></div><a class="tiny-link" href="https://github.com/MdShabazS/MineGuard-MATLAB/actions" target="_blank" rel="noopener noreferrer">CI history ↗</a></div>
-      <div class="verification"><div class="verify-row"><span>GitHub task-gate CI</span><strong id="ciStatus">Not checked</strong></div><div class="verify-row"><span>MATLAB build tasks marked DONE</span><strong id="buildEvidence">—</strong></div><div class="verify-row"><span>Local MATLAB runtime</span><strong>Requires actual device evidence</strong></div></div>
-      <p class="note">GitHub CI validates repository workflow and any configured tests. It does <strong>not</strong> prove MATLAB simulation results unless a licensed MATLAB test run has been recorded.</p></section>
-    </div>
-    <section class="panel" aria-labelledby="journalTitle"><div class="panel-head"><div><div class="section-kicker">TEAM JOURNAL</div><h2 id="journalTitle">What happened & what's next</h2></div><a class="tiny-link" href="https://github.com/MdShabazS/MineGuard-MATLAB/blob/main/tasks/updates.json" target="_blank" rel="noopener noreferrer">Source log ↗</a></div><div id="updates" class="activity"><p class="muted">Loading team journal…</p></div></section>
-    <section class="panel" aria-labelledby="activityTitle"><div class="panel-head"><div><div class="section-kicker">LATEST CHANGES</div><h2 id="activityTitle">Recent GitHub activity</h2></div><a class="tiny-link" href="https://github.com/MdShabazS/MineGuard-MATLAB/commits/main/" target="_blank" rel="noopener noreferrer">History ↗</a></div><div id="activity" class="activity"><p class="muted">Loading commits…</p></div></section>
-    <section class="disclaimer" aria-label="Important project limitation"><strong>Research simulation only.</strong> Virtual anomaly detections are not verified mine detections or proof of safe land. A status of DONE indicates recorded task completion with repository evidence, not external scientific certification.</section>
-  </main>
-  <footer><span>MineGuard · ECE major project · Guide observatory · <span id="portalBuild">Build: 2026-11-02 status-fix-1</span></span><span>Read-only · Public GitHub records · <a href="https://github.com/MdShabazS/MineGuard-MATLAB" target="_blank" rel="noopener noreferrer">View source ↗</a></span></footer>
-</div>
+
+  <p id="notice" class="notice" role="status" hidden></p>
+
+  <section class="counts" aria-label="Task summary">
+    <div><span>Done</span><strong id="doneCount">—</strong></div>
+    <div><span>In progress</span><strong id="activeCount">—</strong></div>
+    <div><span>Ready</span><strong id="readyCount">—</strong></div>
+    <div><span>Waiting</span><strong id="blockedCount">—</strong></div>
+  </section>
+
+  <section aria-labelledby="peopleTitle">
+    <h2 id="peopleTitle">Who is doing what</h2>
+    <div id="people" class="people"><p class="muted">Loading…</p></div>
+  </section>
+
+  <section aria-labelledby="tasksTitle">
+    <h2 id="tasksTitle">Tasks</h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Task</th><th>Owner</th><th>Status</th><th>Waits for</th><th>Live work (not merged)</th></tr></thead>
+      <tbody id="taskRows"><tr><td colspan="5" class="muted">Loading tasks from GitHub…</td></tr></tbody>
+    </table></div>
+    <p class="muted small" id="otherPRs"></p>
+  </section>
+
+  <footer class="foot">
+    <p><strong>Simulation only.</strong> The BITM route is virtual, not a real drone flight. Outputs are suspected anomalies, not verified mines; no area is cleared.</p>
+    <p class="muted">Status comes from the task records on GitHub <code>main</code>. Open pull requests are shown as live work and do not count as done until merged.
+      <a href="https://github.com/MdShabazS/MineGuard-MATLAB#readme" target="_blank" rel="noopener noreferrer">Project history (V1, V2, V2.1) ↗</a></p>
+  </footer>
+</main>
 </body>
 </html>

@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/guide-portal-live.yml'
       - 'tasks/evidence/MG-020.md'
+      - 'portal/**'
       - 'scripts/verify-render-portal.mjs'
   workflow_dispatch:
 permissions:

@@ -12,8 +12,10 @@
     },
     "V22-T2": {
       "owner": "Shabaz",
-      "state": "TODO",
-      "evidence": null
+      "state": "IN_PROGRESS",
+      "evidence": null,
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-15"
     },
     "V22-T3": {
       "owner": "Danish",
