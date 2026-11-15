@@ -53,7 +53,7 @@ node scripts/v2-gate.mjs validate
 node --test scripts/tests/*.test.mjs portal/tests/*.test.mjs
 ```
 
-Only the optional live-portal browser check (`scripts/mg021-live-browser.mjs`) needs Playwright, which CI installs with `npm install --no-save playwright@1.56.1`.
+The deployed guide dashboard is checked with `node scripts/verify-render-portal.mjs https://mineguard-guide-portal.onrender.com/` (no extra packages).
 
 ## 5. Claude Code and MATLAB
 
