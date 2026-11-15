@@ -36,7 +36,7 @@ Master brief → Exact Phase-1 objectives → Methodology and technical constrai
 ## Reading order for Rahil/Claude Code
 Workflow + manifest/status → Environment → Module specs → Data contracts → Acceptance matrix → One READY task → Evidence/PR.
 
-## Reading order for Shabaz/ChatGPT
+## Reading order for the lead session (Shabaz's Claude)
 Phase-1 immutable baseline → Literature and dataset rights → Architecture/quality gates → Current GitHub status → Review each Rahil PR and actual MATLAB evidence.
 
 ## Audit rules

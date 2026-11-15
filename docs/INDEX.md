@@ -60,7 +60,9 @@
 | Decision history | [DECISION_LOG.md](DECISION_LOG.md) |
 | Risks and open questions | [OPEN_DECISIONS_AND_RISKS.md](OPEN_DECISIONS_AND_RISKS.md) |
 | Claude Code technical handoff | [HANDOFF_RAHIL.md](HANDOFF_RAHIL.md) |
-| ChatGPT documentation/review handoff | [HANDOFF_SHABAZ.md](HANDOFF_SHABAZ.md) |
+| **Team, roles and repository details** | [TEAM.md](TEAM.md) |
+| **Setup and dependencies** | [SETUP.md](SETUP.md) |
+| Shabaz documentation/review handoff (V1, historical) | [HANDOFF_SHABAZ.md](HANDOFF_SHABAZ.md) |
 | Foundation bootstrap status | [FOUNDATION.md](FOUNDATION.md) |
 
 ## 4. Guide and college review
@@ -80,7 +82,7 @@
 - `tasks/updates.json` — evidence-backed plain-language guide work journal.
 - `scripts/task-gate.mjs` — dependency validation.
 - `.github/workflows/task-gate.yml` — GitHub CI checks task rules and portal JavaScript, **not** MATLAB.
-- `matlab/mineguard_environment_check.m` — Rahil's installed-release audit; has NOT been run by ChatGPT.
+- `matlab/mineguard_environment_check.m` — Rahil's installed-release audit; run on Rahil's Windows laptop (MG-002).
 - `render.yaml` and `portal/` — guide static website, not yet deployed.
 
 **Document state:** DRAFT pending technical cross-review and PR merge. The presence of a specification never implies the engineering feature is built.

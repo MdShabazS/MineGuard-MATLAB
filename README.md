@@ -2,7 +2,9 @@
 
 **Project:** MineGuard — Autonomous Aerial Landmine Detection System  
 **Implementation:** MATLAB / Simulink research simulation (NOT a validated mine detector)  
-**Deadline:** 2026-11-02 | **Repository:** public | **Owners:** Shabaz (ChatGPT/specification/verification), Rahil (MATLAB/Claude Code)
+**Repository:** https://github.com/MdShabazS/MineGuard-MATLAB (public, `main`) | **Team:** Shabaz's Claude (lead), Rahil's Claude, Danish's Claude, see [docs/TEAM.md](docs/TEAM.md) | **Setup:** [docs/SETUP.md](docs/SETUP.md)
+
+**Status on `main`:** V1 22/22, V2 10/10 and V2.1 8/8 tasks DONE. The detector has not been shown to work: V1 sealed TEST TP 0, V2 VALIDATION 0 of 4, V2.1 flights 0 of 12.
 
 The academic **problem statement and four objectives are preserved verbatim** from the Phase-1 review in [docs/PHASE1_BASELINE.md](docs/PHASE1_BASELINE.md). Only the implementation shifts from costly physical UAV hardware to reproducible simulation.
 
@@ -20,16 +22,21 @@ The academic **problem statement and four objectives are preserved verbatim** fr
 
 **Start here:** [Documentation index](docs/INDEX.md) → [Workflow](docs/WORKFLOW.md) → [Tasks](tasks/manifest.json). No MATLAB performance, training, detection success, or cross-platform compatibility is claimed until actual runs are recorded in GitHub.
 
+## MineGuard Advanced V2.1 — interactive synthetic scenarios
+
+- [v2_1/README.md](v2_1/README.md): presets, survey grid, private target placement and the post-run INTERACTIVE SYNTHETIC DEMO evaluation (not detection accuracy). Launch: `mineguard_setup; mgv21MissionControl`.
+
 ## MineGuard Advanced V2 — separate development phase
 
 - **Existing guide portal (same Render site):** [MineGuard Guide Observatory](https://mineguard-guide-portal.onrender.com/), with independent V2 tracking and a preserved 22/22 completed V1 archive after the portal continuation PR merges into `main`.
 - **V2 architecture, scope, two-person ownership and acceptance protocol:** [v2/README.md](v2/README.md).
-- **V2 task manifest and authoritative statuses:** [v2/tasks/manifest.json](v2/tasks/manifest.json) and [v2/tasks/status.json](v2/tasks/status.json). All V2 tasks initially TODO; no V2 implementation is falsely claimed as completed.
+- **V2 task manifest and authoritative statuses:** [v2/tasks/manifest.json](v2/tasks/manifest.json) and [v2/tasks/status.json](v2/tasks/status.json). All 10 V2 tasks are DONE (evidence in `v2/evidence/`).
 - Local exploratory MATLAB UAV Toolbox 3-D flight is verified by user-reported Mac screenshots and completion output but is not yet committed V2 implementation or independently validated flight-control simulation.
 
 ## Project oversight
 - [Guide's Read-Only Progress Portal](portal/README.md): Render static site showing merged GitHub task status, blockers, owner progress, review activity and evidence.
-- [Rahil MATLAB Setup and ChatGPT Support](docs/RAHIL_SETUP_SUPPORT.md): first verify installed release/toolboxes, then install only eligible missing products and connect Claude Code.
+- [Setup and dependencies](docs/SETUP.md): clone, MATLAB R2026b + UAV Toolbox, `mineguard_setup`, repository checks.
+- [Rahil MATLAB setup support (historical, MG-002)](docs/RAHIL_SETUP_SUPPORT.md).
 - [MATLAB environment diagnostic](matlab/mineguard_environment_check.m): prints sanitized inventory from Rahil's computer; **not run remotely**.
 
 ## Scientific scope

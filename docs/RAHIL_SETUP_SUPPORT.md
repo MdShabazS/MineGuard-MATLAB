@@ -1,4 +1,6 @@
-# Rahil Setup and Troubleshooting — ChatGPT Support Protocol
+# Rahil Setup and Troubleshooting — Support Protocol (historical, MG-002)
+
+> **Current team (2026-11-15):** ChatGPT is no longer used. Setup is in [SETUP.md](SETUP.md); support comes from Shabaz's Claude (lead). See [TEAM.md](TEAM.md). The text below is the original MG-002 protocol, kept for history.
 
 **Owner:** Rahil for MG-002; **support:** Shabaz/ChatGPT for research and stepwise troubleshooting. Status is PENDING until tests are executed on Rahil's Windows laptop.
 

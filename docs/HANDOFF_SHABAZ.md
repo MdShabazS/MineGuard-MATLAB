@@ -1,4 +1,6 @@
-# Shabaz: ChatGPT Research, Documentation and Verification
+# Shabaz: Research, Documentation and Verification
+
+> **Current team (2026-11-15):** Shabaz's Claude (Mac) is the project lead and decision maker; see [TEAM.md](TEAM.md). ChatGPT is no longer used. The text below is the original V1 handoff and is kept for history.
 
 The original Phase-1 title/problem statement/four objectives are immutable and stored in `PHASE1_BASELINE.md`. Work via GitHub connector, not a local-only set of files.
 

@@ -1,10 +1,10 @@
 # CLAUDE.md — MineGuard-MATLAB
-- Roles: Rahil (MATLAB dev/test, Claude Code) and Shabaz (docs/spec/review, ChatGPT). Only GitHub `main` counts as authoritative.
+- Team (docs/TEAM.md): three Claude Code sessions. **Shabaz's Claude (Mac) is the lead and decision maker**: it plans, splits tasks, reviews and decides merges. Rahil's Claude (Windows, primary MATLAB verification) and Danish's Claude do assigned work. ChatGPT and Codex are no longer used. Only GitHub `main` counts as authoritative.
 - Before working: `git fetch`, then `node scripts/task-gate.mjs validate`, `ready`, and `check MG-XXX`. Work only on READY tasks.
-- Branch `task/MG-XXX-short-name`. Evidence goes in `tasks/evidence/MG-XXX.md` (template in docs/TEST_AND_EVIDENCE.md). Open a PR for Shabaz to review. Never merge or approve without a human.
+- Branch `task/MG-XXX-short-name`. Evidence goes in `tasks/evidence/MG-XXX.md` (template in docs/TEST_AND_EVIDENCE.md). Open a PR for Shabaz's Claude to review. Merges need passing checks and Shabaz's decision (or a written delegation). Never approve as someone else.
 - V2-007 to V2-010 only: Shabaz delegated ownership and merging to Rahil (`v2/docs/V2_GOVERNANCE_DELEGATION.md`). There, Rahil may merge, or tell Claude Code to merge, once CI passes. Never bypass branch protection or required checks, approve as someone else, or record a human review that did not happen.
 - Mark progress only with `task-gate.mjs start` and `complete`. A PR must not change both tasks/manifest.json and a task's status.
 - Run real MATLAB through MCP (R2026b). Never fabricate tests, training results, accuracy or detection capability. All outputs are "suspected anomaly", from simulation only.
 - Toolboxes: UAV/Navigation installed. Simulink/RL/DL/Stateflow installed and smoke-tested (MG-002). Sensor Fusion & Tracking is NOT licensed, so use core-MATLAB fusion.
-- Never commit licence numbers, tokens, or personal data. Read only the docs the task needs (index: docs/INDEX.md).
+- Never commit licence numbers, tokens, or personal data. Read only the docs the task needs (index: docs/INDEX.md; setup: docs/SETUP.md).
 - Keep replies short: Task / Status / Verified / GitHub / Next.

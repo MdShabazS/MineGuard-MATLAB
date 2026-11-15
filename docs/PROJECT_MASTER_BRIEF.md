@@ -1,7 +1,7 @@
 # MineGuard MATLAB — A-to-Z Project Master Brief
 **Document version:** 1.0 (2026-10-31) · **Status:** RESEARCH/DESIGN BASELINE; not implementation evidence  
 **GitHub:** https://github.com/MdShabazS/MineGuard-MATLAB · **Review:** 02 November 2026  
-**Owners:** Shabaz (project lead, ChatGPT-led research/specifications/verification) and Rahil (MATLAB implementation using Claude Code, tests and evidence). Other teammates retain college membership; two are core software owners.
+**Team (since 2026-11-15, [TEAM.md](TEAM.md)):** Shabaz's Claude (project lead and decision maker), Rahil's Claude (MATLAB implementation and Windows verification) and Danish's Claude. ChatGPT is no longer used. Other teammates retain college membership; two are core software owners.
 
 > The original Phase-1 *problem statement and four objectives must not be changed.* The canonical verbatim text is in [PHASE1_BASELINE.md](PHASE1_BASELINE.md). Do not replace it with a simulation-only problem statement.
 

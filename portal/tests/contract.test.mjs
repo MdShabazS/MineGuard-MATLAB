@@ -34,6 +34,6 @@ test("V2 engineering contributions do not override official GitHub task status o
   assert.match(app,/if\(v2Rows\.length\)showV2Data\(v2Rows\)/);
   assert.match(app,/\["v2\/tasks\/manifest\.json","v2\/tasks\/status\.json"\]/);
   assert.match(app,/getPublishedWithFallback\(/);
-  assert.match(html,/Both members develop and test MATLAB/);
+  assert.match(html,/All MATLAB work is done by the team's Claude sessions/);
   assert.match(html,/Rahil remains the V2-007 task owner/);
 });
