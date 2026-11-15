@@ -1,4 +1,5 @@
 # CLAUDE.md — MineGuard-MATLAB
+- **Task trigger:** when the user says "I'm <Shabaz|Rahil|Danish>, let's do V22-Tn" (or "Task n"), read `v2_2/prompts/COMMON.md` and `v2_2/prompts/V22-Tn.md` and follow them end to end. The user's extra notes add to them and never override their rules.
 - Team (docs/TEAM.md): three Claude Code sessions. **Shabaz's Claude (Mac) is the lead and decision maker**: it plans, splits tasks, reviews and decides merges. Rahil's Claude (Windows, primary MATLAB verification) and Danish's Claude do assigned work. ChatGPT and Codex are no longer used. Only GitHub `main` counts as authoritative.
 - Before working: `git fetch`, then `node scripts/task-gate.mjs validate`, `ready`, and `check MG-XXX`. Work only on READY tasks.
 - Branch `task/MG-XXX-short-name`. Evidence goes in `tasks/evidence/MG-XXX.md` (template in docs/TEST_AND_EVIDENCE.md). From V2.2 (`v2_2/`, `node scripts/v22-gate.mjs ready`): the **owner builds, self-reviews and merges their own task** once `task-gate` passes and every dependency is DONE on `main`. If a dependency is not DONE, wait; if none, continue. Never merge someone else's task or approve as someone else.

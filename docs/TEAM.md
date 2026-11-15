@@ -14,6 +14,12 @@ MineGuard is now a MATLAB-only project. All work is done by three Claude Code se
 
 ### Current phase: V2.2 BITM satellite view ([v2_2/README.md](../v2_2/README.md))
 
+**How to work:**
+1. Check the guide dashboard for your READY task.
+2. Tell your Claude one line, for example *"I'm Danish, let's do V22-T3"*.
+3. The predefined master prompt in [v2_2/prompts/](../v2_2/prompts/README.md) does the rest: it marks the task started, builds, verifies, self-reviews, marks it done and merges.
+4. On a new machine it first runs the environment check.
+
 | Session | V2.2 tasks |
 |---|---|
 | Shabaz's Claude | V22-T1 plan and tracking; V22-T2 guide live dashboard; V22-T7 Mac verification (short tests only) |
