@@ -1,48 +1,80 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {buildTaskRows,summarize,fileUrl,githubLink,findMainTaskGateRun} from "../core.mjs";
-const manifest={tasks:{
-  "MG-000":{owner:"Shabaz",kind:"DOC",title:"Foundation",dependsOn:[],evidence:"docs/FOUNDATION.md"},
-  "MG-001":{owner:"Rahil",kind:"BUILD",title:"MATLAB",dependsOn:["MG-000"],evidence:"tasks/evidence/MG-001.md"},
-  "MG-002":{owner:"Shabaz",kind:"DOC",title:"Design",dependsOn:["MG-000","MG-001"],evidence:"tasks/evidence/MG-002.md"},
-  "MG-003":{owner:"Shabaz",kind:"DOC",title:"Independent research",dependsOn:[],evidence:"tasks/evidence/MG-003.md"}
-}};
-test("accurate readiness and blocked dependency status",()=>{
- const status={tasks:{"MG-000":{state:"DONE",evidence:"docs/FOUNDATION.md"},"MG-001":{state:"IN_PROGRESS"},"MG-002":{state:"TODO"},"MG-003":{state:"TODO"}}};
- const rows=buildTaskRows(manifest,status);
- assert.deepEqual(rows.map(x=>x.displayState),["DONE","IN_PROGRESS","BLOCKED","READY"]);
- assert.deepEqual(rows[2].unfinished,["MG-001"]);
- const summary=summarize(rows);
- assert.equal(summary.total,4);assert.equal(summary.percentage,25);
- assert.equal(summary.counts.BLOCKED,1);assert.equal(summary.counts.READY,1);
- assert.deepEqual(summary.owners.find(o=>o.name==="Rahil"),{name:"Rahil",total:1,done:0,active:1,percentage:0});
-});
-test("no false READY for incomplete prerequisites",()=>{
- const s={tasks:Object.fromEntries(Object.keys(manifest.tasks).map(id=>[id,{state:"TODO"}]))};
- const rows=buildTaskRows(manifest,s);
- assert.equal(rows.find(x=>x.id==="MG-001").displayState,"BLOCKED");
- assert.equal(rows.find(x=>x.id==="MG-002").displayState,"BLOCKED");
- assert.equal(rows.find(x=>x.id==="MG-003").displayState,"READY");
-});
-test("contradictory or missing statuses are not accepted",()=>{
- assert.throws(()=>buildTaskRows(manifest,{tasks:{"MG-000":{state:"DONE"}}}),/disagree/);
- const s={tasks:Object.fromEntries(Object.keys(manifest.tasks).map(id=>[id,{state:"TODO"}]))};
- s.tasks["MG-001"]={state:"DONE"};
- assert.throws(()=>buildTaskRows(manifest,s),/violates task prerequisites/);
-});
-test("evidence and feed links reject unsafe domains and path traversal",()=>{
- assert.match(fileUrl("tasks/evidence/MG-001.md"),/github.com\/MdShabazS\/MineGuard-MATLAB\/blob\/main/);
- assert.equal(fileUrl("../.env"),null);
- assert.equal(githubLink("https://evil.example/x"),null);
- assert.equal(githubLink("javascript:alert(1)"),null);
- assert.ok(githubLink("https://github.com/MdShabazS/MineGuard-MATLAB/pull/1"));
+import fs from "node:fs";
+import {buildTasks, taskOfBranch, ciFor, attachPRs, summarize, whoIsDoingWhat, fileUrl, safeGithub, ago, PHASE} from "../core.mjs";
+
+const mf = {tasks: {
+  "V22-T1": {owner: "Shabaz", kind: "DOC", dependsOn: [], title: "Plan"},
+  "V22-T2": {owner: "Shabaz", kind: "BUILD", dependsOn: ["V22-T1"], title: "Dashboard"},
+  "V22-T3": {owner: "Danish", kind: "DOC", dependsOn: ["V22-T1"], title: "Map source"},
+  "V22-T4": {owner: "Rahil", kind: "BUILD", dependsOn: ["V22-T3"], title: "Satellite module"}}};
+const st = () => ({tasks: {"V22-T1": {state: "DONE", evidence: "v2_2/evidence/V22-T1.md"}, "V22-T2": {state: "TODO"}, "V22-T3": {state: "TODO"}, "V22-T4": {state: "TODO"}}});
+const run = (sha, status, conclusion, created = "2026-11-15T10:00:00Z") => ({name: "Task Gate", head_sha: sha, status, conclusion, created_at: created, html_url: "https://github.com/MdShabazS/MineGuard-MATLAB/actions/runs/1", head_commit: {timestamp: created}});
+const pr = (n, ref, sha) => ({number: n, title: "PR " + n, html_url: "https://github.com/MdShabazS/MineGuard-MATLAB/pull/" + n, head: {ref, sha}, user: {login: "x"}, updated_at: "2026-11-15T09:00:00Z"});
+
+test("READY and Waiting come from dependencies on main", () => {
+  const t = buildTasks(mf, st());
+  assert.deepEqual(t.map(x => x.display), ["DONE", "READY", "READY", "BLOCKED"]);
+  assert.deepEqual(t[3].waitingFor, ["V22-T3"]);
+  assert.deepEqual(summarize(t), {total: 4, counts: {DONE: 1, IN_PROGRESS: 0, READY: 2, BLOCKED: 1}, percent: 25});
 });
 
-test("CI status must not show an unmerged PR result as main success",()=>{
- const runs={workflow_runs:[
-  {name:"Task Gate",head_branch:"setup/mg-000-foundation",status:"completed",conclusion:"success"},
-  {name:"Task Gate",head_branch:"main",status:"completed",conclusion:"failure"}
- ]};
- assert.equal(findMainTaskGateRun(runs)?.conclusion,"failure");
- assert.equal(findMainTaskGateRun({workflow_runs:[runs.workflow_runs[0]]}),null);
+test("rejects mismatched or invalid records", () => {
+  assert.throws(() => buildTasks(mf, {tasks: {"V22-T1": {state: "DONE"}}}), /disagree/);
+  const bad = st(); bad.tasks["V22-T2"].state = "MAYBE";
+  assert.throws(() => buildTasks(mf, bad), /Invalid/);
+});
+
+test("task branches map to tasks; CI uses the newest Task Gate run of the PR head", () => {
+  assert.equal(taskOfBranch("task/V22-T4-satellite"), "V22-T4");
+  assert.equal(taskOfBranch("task/V22-T4"), "V22-T4");
+  assert.equal(taskOfBranch("task/V22-T40x"), null);
+  assert.equal(taskOfBranch("feature/x"), null);
+  assert.equal(ciFor([], "a").state, "none");
+  assert.equal(ciFor([run("a", "in_progress", null)], "a").state, "running");
+  assert.equal(ciFor([run("a", "completed", "failure", "2026-11-15T09:00:00Z"), run("a", "completed", "success", "2026-11-15T11:00:00Z")], "a").state, "pass");
+  assert.equal(ciFor([run("b", "completed", "success")], "a").state, "none");
+});
+
+test("open PRs attach to their task as live work; others are counted separately", () => {
+  const t = buildTasks(mf, st());
+  const other = attachPRs(t, [pr(7, "task/V22-T3-map", "s3"), pr(8, "docs/x", "s8")], [run("s3", "completed", "success")]);
+  assert.equal(t[2].prs.length, 1);
+  assert.equal(t[2].prs[0].ci.state, "pass");
+  assert.equal(t[2].prs[0].lastCommit, "2026-11-15T10:00:00Z");
+  assert.equal(other.length, 1);
+});
+
+test("who is doing what: working, ready and waiting with the blocking owner", () => {
+  const t = buildTasks(mf, st());
+  attachPRs(t, [pr(7, "task/V22-T3-map", "s3")], []);
+  const p = Object.fromEntries(whoIsDoingWhat(t).map(x => [x.name, x]));
+  assert.equal(p.Danish.kind, "working");
+  assert.match(p.Danish.now, /V22-T3/);
+  assert.equal(p.Shabaz.kind, "ready");
+  assert.match(p.Shabaz.now, /V22-T2/);
+  assert.equal(p.Rahil.kind, "waiting");
+  assert.match(p.Rahil.now, /V22-T4 waits for V22-T3 \(Danish's Claude\)/);
+});
+
+test("links stay inside the repository; times are relative", () => {
+  assert.match(fileUrl("v2_2/evidence/V22-T1.md"), /\/blob\/main\/v2_2\/evidence\/V22-T1\.md$/);
+  assert.equal(fileUrl("../x"), null);
+  assert.equal(safeGithub("https://evil.example/MdShabazS/MineGuard-MATLAB/pull/1"), null);
+  assert.equal(safeGithub("javascript:alert(1)"), null);
+  assert.equal(ago("2026-11-15T10:00:00Z", Date.parse("2026-11-15T10:30:00Z")), "30 min ago");
+  assert.equal(ago("bad"), "unknown");
+});
+
+test("page contract: phase records, live sources, no HTML injection", () => {
+  const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const app = fs.readFileSync(new URL("../app.mjs", import.meta.url), "utf8");
+  for (const id of ["phase", "people", "taskRows", "doneCount", "activeCount", "readyCount", "blockedCount", "lastChecked", "refresh", "notice"]) assert.match(html, new RegExp('id="' + id + '"'));
+  assert.match(html, /<meta name="mineguard-dashboard" content="[^"]+">/);
+  assert.match(html, /Simulation only/);
+  assert.equal(PHASE.manifest, "v2_2/tasks/manifest.json");
+  assert.match(app, /\/pulls\?state=open/);
+  assert.match(app, /\/actions\/runs\?event=pull_request/);
+  assert.match(app, /REFRESH_MS = 60000/);
+  assert.doesNotMatch(app, /innerHTML|insertAdjacentHTML|outerHTML/);
 });

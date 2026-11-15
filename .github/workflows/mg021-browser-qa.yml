@@ -1,4 +1,6 @@
-name: MG-021 Live Desktop and Mobile Browser QA
+name: MG-021 Live Desktop and Mobile Browser QA (V1 board, historical)
+# The V1 board it tests was replaced by the V2.2 live dashboard (V22-T2, 2026-11-15).
+# It no longer runs on portal changes; scripts/verify-render-portal.mjs checks the new dashboard.
 on:
   pull_request:
     branches: [main]
@@ -8,12 +10,6 @@ on:
       - 'tasks/evidence/MG-021.md'
       - 'tasks/status.json'
       - 'tasks/updates.json'
-  push:
-    branches: [main]
-    paths:
-      - 'tasks/status.json'
-      - 'portal/**'
-      - '.github/workflows/mg021-browser-qa.yml'
   workflow_dispatch:
 permissions:
   contents: read
