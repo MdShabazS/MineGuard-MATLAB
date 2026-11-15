@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import {buildTasks, taskOfBranch, ciFor, attachPRs, summarize, whoIsDoingWhat, fileUrl, safeGithub, ago, PHASE} from "../core.mjs";
+import {buildTasks, taskOfBranch, ciFor, attachPRs, summarize, whoIsDoingWhat, fileUrl, safeGithub, ago, PHASE, mainShaFromRuns} from "../core.mjs";
 
 const mf = {tasks: {
   "V22-T1": {owner: "Shabaz", kind: "DOC", dependsOn: [], title: "Plan"},
@@ -57,6 +57,13 @@ test("who is doing what: working, ready and waiting with the blocking owner", ()
   assert.match(p.Rahil.now, /V22-T4 waits for V22-T3 \(Danish's Claude\)/);
 });
 
+test("latest main commit comes from the newest Task Gate push run on main", () => {
+  const r = (sha, branch, event, at) => ({name: "Task Gate", head_sha: sha, head_branch: branch, event, created_at: at});
+  assert.equal(mainShaFromRuns([r("old", "main", "push", "2026-11-15T08:00:00Z"), r("new", "main", "push", "2026-11-15T09:00:00Z"), r("pr", "task/V22-T3", "pull_request", "2026-11-15T10:00:00Z")]), "new");
+  assert.equal(mainShaFromRuns([r("pr", "task/x", "pull_request", "2026-11-15T10:00:00Z")]), null);
+  assert.equal(mainShaFromRuns(null), null);
+});
+
 test("links stay inside the repository; times are relative", () => {
   assert.match(fileUrl("v2_2/evidence/V22-T1.md"), /\/blob\/main\/v2_2\/evidence\/V22-T1\.md$/);
   assert.equal(fileUrl("../x"), null);
@@ -74,7 +81,8 @@ test("page contract: phase records, live sources, no HTML injection", () => {
   assert.match(html, /Simulation only/);
   assert.equal(PHASE.manifest, "v2_2/tasks/manifest.json");
   assert.match(app, /\/pulls\?state=open/);
-  assert.match(app, /\/actions\/runs\?event=pull_request/);
-  assert.match(app, /REFRESH_MS = 60000/);
+  assert.match(app, /\/actions\/runs\?per_page=/);
+  assert.match(app, /REFRESH_MS = 180000/);
+  assert.match(app, /x-ratelimit-remaining/);
   assert.doesNotMatch(app, /innerHTML|insertAdjacentHTML|outerHTML/);
 });
