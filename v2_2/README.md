@@ -6,6 +6,8 @@
 
 ## How a task is done
 
+**Shortcut:** tell your Claude *"I'm <Name>, let's do V22-Tn"*. It follows [prompts/COMMON.md](prompts/COMMON.md) and `prompts/V22-Tn.md`, which carry out the steps below.
+
 1. **Start check:** run `node scripts/v22-gate.mjs ready`. Start a task only when it is READY, meaning every dependency is DONE on `main`.
    - If a dependency is not DONE, wait. Independent READY tasks can continue.
 2. **Branch:** create `task/V22-Tn-short-name` from the latest `main`.
