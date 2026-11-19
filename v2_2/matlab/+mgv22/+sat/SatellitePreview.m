@@ -5,7 +5,8 @@ classdef SatellitePreview < handle
     %   p.open() / p.open(Visible="off")   p.close()   s = p.status()   tf = p.isOpen()
     %   The banner and credits always come from the site file (v2_2/config/bitm_site.json); credits sit in a footer
     %   OUTSIDE the map so overlays can never cover them. Live tiles need internet and give no load signal, so the
-    %   tile status stays UNVERIFIED; an unreachable service is reported as "Satellite unavailable".
+    %   tile status stays UNVERIFIED; an unreachable service turns the banner into SATELLITE UNAVAILABLE.
+    %   The full offline swap to the ENH-009 schematic belongs to the mission app (V22-T6).
     %   No mission, truth, target or event data is used here; the VIRTUAL route overlay is V22-T5.
 
     properties (SetAccess = private)
@@ -32,6 +33,7 @@ classdef SatellitePreview < handle
                 opts.Theme (1,1) string {mustBeMember(opts.Theme, ["dark","light"])} = "dark"
                 opts.MetadataReader = []
             end
+            mgv22.sat.SatellitePreview.checkSite(opts.Site);      % before any graphics
             obj.Site = opts.Site; obj.Basemap = opts.Basemap; obj.Theme = opts.Theme; obj.MetadataReader = opts.MetadataReader;
         end
 
@@ -49,8 +51,16 @@ classdef SatellitePreview < handle
                 theme(fig, obj.Theme);
                 g = uigridlayout(fig, [3 1], 'RowHeight', {48, '1x', 76}, 'ColumnWidth', {'1x'}, ...
                     'Padding', [8 8 8 8], 'RowSpacing', 6, 'BackgroundColor', c.bg);
-                obj.Banner = uilabel(g, 'Text', obj.Site.banner + "  |  Geographic context only. Live satellite tiles need internet.", ...
-                    'FontWeight', 'bold', 'FontSize', 13, 'FontColor', c.text, 'BackgroundColor', c.banner, ...
+                if obj.Basemap == "satellite" && obj.Source.metadata_status == "UNAVAILABLE"
+                    % never present a possibly blank map as real imagery
+                    bannerText = "SATELLITE UNAVAILABLE — no connection to the imagery service; the map may be blank. Simulation context only.";
+                    bannerColour = c.offline;
+                else
+                    bannerText = obj.Site.banner + "  |  Geographic context only. Live satellite tiles need internet.";
+                    bannerColour = c.banner;
+                end
+                obj.Banner = uilabel(g, 'Text', bannerText, ...
+                    'FontWeight', 'bold', 'FontSize', 13, 'FontColor', c.text, 'BackgroundColor', bannerColour, ...
                     'HorizontalAlignment', 'center', 'WordWrap', 'on');
                 obj.Banner.Layout.Row = 1;
                 obj.Axes = geoaxes(g, 'Basemap', char(obj.Basemap));
@@ -102,11 +112,23 @@ classdef SatellitePreview < handle
     end
 
     methods (Static, Access = private)
+        function checkSite(s)
+            id = 'mgv22:InvalidSiteConfig';
+            if ~all(isfield(s, {'anchor_lla','view_window','banner','credit_text','service_url'}))
+                error(id, 'Site must come from mgv22.siteConfig.');
+            end
+            a = s.anchor_lla; w = s.view_window;
+            mgv22.geo.enuToWgs84([0 0 0], a);                 % rejects the [0 0 0] placeholder and polar/dateline anchors
+            if ~(a(1) > w.lat(1) && a(1) < w.lat(2) && a(2) > w.lon(1) && a(2) < w.lon(2))
+                error(id, 'The anchor must lie inside the view window.');
+            end
+        end
+
         function c = colours(name)
             if name == "dark"
-                c = struct('bg', [0.08 0.10 0.13], 'text', [0.93 0.96 0.98], 'banner', [0.45 0.08 0.08], 'warn', [1 0.82 0.45], 'link', [0.46 0.86 1.00]);
+                c = struct('bg', [0.08 0.10 0.13], 'text', [0.93 0.96 0.98], 'banner', [0.45 0.08 0.08], 'warn', [1 0.82 0.45], 'link', [0.46 0.86 1.00], 'offline', [0.42 0.30 0.02]);
             else
-                c = struct('bg', [0.97 0.97 0.98], 'text', [0.10 0.13 0.17], 'banner', [0.98 0.86 0.86], 'warn', [0.62 0.36 0.00], 'link', [0.05 0.35 0.75]);
+                c = struct('bg', [0.97 0.97 0.98], 'text', [0.10 0.13 0.17], 'banner', [0.98 0.86 0.86], 'warn', [0.62 0.36 0.00], 'link', [0.05 0.35 0.75], 'offline', [1.00 0.90 0.62]);
             end
         end
     end

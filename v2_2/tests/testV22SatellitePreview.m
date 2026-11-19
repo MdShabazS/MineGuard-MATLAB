@@ -115,12 +115,45 @@ verifyEqual(tc, [st.state st.basemap st.metadata_status st.tile_status], ["OPEN"
 verifyEqual(tc, string(p.Link.URL), s.service_url);
 end
 
+function testLiveCreditKeepsTheSitePrefixAndFullSourceList(tc)
+s = mgv22.siteConfig();
+src = mgv22.sat.basemapSource("satellite", s, @(~) struct('copyrightText', "Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community"));
+verifyEqual(tc, src.credit, s.credit_text, 'live credit with today''s source list equals the site file text');
+verifySubstring(tc, lower(src.credit), "gis user community");
+s2 = s; s2.credit_text = "Imagery credit | Source: Old";
+src = mgv22.sat.basemapSource("satellite", s2, @liveReader);
+verifyEqual(tc, src.credit, "Imagery credit | Source: Esri, Test Contributor", 'the prefix comes from the site file');
+end
+
+function testPreviewRejectsInvalidSiteBeforeGraphics(tc)
+figs0 = numel(findall(groot, 'Type', 'figure'));
+s = mgv22.siteConfig();
+bad = s; bad.anchor_lla = [0 0 0];
+verifyError(tc, @() mgv22.sat.SatellitePreview(Site=bad), 'mgv22:MissingGeographicAnchor');
+bad = s; bad.anchor_lla = [16 77 0];
+verifyError(tc, @() mgv22.sat.SatellitePreview(Site=bad), 'mgv22:InvalidSiteConfig');
+verifyError(tc, @() mgv22.sat.SatellitePreview(Site=struct('x', 1)), 'mgv22:InvalidSiteConfig');
+verifyEqual(tc, numel(findall(groot, 'Type', 'figure')), figs0);
+end
+
+function testRoundTripCoversTheWholeViewWindow(tc)
+s = mgv22.siteConfig(); w = s.view_window;
+[la, lo] = meshgrid(linspace(w.lat(1), w.lat(2), 9), linspace(w.lon(1), w.lon(2), 9));
+lla = [la(:) lo(:) zeros(numel(la), 1)];
+enu = mgv22.geo.wgs84ToEnu(lla, s.anchor_lla);
+back = mgv22.geo.enuToWgs84(enu, s.anchor_lla);
+verifyLessThan(tc, max(abs(mgv22.geo.wgs84ToEnu(back, s.anchor_lla) - enu), [], 'all'), 0.01, 'round trip within 1 cm over the whole BITM window');
+verifyGreaterThan(tc, max(hypot(enu(:,1), enu(:,2))), 300, 'the grid reaches the window edges');
+end
+
 function testOfflinePreviewStillOpensAndSaysUnavailable(tc)
 p = mgv22.sat.SatellitePreview(MetadataReader=@offlineReader);
 tc.addTeardown(@() delete(p));
 p.open(Visible="off");
 verifyTrue(tc, p.isOpen());
 verifySubstring(tc, string(p.StatusLabel.Text), "Satellite unavailable");
+verifySubstring(tc, string(p.Banner.Text), "SATELLITE UNAVAILABLE");
+verifyFalse(tc, contains(string(p.Banner.Text), "REAL IMAGERY"), 'a possibly blank map must not be labelled real imagery');
 verifyEqual(tc, p.status().metadata_status, "UNAVAILABLE");
 verifyEqual(tc, string(p.Credits.Text), p.Site.credit_text);
 end

@@ -27,15 +27,17 @@ if basemap ~= "satellite"
         'link_text', "MathWorks basemap source information", 'url', docs);
     return
 end
-pinned = extractAfter(site.credit_text, "Powered by Esri | ");
-if ismissing(pinned) || strlength(pinned) == 0, pinned = site.credit_text; end
-credit = pinned; creditSource = "PINNED_SITE_FILE"; metadataStatus = "UNAVAILABLE";
+% The site's credit_text is "<prefix> | <source credits>"; a live copyrightText replaces only the last part.
+parts = split(site.credit_text, " | ");
+prefix = strjoin(parts(1:end-1), " | ");
+credit = site.credit_text; creditSource = "PINNED_SITE_FILE"; metadataStatus = "UNAVAILABLE";
 try
     info = metadataReader(site.service_url + "?f=json");
     if isstruct(info) && isscalar(info) && isfield(info, 'copyrightText') && (ischar(info.copyrightText) || isstring(info.copyrightText))
         live = string(info.copyrightText);
         if isscalar(live) && ~ismissing(live) && strlength(strtrim(live)) > 0
-            credit = live; creditSource = "LIVE_SERVICE"; metadataStatus = "AVAILABLE";
+            credit = strjoin([prefix, live], " | "); if strlength(prefix) == 0, credit = live; end
+            creditSource = "LIVE_SERVICE"; metadataStatus = "AVAILABLE";
         end
     end
 catch
@@ -46,7 +48,7 @@ if metadataStatus == "AVAILABLE"
 else
     status = "Satellite unavailable: the Esri World Imagery service could not be reached. Map tiles may be blank; credits shown from the site file.";
 end
-src = struct('credit', "Basemap: satellite | Powered by Esri | " + credit, 'status', status, ...
+src = struct('credit', credit, 'status', status, ...
     'credit_source', creditSource, 'metadata_status', metadataStatus, 'tile_status', "UNVERIFIED", ...
     'link_text', "Esri World Imagery service and source credits", 'url', site.service_url);
 end
