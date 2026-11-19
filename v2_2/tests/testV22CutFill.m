@@ -149,6 +149,7 @@ function testLegendAndCellsFollowZoom(tc)
 % needs a visible window: a hidden figure has no real pixel size to scale the cells from
 v = mgv22.cutfill.CutFillView(tc.TestData.S, Visible="on", MetadataReader=@(~) struct('copyrightText', "Source: Test"));
 tc.addTeardown(@() delete(v));
+figure(v.Figure); drawnow; pause(0.5);      % bring it to the front so it is laid out on screen
 v.setOutline(tc.TestData.poly); drawnow;
 s0 = v.Overlay.SizeData;
 verifyGreaterThan(tc, s0, 1, 'a visible window sizes cells from its pixels');
@@ -156,5 +157,20 @@ verifyGreaterThan(tc, s0, 1, 'a visible window sizes cells from its pixels');
 geolimits(v.Axes, la(1) + [0 0.5] * diff(la), lo(1) + [0 0.5] * diff(lo)); drawnow;
 verifyGreaterThan(tc, v.Overlay.SizeData, s0, 'zooming in enlarges the cells');
 verifySubstring(tc, strjoin(string(v.LegendText.String), " "), "SIMULATED TERRAIN", 'the legend is the axes title and stays');
+end
+
+function testSurveyAreaIsShownAndOutsideOutlineExplained(tc)
+v = openView(tc); S = tc.TestData.S;
+verifyTrue(tc, isgraphics(v.SurveyAreaLine));
+verifySubstring(tc, string(v.SurveyAreaLine.DisplayName), "SIMULATED survey area");
+enu = mgv22.geo.wgs84ToEnu([v.SurveyAreaLine.LatitudeData(:) v.SurveyAreaLine.LongitudeData(:) zeros(5, 1)], v.Site.anchor_lla);
+verifyEqual(tc, [min(enu(:, 1)) max(enu(:, 1)) min(enu(:, 2)) max(enu(:, 2))], [S.x(1) - 0.5, S.x(end) + 0.5, S.y(1) - 0.5, S.y(end) + 0.5], 'AbsTol', 0.01);
+[la, lo] = geolimits(v.Axes);           % a hidden window has no real aspect ratio, so check framing, not size
+lat = v.SurveyAreaLine.LatitudeData; lon = v.SurveyAreaLine.LongitudeData;
+verifyTrue(tc, all(lat >= la(1) & lat <= la(2) & lon >= lo(1) & lon <= lo(2)), 'the whole survey area is in view');
+verifyLessThan(tc, abs(mean(la) - mean([min(lat) max(lat)])), 0.25 * diff(la), 'the view is centred on the survey area');
+verifyLessThan(tc, abs(mean(lo) - mean([min(lon) max(lon)])), 0.25 * diff(lo), 'the view is centred on the survey area');
+verifyError(tc, @() v.setOutline([120 -10; 160 -10; 160 20; 120 20]), 'mgv22:TooFewCells');
+verifySubstring(tc, string(v.StatusText.Text), "Draw inside the dashed SIMULATED survey area");
 end
 

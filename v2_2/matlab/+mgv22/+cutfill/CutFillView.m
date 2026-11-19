@@ -55,6 +55,7 @@ classdef CutFillView < handle
         DesignContours
         LegendText
         ProfileLine
+        SurveyAreaLine      % dashed outline of where SIMULATED survey data exists (draw inside it)
         DraftLine
         DraftLabels
         % --- state
@@ -121,7 +122,11 @@ classdef CutFillView < handle
                 [mask, info] = mgv22.cutfill.clipToPolygon(obj.Surface, poly);
                 P = mgv22.cutfill.fitPlane(obj.Surface, mask);
             catch err
-                obj.showStatus("Outline rejected: " + string(err.message), true);
+                if err.identifier == "mgv22:TooFewCells"
+                    obj.showStatus("Outline rejected: no simulated survey data inside it. Draw inside the dashed SIMULATED survey area.", true);
+                else
+                    obj.showStatus("Outline rejected: " + string(err.message), true);
+                end
                 rethrow(err);
             end
             obj.Outline = poly; obj.Mask = mask;
@@ -365,8 +370,8 @@ classdef CutFillView < handle
 
                 gx = geoaxes(mid, 'Basemap', 'satellite');
                 gx.Layout.Row = 1; gx.Layout.Column = 2; gx.AxisColor = c.text;
-                geolimits(gx, obj.Site.view_window.lat, obj.Site.view_window.lon);
                 hold(gx, 'on');
+                obj.drawSurveyArea(gx);          % shows where the simulated terrain exists and frames the map on it
                 gx.ButtonDownFcn = @(~, ~) obj.onAxesClick();
                 obj.Axes = gx;
                 try
@@ -741,13 +746,27 @@ classdef CutFillView < handle
             end
         end
 
+        function drawSurveyArea(obj, gx)
+            % Rectangle around the cells that have simulated LiDAR data; the map opens framed on it.
+            S = obj.Surface; ok = ~isnan(S.Z);
+            cols = find(any(ok, 1)); rows = find(any(ok, 2));
+            h = S.cell_m / 2;
+            x = [S.x(cols(1)) - h, S.x(cols(end)) + h]; y = [S.y(rows(1)) - h, S.y(rows(end)) + h];
+            ll = obj.toLatLon([x(1) y(1); x(2) y(1); x(2) y(2); x(1) y(2); x(1) y(1)]);
+            obj.SurveyAreaLine = geoplot(gx, ll(:, 1), ll(:, 2), '--', 'Color', [1 1 1], 'LineWidth', 1.5, ...
+                'DisplayName', 'SIMULATED survey area (draw inside)', 'PickableParts', 'none');
+            pad = 0.35 * max(diff(x), diff(y));
+            c = obj.toLatLon([x(1) - pad y(1) - pad; x(2) + pad y(2) + pad]);
+            geolimits(gx, sort(c(:, 1))', sort(c(:, 2))');
+        end
+
         function zoomToOutline(obj)
             % Like the reference reel: frame the field so its cut/fill cells are readable (25 % padding, at least 15 m).
             pad = max(0.25 * max(max(obj.Outline) - min(obj.Outline)), 15);
             lo = min(obj.Outline) - pad; hi = max(obj.Outline) + pad;
             ll = obj.toLatLon([lo; hi]);
             geolimits(obj.Axes, sort(ll(:, 1))', sort(ll(:, 2))');
-            drawnow limitrate;
+            drawnow;                         % finish the layout so the cells are sized from the real map size
         end
 
         function updateMarkerSize(obj)
@@ -797,7 +816,7 @@ classdef CutFillView < handle
             [obj.OverlaySwitch, obj.AlphaSlider, obj.DrawAreaButton, obj.DrawProfileButton] = deal(e);
             [obj.UndoButton, obj.CancelButton, obj.FinishButton, obj.StatusText, obj.ProfileAxes] = deal(e);
             [obj.OutlineLine, obj.VertexLabels, obj.Overlay, obj.ExistingContours, obj.DesignContours] = deal(e);
-            [obj.LegendText, obj.ProfileLine, obj.DraftLine, obj.DraftLabels] = deal(e);
+            [obj.LegendText, obj.ProfileLine, obj.DraftLine, obj.DraftLabels, obj.SurveyAreaLine] = deal(e);
         end
     end
 
