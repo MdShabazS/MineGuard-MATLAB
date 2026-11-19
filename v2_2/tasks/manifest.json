@@ -81,12 +81,13 @@
       "owner": "Rahil",
       "kind": "BUILD",
       "dependsOn": [
-        "V22-T5"
+        "V22-T5",
+        "V22-T9"
       ],
       "title": "Satellite tab integrated into V2.1 mission control with offline fallback",
       "evidence": "v2_2/evidence/V22-T6.md",
       "acceptance": [
-        "Satellite tab in the V2.1 application, optional and separate from the offline ENU mission map",
+        "Satellite tab in the V2.1 application, optional and separate from the offline ENU mission map; plus a Cut/fill map tab from V22-T9",
         "No network: falls back to the ENH-009 offline campus schematic with a clear notice",
         "Offline mission, detector, sealed TEST data and V2/V2.1 behaviour unchanged; startup and frame cost measured",
         "Full V2 + V2.1 + V2.2 regression on Windows recorded"
@@ -117,6 +118,24 @@
         "Full regression and a satellite acceptance run on Windows at the final SHA",
         "Demo script updated with the ENH-010 Ballari-to-BITM storyboard and the satellite tab",
         "Release record with limitations: virtual route, no detection claim, map terms"
+      ]
+    },
+    "V22-T9": {
+      "owner": "Shabaz",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V22-T5"
+      ],
+      "title": "Reel-style cut/fill elevation map over BITM from a simulated drone LiDAR survey",
+      "evidence": "v2_2/evidence/V22-T9.md",
+      "acceptance": [
+        "Elevation surface gridded from simulated LIDAR_TERRAIN returns (points_enu_m) of a flown V2.1 mission, placed at the BITM anchor and labelled SIMULATED TERRAIN (not BITM ground)",
+        "Field outline drawn on the satellite view (click points, double-click to finish, undo, cancel), validated, with area in m2 and ha",
+        "Best-fit design plane by least squares with editable slope % and heading and a Best fit reset",
+        "Cut/fill per cell = existing - design shown red/blue over the imagery, with on/off, transparency slider and legend; cut and fill volumes in m3, cut:fill ratio, max cut/fill, cut per hectare",
+        "Contours of existing and design surfaces at a selectable interval, each switchable",
+        "Elevation profile tool: draw a line, plot existing vs design along it",
+        "Tests on the owner's machine (Windows covered by V22-T8): exact plane fit, analytic volumes on known shapes, clipping, invalid outlines, labels, no imagery committed, compute time recorded"
       ]
     }
   }

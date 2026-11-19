@@ -15,6 +15,7 @@ I'm Rahil, let's do V22-T6
 | V22-T3 | Shabaz | [V22-T3.md](V22-T3.md) |
 | V22-T4 | Shabaz | [V22-T4.md](V22-T4.md) |
 | V22-T5 | Shabaz | [V22-T5.md](V22-T5.md) |
+| V22-T9 | Shabaz | [V22-T9.md](V22-T9.md) |
 | V22-T6 | Rahil | [V22-T6.md](V22-T6.md) |
 | V22-T7 | Shabaz | [V22-T7.md](V22-T7.md) |
 | V22-T8 | Danish | [V22-T8.md](V22-T8.md) |
