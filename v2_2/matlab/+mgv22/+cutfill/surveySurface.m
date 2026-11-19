@@ -13,7 +13,7 @@ arguments
     opts.CellM (1,1) double {mustBePositive} = 1
     opts.Cache (1,1) logical = true
 end
-key = sprintf('%s_c%g_t%g', opts.Preset, opts.CellM, opts.MaxTicks);
+key = sprintf('surface-v1_%s_c%g_t%g', opts.Preset, opts.CellM, opts.MaxTicks);   % bump v1 when the survey or world changes
 file = fullfile(tempdir, "mineguard_v22_survey_" + regexprep(key, '[^A-Za-z0-9_]', '_') + ".mat");
 if opts.Cache && isfile(file)
     c = load(file, 'S'); S = c.S; return

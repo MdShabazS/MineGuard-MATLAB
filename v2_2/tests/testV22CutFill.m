@@ -124,3 +124,37 @@ for ext = ["png", "jpg", "jpeg", "tif", "tiff", "mbtiles"]
     verifyEmpty(tc, dir(fullfile(tc.TestData.root, 'v2_2', '**', "*." + ext)));
 end
 end
+
+function testColoursCutRedFillBlueCentredOnZero(tc)
+v = openView(tc); v.setOutline(tc.TestData.poly);
+cl = v.Axes.CLim; verifyEqual(tc, cl(1), -cl(2), 'AbsTol', 1e-12);
+cmap = v.Axes.Colormap;
+verifyGreaterThan(tc, cmap(end, 1), cmap(end, 3), 'positive depth (cut) is red');
+verifyGreaterThan(tc, cmap(1, 3), cmap(1, 1), 'negative depth (fill) is blue');
+D = v.results().R.D; verifyEqual(tc, sort(v.Overlay.CData(:)), sort(D(~isnan(D))), 'AbsTol', 1e-12);
+end
+
+function testCellsWithoutSurveyDataAreExcludedAndReported(tc)
+S = tc.TestData.S; S.Z(30:35, 40:45) = NaN;
+v = mgv22.cutfill.CutFillView(S, Visible="off", MetadataReader=@(~) struct('copyrightText', "Source: Test"));
+tc.addTeardown(@() delete(v));
+v.setOutline(tc.TestData.poly);
+r = v.results();
+verifyEqual(tc, r.nan_cells_inside, 36);
+verifyEqual(tc, r.R.cells, 60 * 40 - 36);
+verifySubstring(tc, string(v.StatusText.Text), "36 cells without survey data excluded");
+end
+
+function testLegendAndCellsFollowZoom(tc)
+% needs a visible window: a hidden figure has no real pixel size to scale the cells from
+v = mgv22.cutfill.CutFillView(tc.TestData.S, Visible="on", MetadataReader=@(~) struct('copyrightText', "Source: Test"));
+tc.addTeardown(@() delete(v));
+v.setOutline(tc.TestData.poly); drawnow;
+s0 = v.Overlay.SizeData;
+verifyGreaterThan(tc, s0, 1, 'a visible window sizes cells from its pixels');
+[la, lo] = geolimits(v.Axes);
+geolimits(v.Axes, la(1) + [0 0.5] * diff(la), lo(1) + [0 0.5] * diff(lo)); drawnow;
+verifyGreaterThan(tc, v.Overlay.SizeData, s0, 'zooming in enlarges the cells');
+verifySubstring(tc, strjoin(string(v.LegendText.String), " "), "SIMULATED TERRAIN", 'the legend is the axes title and stays');
+end
+

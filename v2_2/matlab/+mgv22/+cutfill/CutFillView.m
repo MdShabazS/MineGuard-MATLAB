@@ -83,6 +83,7 @@ classdef CutFillView < handle
         ProfileEnds = []
         Colours
         Listeners = {}
+        NanInside = 0
     end
 
     properties (Constant, Access = private)
@@ -117,19 +118,22 @@ classdef CutFillView < handle
         function setOutline(obj, polyENU)
             try
                 poly = mgv22.cutfill.validateOutline(polyENU);
-                [mask, ~] = mgv22.cutfill.clipToPolygon(obj.Surface, poly);
+                [mask, info] = mgv22.cutfill.clipToPolygon(obj.Surface, poly);
                 P = mgv22.cutfill.fitPlane(obj.Surface, mask);
             catch err
                 obj.showStatus("Outline rejected: " + string(err.message), true);
                 rethrow(err);
             end
             obj.Outline = poly; obj.Mask = mask;
-            obj.Centroid = mgv22.cutfill.CutFillView.polyCentroid(poly);
+            [X, Y] = meshgrid(obj.Surface.x, obj.Surface.y);
+            obj.Centroid = [mean(X(mask)) mean(Y(mask))];             % pivot slope/heading edits on the cells with data
+            obj.NanInside = info.nan_cells_inside;
             obj.applyBestPlane(P);
             obj.zoomToOutline();
             obj.drawOutline();
             obj.recompute();
-            obj.showStatus(sprintf('Field outline set: %d vertices, %d grid cells (SIMULATED TERRAIN).', size(poly, 1), nnz(mask)), false);
+            obj.showStatus(sprintf('Field outline set: %d vertices, %d grid cells, %d cells without survey data excluded (SIMULATED TERRAIN).', ...
+                size(poly, 1), nnz(mask), obj.NanInside), false);
         end
 
         function bestFit(obj)
@@ -307,7 +311,7 @@ classdef CutFillView < handle
         % ------------------------------------------------------------------ results and life cycle
         function r = results(obj)
             r = struct('R', obj.Results, 'P', obj.Plane, 'best_fit', obj.BestPlane, 'outline', obj.Outline, ...
-                'mask_cells', nnz(obj.Mask), 'overlay_visible', obj.OverlayVisible, 'alpha', obj.Alpha, ...
+                'mask_cells', nnz(obj.Mask), 'nan_cells_inside', obj.NanInside, 'overlay_visible', obj.OverlayVisible, 'alpha', obj.Alpha, ...
                 'contour_interval', obj.ContourInterval, 'existing_contours', obj.ShowExisting, ...
                 'design_contours', obj.ShowDesign, 'profile', obj.Profile, 'label', obj.Label, ...
                 'source', string(mgv22.cutfill.CutFillView.fieldOr(obj.Surface, 'source', "")));
@@ -382,11 +386,7 @@ classdef CutFillView < handle
                 fig.CloseRequestFcn = @(~, ~) obj.close();
                 fig.SizeChangedFcn = @(~, ~) obj.updateMarkerSize();
                 obj.Figure = fig;
-                try
-                    obj.Listeners{end + 1} = addlistener(gx, 'LatitudeLimits', 'PostSet', @(~, ~) obj.updateMarkerSize());
-                catch
-                    % limits are not observable on this release: marker size follows figure resizes only
-                end
+                gx.LatitudeAxis.LimitsChangedFcn = @(~, ~) obj.updateMarkerSize();   % zoom and pan keep cells the right size
                 obj.updatePanel();
                 obj.updateLegend();
                 fig.Visible = char(visible);
@@ -546,17 +546,13 @@ classdef CutFillView < handle
 
         function updateLegend(obj)
             if ~obj.isOpen(), return; end
-            if any(isgraphics(obj.LegendText)), delete(obj.LegendText); end
             if isempty(obj.Results)
                 str = "Draw a field area · SIMULATED TERRAIN";
             else
                 str = sprintf('Cut %.1f · Fill %.1f m³ · SIMULATED TERRAIN', obj.Results.cut_m3, obj.Results.fill_m3);
             end
-            gx = obj.Axes; la = gx.LatitudeLimits; lo = gx.LongitudeLimits;
-            obj.LegendText = text(gx, la(2) - 0.03 * diff(la), lo(2) - 0.02 * diff(lo), str, ...
-                'HorizontalAlignment', 'right', 'VerticalAlignment', 'top', 'FontSize', 11, 'FontWeight', 'bold', ...
-                'Color', [0.08 0.10 0.13], 'BackgroundColor', [1 1 1], 'EdgeColor', [0.3 0.3 0.3], 'Margin', 4, ...
-                'Tag', 'SIMULATED TERRAIN legend', 'PickableParts', 'none', 'Clipping', 'on');
+            % the axes title stays in view whatever the user pans or zooms to
+            obj.LegendText = title(obj.Axes, str, 'FontSize', 12, 'FontWeight', 'bold', 'Color', obj.Colours.text);
         end
 
         function drawOutline(obj)
