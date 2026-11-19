@@ -1,0 +1,29 @@
+{
+  "schema": "mg-v22-site/1.0",
+  "decided": "2026-11-19",
+  "confirmed_by": "Shabaz",
+  "site": "Ballari Institute of Technology and Management (BITM), Jnana Gangotri Campus, Ballari 583104",
+  "anchor_lla": [15.1682, 76.8504, 0],
+  "anchor_note": "Presentation anchor from BITM photo GPS stamps (main academic block). Altitude 0 = no approved altitude. Not a survey point.",
+  "view_window": {"lat": [15.1653, 15.1693], "lon": [76.8489, 76.8516]},
+  "basemap": "satellite",
+  "service_url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
+  "credit_text": "Basemap: satellite | Powered by Esri | Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community",
+  "credit_placement": "footer outside the map, always visible, never covered by overlays",
+  "credit_live_field": "copyrightText",
+  "banner": "REAL IMAGERY — SIMULATED FLIGHT / NOT A HAZARD MAP",
+  "virtual_label": "VIRTUAL",
+  "offline_fallback": "mgenh009.renderOfflineCampusContext",
+  "offline_label": "ILLUSTRATIVE / NOT SURVEYED / SIMULATION CONTEXT",
+  "commit_imagery_allowed": false,
+  "offline_tile_cache_allowed": false,
+  "forbidden_on_imagery": ["mine", "target", "truth", "anomaly", "suspected event"],
+  "sources": [
+    "https://www.bitm.edu.in/assets/frontend/pdf/7.1.1-Addl.-Info.pdf",
+    "https://www.bitm.edu.in/assets/frontend/pdf/4.1.2-Addl.-Info.pdf",
+    "https://ballari.nic.in/en/public-utility-category/colleges/",
+    "https://www.esri.com/en-us/legal/terms/web-site-service",
+    "https://www.mathworks.com/help/map/use-basemaps-in-offline-environments.html",
+    "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer?f=json"
+  ]
+}
