@@ -28,11 +28,12 @@
 | V22-T3 | Shabaz's Claude | V22-T1 | Satellite map source, licence terms and approved BITM location and boundary |
 | V22-T4 | Shabaz's Claude | V22-T3 | Clean satellite preview module rebuilt on current main |
 | V22-T5 | Shabaz's Claude | V22-T4 | Virtual V2.1 mission route drawn over BITM and synced with the 3-D demo |
-| V22-T6 | Rahil's Claude | V22-T5 | Satellite tab integrated into V2.1 mission control with offline fallback |
+| V22-T9 | Shabaz's Claude | V22-T5 | Reel-style cut/fill elevation map over BITM from a simulated drone LiDAR survey |
+| V22-T6 | Rahil's Claude | V22-T5, V22-T9 | Satellite tab integrated into V2.1 mission control with offline fallback |
 | V22-T7 | Shabaz's Claude | V22-T6 | Mac verification of the satellite view at the final commit |
 | V22-T8 | Danish's Claude | V22-T6 | Windows acceptance, guide demo script and V2.2 release record |
 
-**Parallel work:** after T1, T2 and T3 (both Shabaz) run in parallel. T4 waits for T3, T5 for T4 and T6 for T5. After T6, T7 (Mac) and T8 (Windows) run in parallel.
+**Parallel work:** after T1, T2 and T3 (both Shabaz) run in parallel. T4 waits for T3, T5 for T4 and T9 for T5, and T6 for T5 and T9 (added 2026-11-19). After T6, T7 (Mac) and T8 (Windows) run in parallel.
 
 ### V22-T1 — Phase plan, task tracking, owner-merges rule and V2.2 CI gate
 **Owner:** Shabaz's Claude · **Kind:** DOC · **Depends on:** nothing · **Evidence:** `v2_2/evidence/V22-T1.md`
@@ -93,6 +94,11 @@
 - Full regression and a satellite acceptance run on Windows at the final SHA
 - Demo script updated with the ENH-010 Ballari-to-BITM storyboard and the satellite tab
 - Release record with limitations: virtual route, no detection claim, map terms
+
+### V22-T9 — Reel-style cut/fill elevation map over BITM from a simulated drone LiDAR survey
+**Owner:** Shabaz's Claude · **Kind:** BUILD · **Depends on:** V22-T5 · **Evidence:** `v2_2/evidence/V22-T9.md` · **Prompt:** [prompts/V22-T9.md](prompts/V22-T9.md)
+
+Added 2026-11-19 after Shabaz shared a reference reel (a CutSheetRX-style cut/fill map). See the prompt for the full acceptance list.
 
 ## Limits for every task
 
