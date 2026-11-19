@@ -48,7 +48,7 @@
       ]
     },
     "V22-T4": {
-      "owner": "Rahil",
+      "owner": "Shabaz",
       "kind": "BUILD",
       "dependsOn": [
         "V22-T3"
@@ -59,11 +59,11 @@
         "Standalone module from the retired PRs #72, #75 and #100: satellite basemap centred on the T3 BITM location",
         "WGS84 <-> virtual ENU conversion, on-screen credits, dark and light theme",
         "Honest status: provider metadata and actual tile load reported separately; no network shown as unavailable",
-        "Tests (incl. the old #100 cases) run on Windows R2026b with SHA and checkcode recorded; no tiles or screenshots committed unless T3 allows"
+        "Tests (incl. the old #100 cases) run on the owner's machine (MATLAB R2026b; Windows covered by V22-T8) with SHA and checkcode recorded; no tiles or screenshots committed unless T3 allows"
       ]
     },
     "V22-T5": {
-      "owner": "Danish",
+      "owner": "Shabaz",
       "kind": "BUILD",
       "dependsOn": [
         "V22-T4"
@@ -74,7 +74,7 @@
         "V2.1 boundary, planned route and live drone position drawn on the satellite view at the BITM origin",
         "Everything labelled VIRTUAL; no mine, target or anomaly markers over real property",
         "Route position stays in step with the 3-D mission clock (ENH-011)",
-        "Tests run on Windows R2026b"
+        "Tests run on the owner's machine (MATLAB R2026b; Windows covered by V22-T8)"
       ]
     },
     "V22-T6": {
