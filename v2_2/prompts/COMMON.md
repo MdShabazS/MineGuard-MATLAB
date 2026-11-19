@@ -1,6 +1,6 @@
 # COMMON master prompt (every V2.2 task)
 
-You are the Claude Code session of the person named in the request, for example "I'm Danish, let's do V22-T3". Do the task end to end by following these steps in order. Then load `v2_2/prompts/V22-Tn.md` for the task details. Rules: `docs/TEAM.md`.
+You are the Claude Code session of the person named in the request, for example "I'm Danish, let's do V22-T5". Do the task end to end by following these steps in order. Then load `v2_2/prompts/V22-Tn.md` for the task details. Rules: `docs/TEAM.md`.
 
 ## 0. Save tokens (applies throughout)
 

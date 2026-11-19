@@ -58,9 +58,14 @@ export function auditTransition(baseMf, baseSt, mf, st, branch) {
   }
   if (!same(baseMf, mf)) {
     check(branch.startsWith("v22/plan-"), "V2.2 plan changes need a v22/plan- branch");
-    check(same(baseSt, st) || Object.keys(st.tasks).every(id => same(baseSt.tasks[id], st.tasks[id]) || (!baseSt.tasks[id] && st.tasks[id].state === "TODO")),
-      "Cannot change the V2.2 plan and a task status in one PR (new TODO tasks are allowed)");
-    return "V2.2 plan update";
+    // Allowed status edits in a plan PR: a new TODO task, or an owner transfer of a TODO task (only the owner field changes).
+    const transfer = id => baseSt.tasks[id]?.state === "TODO" && baseMf.tasks[id]?.owner !== mf.tasks[id].owner
+      && same({...baseSt.tasks[id], owner: mf.tasks[id].owner}, st.tasks[id]);
+    const moved = Object.keys(st.tasks).filter(id => !same(baseSt.tasks[id], st.tasks[id]));
+    check(moved.every(id => (!baseSt.tasks[id] && st.tasks[id].state === "TODO") || transfer(id)),
+      "Cannot change the V2.2 plan and a task status in one PR (new TODO tasks and owner transfers of TODO tasks are allowed)");
+    const transfers = moved.filter(transfer);
+    return "V2.2 plan update" + (transfers.length ? "; owner transfer of TODO " + transfers.join(", ") : "");
   }
   const changed = Object.keys(st.tasks).filter(id => !same(baseSt.tasks[id], st.tasks[id]));
   check(changed.length <= 1, "A V2.2 PR can change only one task's status");
