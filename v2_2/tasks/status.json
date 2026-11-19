@@ -39,8 +39,12 @@
     },
     "V22-T5": {
       "owner": "Shabaz",
-      "state": "TODO",
-      "evidence": null
+      "state": "DONE",
+      "evidence": "v2_2/evidence/V22-T5.md",
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-19",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-11-19"
     },
     "V22-T6": {
       "owner": "Rahil",
