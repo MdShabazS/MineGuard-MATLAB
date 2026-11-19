@@ -16,15 +16,15 @@ MineGuard is now a MATLAB-only project. All work is done by three Claude Code se
 
 **How to work:**
 1. Check the guide dashboard for your READY task.
-2. Tell your Claude one line, for example *"I'm Danish, let's do V22-T5"*.
+2. Tell your Claude one line, for example *"I'm Rahil, let's do V22-T6"*.
 3. The predefined master prompt in [v2_2/prompts/](../v2_2/prompts/README.md) does the rest: it marks the task started, builds, verifies, self-reviews, marks it done and merges.
 4. On a new machine it first runs the environment check.
 
 | Session | V2.2 tasks |
 |---|---|
-| Shabaz's Claude | V22-T1 plan and tracking; V22-T2 guide live dashboard; V22-T3 map source, licence and BITM location (moved from Danish, 2026-11-19); V22-T7 Mac verification (short tests only) |
-| Rahil's Claude | V22-T4 clean satellite preview module; V22-T6 mission-control integration |
-| Danish's Claude | V22-T5 virtual route over BITM; V22-T8 Windows acceptance and demo |
+| Shabaz's Claude | V22-T1 plan and tracking; V22-T2 guide live dashboard; V22-T3 map source, licence and BITM location (moved from Danish); V22-T4 clean satellite preview module (moved from Rahil); V22-T5 virtual route over BITM (moved from Danish), all moved 2026-11-19; V22-T7 Mac verification (short tests only) |
+| Rahil's Claude | V22-T6 mission-control integration |
+| Danish's Claude | V22-T8 Windows acceptance and demo (includes the Windows run of all v2_2 tests) |
 
 **ChatGPT and Codex are no longer used** on this project. Earlier records (task evidence, audits, decision-log entries, frozen specifications) keep their original wording and authorship and are not rewritten.
 

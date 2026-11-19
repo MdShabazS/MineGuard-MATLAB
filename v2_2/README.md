@@ -26,8 +26,8 @@
 | V22-T1 | Shabaz's Claude | — | Phase plan, task tracking, owner-merges rule and V2.2 CI gate |
 | V22-T2 | Shabaz's Claude | V22-T1 | Guide live dashboard replacing the existing Render portal |
 | V22-T3 | Shabaz's Claude | V22-T1 | Satellite map source, licence terms and approved BITM location and boundary |
-| V22-T4 | Rahil's Claude | V22-T3 | Clean satellite preview module rebuilt on current main |
-| V22-T5 | Danish's Claude | V22-T4 | Virtual V2.1 mission route drawn over BITM and synced with the 3-D demo |
+| V22-T4 | Shabaz's Claude | V22-T3 | Clean satellite preview module rebuilt on current main |
+| V22-T5 | Shabaz's Claude | V22-T4 | Virtual V2.1 mission route drawn over BITM and synced with the 3-D demo |
 | V22-T6 | Rahil's Claude | V22-T5 | Satellite tab integrated into V2.1 mission control with offline fallback |
 | V22-T7 | Shabaz's Claude | V22-T6 | Mac verification of the satellite view at the final commit |
 | V22-T8 | Danish's Claude | V22-T6 | Windows acceptance, guide demo script and V2.2 release record |
@@ -58,20 +58,20 @@
 - Builds on v2/research/ENH-008-GEOGRAPHIC-DECISION.md and issue #135
 
 ### V22-T4 — Clean satellite preview module rebuilt on current main
-**Owner:** Rahil's Claude · **Kind:** BUILD · **Depends on:** V22-T3 · **Evidence:** `v2_2/evidence/V22-T4.md`
+**Owner:** Shabaz's Claude (moved from Rahil on 2026-11-19) · **Kind:** BUILD · **Depends on:** V22-T3 · **Evidence:** `v2_2/evidence/V22-T4.md`
 
 - Standalone module from the retired PRs #72, #75 and #100: satellite basemap centred on the T3 BITM location
 - WGS84 <-> virtual ENU conversion, on-screen credits, dark and light theme
 - Honest status: provider metadata and actual tile load reported separately; no network shown as unavailable
-- Tests (incl. the old #100 cases) run on Windows R2026b with SHA and checkcode recorded; no tiles or screenshots committed unless T3 allows
+- Tests (incl. the old #100 cases) run on the owner's machine (MATLAB R2026b; Windows covered by V22-T8) with SHA and checkcode recorded; no tiles or screenshots committed unless T3 allows
 
 ### V22-T5 — Virtual V2.1 mission route drawn over BITM and synced with the 3-D demo
-**Owner:** Danish's Claude · **Kind:** BUILD · **Depends on:** V22-T4 · **Evidence:** `v2_2/evidence/V22-T5.md`
+**Owner:** Shabaz's Claude (moved from Danish on 2026-11-19) · **Kind:** BUILD · **Depends on:** V22-T4 · **Evidence:** `v2_2/evidence/V22-T5.md`
 
 - V2.1 boundary, planned route and live drone position drawn on the satellite view at the BITM origin
 - Everything labelled VIRTUAL; no mine, target or anomaly markers over real property
 - Route position stays in step with the 3-D mission clock (ENH-011)
-- Tests run on Windows R2026b
+- Tests run on the owner's machine (MATLAB R2026b; Windows covered by V22-T8)
 
 ### V22-T6 — Satellite tab integrated into V2.1 mission control with offline fallback
 **Owner:** Rahil's Claude · **Kind:** BUILD · **Depends on:** V22-T5 · **Evidence:** `v2_2/evidence/V22-T6.md`
