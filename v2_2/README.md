@@ -25,14 +25,14 @@
 |---|---|---|---|
 | V22-T1 | Shabaz's Claude | — | Phase plan, task tracking, owner-merges rule and V2.2 CI gate |
 | V22-T2 | Shabaz's Claude | V22-T1 | Guide live dashboard replacing the existing Render portal |
-| V22-T3 | Danish's Claude | V22-T1 | Satellite map source, licence terms and approved BITM location and boundary |
+| V22-T3 | Shabaz's Claude | V22-T1 | Satellite map source, licence terms and approved BITM location and boundary |
 | V22-T4 | Rahil's Claude | V22-T3 | Clean satellite preview module rebuilt on current main |
 | V22-T5 | Danish's Claude | V22-T4 | Virtual V2.1 mission route drawn over BITM and synced with the 3-D demo |
 | V22-T6 | Rahil's Claude | V22-T5 | Satellite tab integrated into V2.1 mission control with offline fallback |
 | V22-T7 | Shabaz's Claude | V22-T6 | Mac verification of the satellite view at the final commit |
 | V22-T8 | Danish's Claude | V22-T6 | Windows acceptance, guide demo script and V2.2 release record |
 
-**Parallel work:** after T1, T2 (Shabaz) and T3 (Danish) run in parallel. T4 waits for T3, T5 for T4 and T6 for T5. After T6, T7 (Mac) and T8 (Windows) run in parallel.
+**Parallel work:** after T1, T2 and T3 (both Shabaz) run in parallel. T4 waits for T3, T5 for T4 and T6 for T5. After T6, T7 (Mac) and T8 (Windows) run in parallel.
 
 ### V22-T1 — Phase plan, task tracking, owner-merges rule and V2.2 CI gate
 **Owner:** Shabaz's Claude · **Kind:** DOC · **Depends on:** nothing · **Evidence:** `v2_2/evidence/V22-T1.md`
@@ -50,7 +50,7 @@
 - Portal tests updated and passing; the deployed page checked after merge
 
 ### V22-T3 — Satellite map source, licence terms and approved BITM location and boundary
-**Owner:** Danish's Claude · **Kind:** DOC · **Depends on:** V22-T1 · **Evidence:** `v2_2/evidence/V22-T3.md`
+**Owner:** Shabaz's Claude (moved from Danish on 2026-11-19) · **Kind:** DOC · **Depends on:** V22-T1 · **Evidence:** `v2_2/evidence/V22-T3.md`
 
 - Decision on the satellite source (MATLAB online basemap) with exact on-screen credit text
 - What may be committed to the public repository (code yes; map tiles and screenshots only if the terms allow) and what may be shown in a demo

@@ -65,6 +65,18 @@ test("owner PR: one task, own branch, TODO -> DONE allowed only after dependenci
   assert.throws(() => auditTransition(mf, base, mf, back, "task/V22-T1"), /invalid transition/);
 });
 
+test("owner transfer of a TODO task is a plan change; a started task cannot be transferred", () => {
+  const {mf, st} = plan(); const base = clone(st); base.tasks["V22-T1"] = done("V22-T1", "Shabaz");
+  const mf2 = clone(mf); mf2.tasks["V22-T3"].owner = "Shabaz";
+  const st2 = clone(base); st2.tasks["V22-T3"].owner = "Shabaz";
+  assert.match(auditTransition(mf, base, mf2, st2, "v22/plan-t3-owner"), /owner transfer of TODO V22-T3/);
+  const st3 = clone(st2); st3.tasks["V22-T3"].state = "IN_PROGRESS";
+  assert.throws(() => auditTransition(mf, base, mf2, st3, "v22/plan-t3-owner"), /Cannot change/);
+  const started = clone(base); started.tasks["V22-T3"] = {owner: "Danish", state: "IN_PROGRESS", evidence: null, startedBy: "Danish", startedOn: "2026-11-19"};
+  const st4 = clone(started); st4.tasks["V22-T3"].owner = "Shabaz";
+  assert.throws(() => auditTransition(mf, started, mf2, st4, "v22/plan-t3-owner"), /Cannot change/);
+});
+
 test("plan changes need a v22/plan- branch and no status change", () => {
   const {mf, st} = plan(); const mf2 = clone(mf); mf2.tasks["V22-T3"].title = "A different but long enough title";
   assert.match(auditTransition(mf, st, mf2, st, "v22/plan-retitle"), /plan update/);
