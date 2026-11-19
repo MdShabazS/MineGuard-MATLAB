@@ -15,6 +15,9 @@ classdef MissionOverlay < handle
         TrailLLA = zeros(0, 2)
         LastTick = NaN
     end
+    properties (Access = private)
+        Bound = false
+    end
 
     methods
         function obj = MissionOverlay(preview, pub)
@@ -47,7 +50,10 @@ classdef MissionOverlay < handle
         end
 
         function update(obj, pose)
+            if ~isgraphics(obj.Drone), return; end                 % the preview window was closed: nothing to draw
             ll = mgv22.sat.MissionOverlay.poseLL(pose, obj.Preview.Site.anchor_lla);
+            mgv21.scenario.assertPublic(pose, "pose");
+            if double(pose.tick_id) <= obj.LastTick, obj.TrailLLA = zeros(0, 2); end   % a reset or new run starts a new trail
             obj.TrailLLA(end+1, :) = ll;
             obj.LastTick = double(pose.tick_id);
             obj.draw(ll);
@@ -67,7 +73,9 @@ classdef MissionOverlay < handle
         end
 
         function bindEngine(obj, eng)
+            if obj.Bound, error('mgv22:AlreadyBound', 'This overlay already follows an engine; create a new overlay for another run.'); end
             eng.subscribe(@(p) mgv22.sat.MissionOverlay.forward(obj, p));
+            obj.Bound = true;
         end
 
         function delete(obj)
@@ -95,7 +103,7 @@ classdef MissionOverlay < handle
         end
 
         function forward(obj, pose)
-            if isvalid(obj), obj.update(pose); end                % the engine may outlive the overlay
+            if isvalid(obj) && isgraphics(obj.Drone), obj.update(pose); end   % the engine may outlive the overlay or its window
         end
     end
 end

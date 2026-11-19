@@ -172,3 +172,39 @@ delete(ov);
 for k = 1:numel(lines), verifyFalse(tc, isvalid(lines{k})); end
 verifyTrue(tc, p.isOpen());
 end
+
+function testReviewFixes(tc)
+% reset/new run, double bind, V2.1 private names, all axes children, preview closed while bound
+root = fileparts(fileparts(fileparts(mfilename('fullpath')))); %#ok<NASGU>
+p = mgv22.sat.SatellitePreview(MetadataReader=@(~) struct('copyrightText', "Source: Test"));
+tc.addTeardown(@() delete(p));
+p.open(Visible="off");
+pub = mgv21.scenario.buildPublicMission("TRAINING_FIELD_A", mgv21.scenario.defaultSurvey("TRAINING_FIELD_A"));
+bad = pub; bad.surface_features = 1;
+verifyError(tc, @() mgv22.sat.MissionOverlay(p, bad), 'mgv2:TruthLeak');
+ov = mgv22.sat.MissionOverlay(p, pub);
+eng = mgv2.engine.MissionEngine(pub.mission, mgv2.engine.flatTerrain());
+ov.bindEngine(eng);
+verifyError(tc, @() ov.bindEngine(eng), 'mgv22:AlreadyBound');
+eng.start(); for k = 1:20, eng.step(); end
+verifyEqual(tc, size(ov.TrailLLA, 1), 20);
+eng.reset(); eng.start(); for k = 1:5, eng.step(); end
+verifyEqual(tc, ov.LastTick, 5);
+verifyEqual(tc, size(ov.TrailLLA, 1), 5, 'a new run starts a new trail');
+leak = eng.snapshot(); leak.truth = 1;
+verifyError(tc, @() ov.update(leak), 'mgv2:TruthLeak');
+forbidden = lower(p.Site.forbidden_on_imagery);
+kids = findall(p.Axes, '-property', 'DisplayName');
+for k = 1:numel(kids)
+    name = lower(string(kids(k).DisplayName));
+    if strlength(name) == 0, continue; end
+    verifySubstring(tc, upper(name), "VIRTUAL");
+    verifyFalse(tc, any(arrayfun(@(w) contains(name, w), forbidden)), name);
+end
+n = size(ov.TrailLLA, 1);
+p.close();                                       % window closed while the engine is still bound
+verifyWarningFree(tc, @() arrayfun(@(~) eng.step(), 1:5));
+verifyEqual(tc, size(ov.TrailLLA, 1), n, 'no hidden growth after the window closed');
+delete(ov);
+end
+
