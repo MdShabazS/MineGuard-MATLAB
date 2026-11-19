@@ -264,6 +264,7 @@ classdef CutFillView < handle
             obj.DrawMode = mode; obj.DraftXY = zeros(0, 2);
             if obj.isOpen()
                 set([obj.UndoButton obj.CancelButton obj.FinishButton], 'Enable', 'on');
+                obj.Axes.ButtonDownFcn = @(~, ~) obj.onAxesClick();   % clicks add points only while drawing
                 try disableDefaultInteractivity(obj.Axes); catch, end
             end
             if mode == "area"
@@ -372,7 +373,6 @@ classdef CutFillView < handle
                 gx.Layout.Row = 1; gx.Layout.Column = 2; gx.AxisColor = c.text;
                 hold(gx, 'on');
                 obj.drawSurveyArea(gx);          % shows where the simulated terrain exists and frames the map on it
-                gx.ButtonDownFcn = @(~, ~) obj.onAxesClick();
                 obj.Axes = gx;
                 try
                     gx.Colormap = mgv22.cutfill.CutFillView.diverging(256);
@@ -690,6 +690,7 @@ classdef CutFillView < handle
             obj.DrawMode = "";
             if obj.isOpen()
                 set([obj.UndoButton obj.CancelButton obj.FinishButton], 'Enable', 'off');
+                obj.Axes.ButtonDownFcn = '';                          % a click handler would block drag-to-pan and scroll zoom
                 try enableDefaultInteractivity(obj.Axes); catch, end
             end
         end

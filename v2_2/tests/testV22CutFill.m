@@ -174,3 +174,14 @@ verifyError(tc, @() v.setOutline([120 -10; 160 -10; 160 20; 120 20]), 'mgv22:Too
 verifySubstring(tc, string(v.StatusText.Text), "Draw inside the dashed SIMULATED survey area");
 end
 
+function testMapPansAndZoomsExceptWhileDrawing(tc)
+v = openView(tc);
+verifyEmpty(tc, v.Axes.ButtonDownFcn, 'no click handler outside draw mode, so drag-to-pan and scroll zoom work');
+v.startDraw("area");
+verifyNotEmpty(tc, v.Axes.ButtonDownFcn, 'clicks add points while drawing');
+v.cancelDraw();
+verifyEmpty(tc, v.Axes.ButtonDownFcn);
+v.startDraw("area"); v.addVertex([-10 -10]); v.addVertex([10 -10]); v.addVertex([10 10]); v.finishDraw();
+verifyEmpty(tc, v.Axes.ButtonDownFcn, 'finishing a drawing gives panning back');
+end
+
