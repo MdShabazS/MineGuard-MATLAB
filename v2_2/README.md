@@ -29,7 +29,10 @@
 | V22-T4 | Shabaz's Claude | V22-T3 | Clean satellite preview module rebuilt on current main |
 | V22-T5 | Shabaz's Claude | V22-T4 | Virtual V2.1 mission route drawn over BITM and synced with the 3-D demo |
 | V22-T9 | Shabaz's Claude | V22-T5 | Reel-style cut/fill elevation map over BITM from a simulated drone LiDAR survey |
-| V22-T6 | Rahil's Claude | V22-T5, V22-T9 | Satellite tab integrated into V2.1 mission control with offline fallback |
+| V22-T10 | Shabaz's Claude | V22-T1 | Honest evaluation and IMAS wording: bounded null result, false alarms per hectare, detection curve, sealed virtual test area |
+| V22-T11 | Shabaz's Claude | V22-T5, V22-T9, V22-T10 | Draw any field on BITM, simulated drone survey of it, suspected-anomaly map |
+| V22-T12 | Shabaz's Claude | V22-T9 | Relief-anomaly layer: craters, trenches and disturbed ground against the local trend, plus simulated flood/landslide change |
+| V22-T6 | Rahil's Claude | V22-T5, V22-T9, V22-T11, V22-T12 | Satellite tab integrated into V2.1 mission control with offline fallback |
 | V22-T7 | Shabaz's Claude | V22-T6 | Mac verification of the satellite view at the final commit |
 | V22-T8 | Danish's Claude | V22-T6 | Windows acceptance, guide demo script and V2.2 release record |
 
@@ -99,6 +102,9 @@
 **Owner:** Shabaz's Claude · **Kind:** BUILD · **Depends on:** V22-T5 · **Evidence:** `v2_2/evidence/V22-T9.md` · **Prompt:** [prompts/V22-T9.md](prompts/V22-T9.md)
 
 Added 2026-11-19 after Shabaz shared a reference reel (a CutSheetRX-style cut/fill map). See the prompt for the full acceptance list.
+
+### V22-T10, V22-T11, V22-T12 (added 2026-11-21 from the deep research)
+Basis: [research/V22_RESEARCH_DRONE_LANDMINE_SURVEY.md](research/V22_RESEARCH_DRONE_LANDMINE_SURVEY.md) and its notes in `research/notes/`. Prompts: [prompts/V22-T10.md](prompts/V22-T10.md), [prompts/V22-T11.md](prompts/V22-T11.md), [prompts/V22-T12.md](prompts/V22-T12.md). V22-T6 now waits for T11 and T12, so the integration happens once.
 
 ## Limits for every task
 

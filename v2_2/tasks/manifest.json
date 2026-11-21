@@ -82,12 +82,14 @@
       "kind": "BUILD",
       "dependsOn": [
         "V22-T5",
-        "V22-T9"
+        "V22-T9",
+        "V22-T11",
+        "V22-T12"
       ],
       "title": "Satellite tab integrated into V2.1 mission control with offline fallback",
       "evidence": "v2_2/evidence/V22-T6.md",
       "acceptance": [
-        "Satellite tab in the V2.1 application, optional and separate from the offline ENU mission map; plus a Cut/fill map tab from V22-T9",
+        "Satellite tab in the V2.1 application, optional and separate from the offline ENU mission map; plus a Cut/fill map tab from V22-T9; plus the V22-T11 field-survey and V22-T12 relief views",
         "No network: falls back to the ENH-009 offline campus schematic with a clear notice",
         "Offline mission, detector, sealed TEST data and V2/V2.1 behaviour unchanged; startup and frame cost measured",
         "Full V2 + V2.1 + V2.2 regression on Windows recorded"
@@ -136,6 +138,57 @@
         "Contours of existing and design surfaces at a selectable interval, each switchable",
         "Elevation profile tool: draw a line, plot existing vs design along it",
         "Tests on the owner's machine (Windows covered by V22-T8): exact plane fit, analytic volumes on known shapes, clipping, invalid outlines, labels, no imagery committed, compute time recorded"
+      ]
+    },
+    "V22-T10": {
+      "owner": "Shabaz",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V22-T1"
+      ],
+      "title": "Honest evaluation and IMAS wording: bounded null result, false alarms per hectare, detection curve, sealed virtual test area",
+      "evidence": "v2_2/evidence/V22-T10.md",
+      "acceptance": [
+        "0 of 12 reported as a bounded null result with an exact 95 % Clopper-Pearson interval, recomputed in MATLAB",
+        "False alarms per hectare from the recorded V2.1 runs, and a detection-vs-false-alarm curve from event scores",
+        "One wording helper used by the v2_2 views: 'SIMULATION - suspected anomaly, indirect evidence only'; never 'clear' or 'safe'",
+        "Design of a sealed virtual test area (held-out site, realistic clutter, pre-registered metrics) for later runs",
+        "Tests on the owner's machine (Windows covered by V22-T8)"
+      ]
+    },
+    "V22-T11": {
+      "owner": "Shabaz",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V22-T5",
+        "V22-T9",
+        "V22-T10"
+      ],
+      "title": "Draw any field on BITM, simulated drone survey of it, suspected-anomaly map",
+      "evidence": "v2_2/evidence/V22-T11.md",
+      "acceptance": [
+        "Operator draws a field anywhere in the BITM view; convex check with a clear message; size limit for run time",
+        "Synthetic world and V2.1 survey built for that field; altitude set from the image detail the simulated camera needs (research: about 10-12 m), within V2.1 limits",
+        "Private synthetic targets placed in the field (V2.1 placement); simulated flight with RGB/thermal/LiDAR and the frozen detector",
+        "Map shows hollow SYNTHETIC / SUSPECTED anomaly symbols with confidence, a coverage-quality layer and a SIMULATION watermark; synthetic targets revealed only in an evaluation toggle; coordinates never exported as findings",
+        "Honest results panel using V22-T10 (bounded rates, false alarms per hectare)",
+        "Tests on the owner's machine (Windows covered by V22-T8)"
+      ]
+    },
+    "V22-T12": {
+      "owner": "Shabaz",
+      "kind": "BUILD",
+      "dependsOn": [
+        "V22-T9"
+      ],
+      "title": "Relief-anomaly layer: craters, trenches and disturbed ground against the local trend, plus simulated flood/landslide change",
+      "evidence": "v2_2/evidence/V22-T12.md",
+      "acceptance": [
+        "Relief anomaly = surface minus a local trend surface; features flagged by depth and size, sized on published field measurements (HALO Angola foxholes and craters)",
+        "Synthetic craters, foxholes and a trench injected into the simulated surface to demonstrate and test the layer",
+        "Optional before/after surface comparison showing simulated flood or landslide soil movement ('where mines could have moved')",
+        "Labelled 'INDIRECT EVIDENCE - relief anomaly (SIMULATION)'; never a mine detector or hazard score",
+        "Tests on the owner's machine (Windows covered by V22-T8)"
       ]
     }
   }
