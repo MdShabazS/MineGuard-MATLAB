@@ -22,7 +22,7 @@ MineGuard is now a MATLAB-only project. All work is done by three Claude Code se
 
 | Session | V2.2 tasks |
 |---|---|
-| Shabaz's Claude | V22-T1 plan and tracking; V22-T2 guide live dashboard; V22-T3 map source, licence and BITM location (moved from Danish); V22-T4 clean satellite preview module (moved from Rahil); V22-T5 virtual route over BITM (moved from Danish), all moved 2026-11-19; V22-T9 reel-style cut/fill map (added 2026-11-19); V22-T7 Mac verification (short tests only) |
+| Shabaz's Claude | V22-T1 plan and tracking; V22-T2 guide live dashboard; V22-T3 map source, licence and BITM location (moved from Danish); V22-T4 clean satellite preview module (moved from Rahil); V22-T5 virtual route over BITM (moved from Danish), all moved 2026-11-19; V22-T9 reel-style cut/fill map (added 2026-11-19); V22-T10 honest evaluation, V22-T11 draw-any-field survey, V22-T12 relief anomalies (added 2026-11-21 from the deep research); V22-T7 Mac verification (short tests only) |
 | Rahil's Claude | V22-T6 mission-control integration |
 | Danish's Claude | V22-T8 Windows acceptance and demo (includes the Windows run of all v2_2 tests) |
 

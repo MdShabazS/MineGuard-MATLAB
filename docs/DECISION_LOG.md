@@ -43,3 +43,19 @@ Review/merge PR #1 after docs QA. Then record approved MG-000 completion and ena
 - **ChatGPT and Codex are no longer used.**
 - **Work split:** the split for the next phase will be defined later in [TEAM.md](TEAM.md).
 - **Earlier entries in this log** and all earlier evidence keep their original wording.
+
+## 2026-11-21 — V2.2 follow-up from the deep research; marks on BITM imagery
+
+- **Research:** `v2_2/research/V22_RESEARCH_DRONE_LANDMINE_SURVEY.md`, with cited notes in `v2_2/research/notes/`. Drones gather evidence of suspicion, not proof. IMAS 07.11 allows only *suspected* hazardous areas from indirect evidence. LiDAR finds conflict features, not mines.
+- **Decision (Shabaz):** new tasks, all owned by Shabaz:
+  - V22-T10: honest evaluation and wording;
+  - V22-T11: draw any field, simulated drone survey, suspected-anomaly map;
+  - V22-T12: relief-anomaly layer.
+  V22-T6 (Rahil) waits for T11 and T12, so the integration happens once.
+- **Rule change:** suspected-anomaly marks may appear on BITM imagery **only in the V22-T11 view**, under these conditions:
+  - as hollow symbols labelled "SUSPECTED anomaly (SIMULATION)";
+  - with a persistent "SIMULATION — NOT A HAZARD MAP" watermark and a coverage-quality layer;
+  - synthetic targets only behind an evaluation toggle;
+  - coordinates never exported as findings.
+  All other views keep the V22-T3 rule of no hazard markers on real imagery.
+
