@@ -4,7 +4,7 @@
 **Implementation:** MATLAB / Simulink research simulation (NOT a validated mine detector)  
 **Repository:** https://github.com/MdShabazS/MineGuard-MATLAB (public, `main`) | **Team:** Shabaz's Claude (lead), Rahil's Claude, Danish's Claude, see [docs/TEAM.md](docs/TEAM.md) | **Setup:** [docs/SETUP.md](docs/SETUP.md)
 
-**Status on `main`:** V1 22/22, V2 10/10 and V2.1 8/8 tasks DONE. The detector has not been shown to work: V1 sealed TEST TP 0, V2 VALIDATION 0 of 4, V2.1 flights 0 of 12.
+**Status on `main`:** V1 22/22, V2 10/10 and V2.1 8/8 tasks DONE. The detector has not been shown to work: V1 sealed TEST TP 0, V2 VALIDATION 0 of 4, V2.1 flights 0 of 13 synthetic targets.
 
 The academic **problem statement and four objectives are preserved verbatim** from the Phase-1 review in [docs/PHASE1_BASELINE.md](docs/PHASE1_BASELINE.md). Only the implementation shifts from costly physical UAV hardware to reproducible simulation.
 

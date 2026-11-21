@@ -11,12 +11,14 @@
 
 ## 1. The recorded result, with honest bounds
 
-Source: the V2.1 application check on Windows at `ccb2f9e` (`v2_1/evidence/V21-008/v21_demo_check_ccb2f9e.txt`). That run used four complete flights over each preset's default field, with targets placed by the V2.1 placement tool. Intervals were computed in MATLAB with `mgv22.evaluation.clopperPearson` and `falseAlarmRate`, the exact 95 % binomial and Poisson intervals.
+Source: the V2.1 application check on Windows at `ccb2f9e` (`v2_1/evidence/V21-008/v21_demo_check_ccb2f9e.txt`). It had four runs, each a single complete flight over one preset's default field, with targets placed by the V2.1 placement tool.
+
+**Correction:** the RESULT lines of that log list **4 + 8 + 0 + 1 = 13** synthetic targets, 3 of them without a surface signature. The summary in `v2_1/evidence/V21-008.md` (line 19) and earlier V2.2 documents said "0 of 12". The log is the source of truth, so this document uses 13 and 10. The V2.1 evidence file is left as recorded. Intervals were computed in MATLAB with `mgv22.evaluation.clopperPearson` and `falseAlarmRate`, the exact 95 % binomial and Poisson intervals.
 
 | Measure | Result | 95 % interval | Meaning |
 |---|---|---|---|
-| Detection, all synthetic targets | **0 of 12** | **0 – 26.5 %** | The true detection rate of this detector, on such fields, is very likely below about 1 in 4. It is *not* proven to be 0. |
-| Detection, targets with a surface signature | **0 of 9** | **0 – 33.6 %** | 3 of the 12 targets had no surface signature by design. No sensor could see them, so they are excluded here. |
+| Detection, all synthetic targets | **0 of 13** | **0 – 24.7 %** | With 95 % confidence, the true detection rate of this detector on such fields is at most about 1 in 4. It is *not* proven to be 0. |
+| Detection, targets with a surface signature | **0 of 10** | **0 – 30.9 %** | 3 of the 13 targets had no surface signature by design. No sensor could see them, so they are excluded here. |
 | False alarms, three distinct fields (1.53 ha) | 176 | **115 per ha (98.7 – 133.3)** | About one suspected anomaly every 87 m², all false. |
 | False alarms, all four runs (2.01 ha) | 288 | 143 per ha (127.2 – 160.8) | Counts the TRAINING_FIELD_A field twice: *target_free* and *no_signature* flew the same field with identical results. The distinct-field figure above is the headline. |
 
@@ -33,16 +35,18 @@ By run:
 
 **What this does not say:**
 - It is not a measure of real landmine detection, and not a comparison with field systems.
-- With 12 targets the interval is wide. More targets (§3) narrow it.
+- With 13 targets the interval is wide. More targets (§3) narrow it.
 
 ## 2. Wording rule (all V2.2 views)
 
 `mgv22.wording()` holds the standard strings:
-- **"SIMULATION – suspected anomaly, indirect evidence only"**: the label for any detector output shown to a person.
-- **"No detection here does not mean the ground is free of hazards."**: shown wherever an empty map or zero detections could be misread. This follows IMAS 07.11: decisions are "based on evidence, not the lack thereof".
-- **Never** in result text: *clear, cleared, safe, mine found, mine-free, hazard-free*. The test `testV22Wording` scans every user-visible string in `v2_2/matlab` for these words.
+- **"SIMULATION – suspected anomaly, indirect evidence only – not for operational use"**: the label for any detector output shown to a person. The research report recommends the "not for operational use" part.
+- **"No suspected anomaly found in simulation. This does not mean the ground is free of hazards."**: shown wherever an empty map or zero detections could be misread. This follows IMAS 07.11: decisions are "based on evidence, not the lack thereof". The prompt's draft sentence said "does not mean safe"; it was reworded because "safe" is itself a forbidden word.
+- **Never** in result text: *clear, cleared, safe, mine found, mines found, mine detected, mines detected, mine-free, hazard-free*. The test `testV22Wording` scans every user-visible string in `v2_2/matlab` for these words.
 
 **For V22-T6 (Rahil):** the V2.1 evaluation window text (`v2_1`, `EvaluationView`) should use `mgv22.wording().suspected` and `.no_detection` when it is integrated. T10 does not change V2 or V2.1 code.
+
+**Where the helper is used today:** the current v2_2 views (satellite preview, mission overlay, cut/fill map) show no detector results, so none needs the suspected label yet. V22-T11, the first view with suspected anomalies, must use `mgv22.wording`. The scan test already guards every v2_2 view's text.
 
 ## 3. Sealed virtual test area (design for later runs)
 
@@ -59,4 +63,4 @@ A pre-registered test, in the spirit of IMAS 03.40 (independent, statistically s
 
 ## 4. Summary for the guide
 
-> In four simulated flights over 2.0 ha (1.5 ha of distinct fields), the frozen detector matched 0 of 12 synthetic targets. That means a detection rate below about 26 % with 95 % confidence, or below about 34 % for the 9 targets that had any surface signature. It raised about 115 false alarms per hectare. MineGuard is a simulation concept demonstrator; its maps show **suspected** anomalies only, and no detection does not mean the ground is free of hazards.
+> In four simulated flights over 2.0 ha (1.5 ha of distinct fields), the frozen detector matched 0 of 13 synthetic targets. That means a detection rate of at most about 25 % with 95 % confidence, or at most about 31 % for the 10 targets that had any surface signature. It raised about 115 false alarms per hectare. MineGuard is a simulation concept demonstrator; its maps show **suspected** anomalies only, and no detection does not mean the ground is free of hazards.
