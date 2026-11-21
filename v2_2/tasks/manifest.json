@@ -149,7 +149,7 @@
       "title": "Honest evaluation and IMAS wording: bounded null result, false alarms per hectare, detection curve, sealed virtual test area",
       "evidence": "v2_2/evidence/V22-T10.md",
       "acceptance": [
-        "0 of 12 reported as a bounded null result with an exact 95 % Clopper-Pearson interval, recomputed in MATLAB",
+        "0 of 13 (the count in the V2.1 logs; earlier summaries said 12) reported as a bounded null result with an exact 95 % Clopper-Pearson interval, recomputed in MATLAB",
         "False alarms per hectare from the recorded V2.1 runs, and a detection-vs-false-alarm curve from event scores",
         "One wording helper used by the v2_2 views: 'SIMULATION - suspected anomaly, indirect evidence only'; never 'clear' or 'safe'",
         "Design of a sealed virtual test area (held-out site, realistic clutter, pre-registered metrics) for later runs",
