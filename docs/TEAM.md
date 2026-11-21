@@ -78,7 +78,7 @@ MineGuard is now a MATLAB-only project. All work is done by three Claude Code se
 |---|---|
 | V1 sealed TEST | TP 0, FP 26, TN 470, FN 4 |
 | V2 VALIDATION | 0 of 4 targets |
-| V2.1 Windows flights | 0 of 12 placed targets |
+| V2.1 Windows flights | 0 of 13 synthetic targets (0–24.7 % at 95 %; see v2_2/docs/V22_T10_EVALUATION_AND_WORDING.md) |
 
 The detector has not been shown to work. These results are recorded honestly and are not hidden.
 
