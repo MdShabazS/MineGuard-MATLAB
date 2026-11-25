@@ -9,6 +9,8 @@ classdef CutFillView < handle
     %   setAlpha(a), setContourInterval(m), setContoursVisible(existingTF, designTF), F = profile(p1, p2),
     %   startDraw("area"|"profile"), addVertex(xyENU), undoVertex(), cancelDraw(), finishDraw(),
     %   r = results(), close(), isOpen(), delete().
+    %   V22-T12 layers: setLayer("Cut/fill"|"Relief vs local trend"|"Soil movement"), setReliefRadius(m). Relief and soil
+    %   layers come from mgv22.relief.* and are INDIRECT EVIDENCE from SIMULATION only.
     %   The banner and credits follow mgv22.sat.SatellitePreview: credits sit in a footer OUTSIDE the map.
     %   Errors are shown in StatusText (never a blocking dialog); programmatic calls still throw afterwards.
 
@@ -72,6 +74,19 @@ classdef CutFillView < handle
         ContourInterval = 0.5
         ShowExisting = true
         ShowDesign = true
+        % --- V22-T12 relief and soil-movement layers (INDIRECT EVIDENCE, SIMULATION)
+        LayerDropdown
+        FeatureSummaryLabel
+        SoilSummaryLabel
+        ReliefLayer         % cells coloured by relief minus local trend (m)
+        FeatureMarks        % hollow diamonds at relief-feature centroids
+        FeatureLabels       % text "<type>" next to each feature
+        SoilLayer           % cells where simulated soil was eroded or deposited
+        Layer = "Cut/fill"
+        ReliefRadius = 5
+        Relief = []         % struct from mgv22.relief.reliefAnomaly (computed lazily)
+        ReliefFeatures = [] % table from mgv22.relief.findFeatures
+        SoilChange = []     % struct from mgv22.relief.surfaceChange
     end
 
     properties (Access = private)
@@ -90,6 +105,7 @@ classdef CutFillView < handle
     properties (Constant, Access = private)
         Intervals = [0.1 0.2 0.5 1]
         MaxLevels = 400
+        Layers = ["Cut/fill", "Relief vs local trend", "Soil movement"]
     end
 
     methods
@@ -177,7 +193,7 @@ classdef CutFillView < handle
             tf = logical(tf); obj.OverlayVisible = tf;
             if obj.isOpen()
                 obj.OverlaySwitch.Value = tf;
-                if any(isgraphics(obj.Overlay)), obj.Overlay.Visible = matlab.lang.OnOffSwitchState(tf); end
+                if any(isgraphics(obj.Overlay)), obj.Overlay.Visible = matlab.lang.OnOffSwitchState(tf && obj.isCutFill()); end
             end
         end
 
@@ -190,6 +206,8 @@ classdef CutFillView < handle
             if obj.isOpen()
                 obj.AlphaSlider.Value = obj.Alpha;
                 if any(isgraphics(obj.Overlay)), obj.Overlay.MarkerFaceAlpha = obj.Alpha; end
+                h = [obj.ReliefLayer(:); obj.SoilLayer(:)]; h = h(isgraphics(h));
+                if ~isempty(h), set(h, 'MarkerFaceAlpha', obj.Alpha); end
             end
         end
 
@@ -211,9 +229,56 @@ classdef CutFillView < handle
             if ~obj.isOpen(), return; end
             obj.ExistingCheck.Value = obj.ShowExisting; obj.DesignCheck.Value = obj.ShowDesign;
             h = obj.ExistingContours(isgraphics(obj.ExistingContours));
-            if ~isempty(h), set(h, 'Visible', matlab.lang.OnOffSwitchState(obj.ShowExisting)); end
+            if ~isempty(h), set(h, 'Visible', matlab.lang.OnOffSwitchState(obj.ShowExisting && obj.isCutFill())); end
             h = obj.DesignContours(isgraphics(obj.DesignContours));
-            if ~isempty(h), set(h, 'Visible', matlab.lang.OnOffSwitchState(obj.ShowDesign)); end
+            if ~isempty(h), set(h, 'Visible', matlab.lang.OnOffSwitchState(obj.ShowDesign && obj.isCutFill())); end
+        end
+
+        % ------------------------------------------------------------------ layers (V22-T12)
+        function setLayer(obj, name)
+            name = string(name);
+            if ~isscalar(name) || ~ismember(name, obj.Layers)
+                obj.showStatus("Layer must be ""Cut/fill"", ""Relief vs local trend"" or ""Soil movement"".", true);
+                error('mgv22:InvalidLayer', 'Layer must be "Cut/fill", "Relief vs local trend" or "Soil movement".');
+            end
+            if name == "Relief vs local trend"
+                obj.computeRelief();
+            elseif name == "Soil movement"
+                obj.computeSoil();
+            end
+            obj.Layer = name;
+            if ~obj.isOpen(), return; end
+            obj.LayerDropdown.Value = char(name);
+            if name == "Relief vs local trend" && ~any(isgraphics(obj.ReliefLayer)), obj.drawRelief(); end
+            if name == "Soil movement" && ~any(isgraphics(obj.SoilLayer)), obj.drawSoil(); end
+            obj.applyLayerVisibility();
+            obj.updateLegend();
+            obj.restack();
+            obj.updateMarkerSize();
+            switch name
+                case "Relief vs local trend"
+                    obj.showStatus("Relief of the SIMULATED TERRAIN against its local trend (INDIRECT EVIDENCE): blue/purple lower, brown higher than the local trend.", false);
+                case "Soil movement"
+                    obj.showStatus("Simulated soil movement (INDIRECT EVIDENCE): red eroded, blue deposited. Buried objects could have moved with the soil.", false);
+                otherwise
+                    obj.showStatus("Cut/fill layer (SIMULATED TERRAIN).", false);
+            end
+        end
+
+        function setReliefRadius(obj, r)
+            if ~(isnumeric(r) && isscalar(r) && isfinite(r) && r > 0)
+                obj.showStatus("Relief radius must be a positive number of metres.", true);
+                error('mgv22:InvalidReliefRadius', 'Relief radius must be a positive number of metres.');
+            end
+            obj.ReliefRadius = double(r);
+            obj.Relief = []; obj.ReliefFeatures = [];
+            obj.clearReliefGraphics();
+            if obj.Layer == "Relief vs local trend"
+                obj.computeRelief();
+                if obj.isOpen()
+                    obj.drawRelief(); obj.applyLayerVisibility(); obj.restack(); obj.updateMarkerSize();
+                end
+            end
         end
 
         % ------------------------------------------------------------------ profile
@@ -321,6 +386,14 @@ classdef CutFillView < handle
                 'contour_interval', obj.ContourInterval, 'existing_contours', obj.ShowExisting, ...
                 'design_contours', obj.ShowDesign, 'profile', obj.Profile, 'label', obj.Label, ...
                 'source', string(mgv22.cutfill.CutFillView.fieldOr(obj.Surface, 'source', "")));
+            r.layer = obj.Layer;
+            r.relief_features = obj.ReliefFeatures;
+            r.soil = [];
+            C = obj.SoilChange;
+            if ~isempty(C)
+                r.soil = struct('eroded_area_m2', C.eroded_area_m2, 'deposited_area_m2', C.deposited_area_m2, ...
+                    'moved_area_m2', C.moved_area_m2, 'label', string(mgv22.cutfill.CutFillView.fieldOr(C, 'label', "")));
+            end
         end
 
         function close(obj)
@@ -405,71 +478,81 @@ classdef CutFillView < handle
         end
 
         function buildPanel(obj, parent, c)
-            p = uigridlayout(parent, [17 2], 'ColumnWidth', {96, '1x'}, 'Padding', [6 6 6 6], 'RowSpacing', 5, ...
+            p = uigridlayout(parent, [20 2], 'ColumnWidth', {96, '1x'}, 'Padding', [6 6 6 6], 'RowSpacing', 5, ...
                 'ColumnSpacing', 6, 'Scrollable', 'on', 'BackgroundColor', c.panel);
             p.Layout.Row = 1; p.Layout.Column = 1;
-            p.RowHeight = {22, 20, 20, 20, 20, 20, 20, 28, 24, 24, 24, 22, 34, 28, 28, 54, 180};
+            p.RowHeight = {22, 24, 34, 34, 20, 20, 20, 20, 20, 20, 28, 24, 24, 24, 22, 34, 28, 28, 54, 180};
             t = uilabel(p, 'Text', 'Cut / fill — SIMULATED TERRAIN', 'FontWeight', 'bold', 'FontColor', c.text);
             t.Layout.Row = 1; t.Layout.Column = [1 2];
+            l = uilabel(p, 'Text', 'Layer', 'FontColor', c.text); l.Layout.Row = 2; l.Layout.Column = 1;
+            obj.LayerDropdown = uidropdown(p, 'Items', cellstr(obj.Layers), 'Value', char(obj.Layer), ...
+                'ValueChangedFcn', @(s, ~) obj.safeCall(@() obj.setLayer(s.Value)));
+            obj.LayerDropdown.Layout.Row = 2; obj.LayerDropdown.Layout.Column = 2;
+            obj.FeatureSummaryLabel = uilabel(p, 'Text', 'Relief features: pick the Relief vs local trend layer', 'WordWrap', 'on', ...
+                'FontSize', 11, 'FontColor', c.text, 'VerticalAlignment', 'top');
+            obj.FeatureSummaryLabel.Layout.Row = 3; obj.FeatureSummaryLabel.Layout.Column = [1 2];
+            obj.SoilSummaryLabel = uilabel(p, 'Text', 'Soil movement: pick the Soil movement layer', 'WordWrap', 'on', ...
+                'FontSize', 11, 'FontColor', c.text, 'VerticalAlignment', 'top');
+            obj.SoilSummaryLabel.Layout.Row = 4; obj.SoilSummaryLabel.Layout.Column = [1 2];
             names = ["Field area", "Cut", "Fill", "Ratio", "Max depth", "Cut per ha"];
             vals = gobjects(1, 6);
             colours = {c.text, c.cut, c.fill, c.text, c.text, c.text};
             for k = 1:6
-                l = uilabel(p, 'Text', names(k), 'FontColor', c.text); l.Layout.Row = k + 1; l.Layout.Column = 1;
+                l = uilabel(p, 'Text', names(k), 'FontColor', c.text); l.Layout.Row = k + 4; l.Layout.Column = 1;
                 vals(k) = uilabel(p, 'Text', '—', 'FontColor', colours{k}, 'FontWeight', 'bold');
-                vals(k).Layout.Row = k + 1; vals(k).Layout.Column = 2;
+                vals(k).Layout.Row = k + 4; vals(k).Layout.Column = 2;
             end
             [obj.AreaLabel, obj.CutLabel, obj.FillLabel, obj.RatioLabel, obj.MaxLabel, obj.CutPerHaLabel] = ...
                 deal(vals(1), vals(2), vals(3), vals(4), vals(5), vals(6));
 
             obj.BestFitButton = uibutton(p, 'Text', 'Best fit', 'ButtonPushedFcn', @(~, ~) obj.safeCall(@() obj.bestFit()));
-            obj.BestFitButton.Layout.Row = 8; obj.BestFitButton.Layout.Column = [1 2];
+            obj.BestFitButton.Layout.Row = 11; obj.BestFitButton.Layout.Column = [1 2];
 
-            l = uilabel(p, 'Text', 'Slope %', 'FontColor', c.text); l.Layout.Row = 9; l.Layout.Column = 1;
+            l = uilabel(p, 'Text', 'Slope %', 'FontColor', c.text); l.Layout.Row = 12; l.Layout.Column = 1;
             obj.SlopeField = uieditfield(p, 'numeric', 'Value', 0, 'Limits', [0 Inf], 'ValueDisplayFormat', '%.2f', ...
                 'ValueChangedFcn', @(s, ~) obj.safeCall(@() obj.setSlope(s.Value)));
-            obj.SlopeField.Layout.Row = 9; obj.SlopeField.Layout.Column = 2;
-            l = uilabel(p, 'Text', 'Heading °', 'FontColor', c.text); l.Layout.Row = 10; l.Layout.Column = 1;
+            obj.SlopeField.Layout.Row = 12; obj.SlopeField.Layout.Column = 2;
+            l = uilabel(p, 'Text', 'Heading °', 'FontColor', c.text); l.Layout.Row = 13; l.Layout.Column = 1;
             obj.HeadingField = uieditfield(p, 'numeric', 'Value', 0, 'Limits', [0 360], 'ValueDisplayFormat', '%.1f', ...
                 'ValueChangedFcn', @(s, ~) obj.safeCall(@() obj.setHeading(s.Value)));
-            obj.HeadingField.Layout.Row = 10; obj.HeadingField.Layout.Column = 2;
+            obj.HeadingField.Layout.Row = 13; obj.HeadingField.Layout.Column = 2;
 
-            l = uilabel(p, 'Text', 'Contours (m)', 'FontColor', c.text); l.Layout.Row = 11; l.Layout.Column = 1;
+            l = uilabel(p, 'Text', 'Contours (m)', 'FontColor', c.text); l.Layout.Row = 14; l.Layout.Column = 1;
             obj.ContourDropdown = uidropdown(p, 'Items', {'0.1', '0.2', '0.5', '1'}, 'Value', '0.5', ...
                 'ValueChangedFcn', @(s, ~) obj.safeCall(@() obj.setContourInterval(str2double(s.Value))));
-            obj.ContourDropdown.Layout.Row = 11; obj.ContourDropdown.Layout.Column = 2;
+            obj.ContourDropdown.Layout.Row = 14; obj.ContourDropdown.Layout.Column = 2;
             obj.ExistingCheck = uicheckbox(p, 'Text', 'Existing', 'Value', obj.ShowExisting, 'FontColor', c.text, ...
                 'ValueChangedFcn', @(~, ~) obj.safeCall(@() obj.setContoursVisible(obj.ExistingCheck.Value, obj.DesignCheck.Value)));
-            obj.ExistingCheck.Layout.Row = 12; obj.ExistingCheck.Layout.Column = 1;
+            obj.ExistingCheck.Layout.Row = 15; obj.ExistingCheck.Layout.Column = 1;
             obj.DesignCheck = uicheckbox(p, 'Text', 'Design', 'Value', obj.ShowDesign, 'FontColor', c.text, ...
                 'ValueChangedFcn', @(~, ~) obj.safeCall(@() obj.setContoursVisible(obj.ExistingCheck.Value, obj.DesignCheck.Value)));
-            obj.DesignCheck.Layout.Row = 12; obj.DesignCheck.Layout.Column = 2;
+            obj.DesignCheck.Layout.Row = 15; obj.DesignCheck.Layout.Column = 2;
 
             obj.OverlaySwitch = uicheckbox(p, 'Text', 'Cut/Fill', 'Value', obj.OverlayVisible, 'FontColor', c.text, ...
                 'ValueChangedFcn', @(s, ~) obj.safeCall(@() obj.setOverlayVisible(s.Value)));
-            obj.OverlaySwitch.Layout.Row = 13; obj.OverlaySwitch.Layout.Column = 1;
+            obj.OverlaySwitch.Layout.Row = 16; obj.OverlaySwitch.Layout.Column = 1;
             obj.AlphaSlider = uislider(p, 'Limits', [0 1], 'Value', obj.Alpha, 'MajorTicks', [0 0.5 1], 'MinorTicks', [], ...
                 'FontColor', c.text, 'ValueChangedFcn', @(s, ~) obj.safeCall(@() obj.setAlpha(s.Value)));
-            obj.AlphaSlider.Layout.Row = 13; obj.AlphaSlider.Layout.Column = 2;
+            obj.AlphaSlider.Layout.Row = 16; obj.AlphaSlider.Layout.Column = 2;
 
             obj.DrawAreaButton = uibutton(p, 'Text', 'Draw field area', 'ButtonPushedFcn', @(~, ~) obj.safeCall(@() obj.startDraw("area")));
-            obj.DrawAreaButton.Layout.Row = 14; obj.DrawAreaButton.Layout.Column = 1;
+            obj.DrawAreaButton.Layout.Row = 17; obj.DrawAreaButton.Layout.Column = 1;
             obj.DrawProfileButton = uibutton(p, 'Text', 'Draw elevation profile', 'ButtonPushedFcn', @(~, ~) obj.safeCall(@() obj.startDraw("profile")));
-            obj.DrawProfileButton.Layout.Row = 14; obj.DrawProfileButton.Layout.Column = 2;
+            obj.DrawProfileButton.Layout.Row = 17; obj.DrawProfileButton.Layout.Column = 2;
 
             b = uigridlayout(p, [1 3], 'ColumnWidth', {'1x', '1x', '1x'}, 'RowHeight', {'1x'}, 'Padding', [0 0 0 0], ...
                 'ColumnSpacing', 4, 'BackgroundColor', c.panel);
-            b.Layout.Row = 15; b.Layout.Column = [1 2];
+            b.Layout.Row = 18; b.Layout.Column = [1 2];
             obj.UndoButton = uibutton(b, 'Text', 'Undo', 'Enable', 'off', 'ButtonPushedFcn', @(~, ~) obj.safeCall(@() obj.undoVertex()));
             obj.CancelButton = uibutton(b, 'Text', 'Cancel', 'Enable', 'off', 'ButtonPushedFcn', @(~, ~) obj.safeCall(@() obj.cancelDraw()));
             obj.FinishButton = uibutton(b, 'Text', 'Finish', 'Enable', 'off', 'ButtonPushedFcn', @(~, ~) obj.safeCall(@() obj.finishDraw()));
 
             obj.StatusText = uilabel(p, 'Text', 'Draw a field area over the SIMULATED TERRAIN.', 'WordWrap', 'on', ...
                 'FontSize', 11, 'FontColor', c.warn, 'VerticalAlignment', 'top');
-            obj.StatusText.Layout.Row = 16; obj.StatusText.Layout.Column = [1 2];
+            obj.StatusText.Layout.Row = 19; obj.StatusText.Layout.Column = [1 2];
 
             obj.ProfileAxes = uiaxes(p);
-            obj.ProfileAxes.Layout.Row = 17; obj.ProfileAxes.Layout.Column = [1 2];
+            obj.ProfileAxes.Layout.Row = 20; obj.ProfileAxes.Layout.Column = [1 2];
             obj.ProfileAxes.FontSize = 8;
             title(obj.ProfileAxes, 'Profile (SIMULATED TERRAIN)', 'FontSize', 9);
             xlabel(obj.ProfileAxes, 'Distance (m)'); ylabel(obj.ProfileAxes, 'Elevation (m)');
@@ -551,7 +634,11 @@ classdef CutFillView < handle
 
         function updateLegend(obj)
             if ~obj.isOpen(), return; end
-            if isempty(obj.Results)
+            if obj.Layer == "Relief vs local trend"
+                str = "Relief vs local trend · INDIRECT EVIDENCE · SIMULATED TERRAIN";
+            elseif obj.Layer == "Soil movement"
+                str = "Simulated soil movement · INDIRECT EVIDENCE · SIMULATED TERRAIN";
+            elseif isempty(obj.Results)
                 str = "Draw a field area · SIMULATED TERRAIN";
             else
                 str = sprintf('Cut %.1f · Fill %.1f m³ · SIMULATED TERRAIN', obj.Results.cut_m3, obj.Results.fill_m3);
@@ -600,7 +687,7 @@ classdef CutFillView < handle
                 % no colour mapping on this axes: fall back to explicit RGB with the same diverging scale
                 obj.Overlay.CData = mgv22.cutfill.CutFillView.rgbFor(d, m);
             end
-            obj.Overlay.Visible = matlab.lang.OnOffSwitchState(obj.OverlayVisible);
+            obj.Overlay.Visible = matlab.lang.OnOffSwitchState(obj.OverlayVisible && obj.isCutFill());
         end
 
         function drawContours(obj)
@@ -612,8 +699,8 @@ classdef CutFillView < handle
             S = obj.Surface; [X, Y] = meshgrid(double(S.x), double(S.y));
             Ze = S.Z; Ze(~obj.Mask) = NaN;
             Zd = obj.Plane.a + obj.Plane.b * X + obj.Plane.c * Y; Zd(~obj.Mask) = NaN;
-            obj.ExistingContours = obj.contourLines(Ze, [0.95 0.75 0.35], '-', 'Existing contours (SIMULATED)', obj.ShowExisting);
-            obj.DesignContours = obj.contourLines(Zd, [0.35 0.85 1.00], '--', 'Design contours (VIRTUAL plan)', obj.ShowDesign);
+            obj.ExistingContours = obj.contourLines(Ze, [0.95 0.75 0.35], '-', 'Existing contours (SIMULATED)', obj.ShowExisting && obj.isCutFill());
+            obj.DesignContours = obj.contourLines(Zd, [0.35 0.85 1.00], '--', 'Design contours (VIRTUAL plan)', obj.ShowDesign && obj.isCutFill());
         end
 
         function h = contourLines(obj, Z, colour, style, name, show)
@@ -714,7 +801,8 @@ classdef CutFillView < handle
                 gx = obj.Axes; kids = gx.Children;
                 if isempty(kids), return; end
                 order = {obj.LegendText, obj.DraftLabels, obj.DraftLine, obj.ProfileLine, obj.VertexLabels, ...
-                    obj.OutlineLine, obj.DesignContours, obj.ExistingContours, obj.Overlay};
+                    obj.OutlineLine, obj.FeatureLabels, obj.FeatureMarks, obj.DesignContours, obj.ExistingContours, obj.Overlay, ...
+                    obj.SoilLayer, obj.ReliefLayer};
                 front = gobjects(0, 1);
                 for k = 1:numel(order)
                     h = order{k}(:); h = h(isgraphics(h));
@@ -728,6 +816,125 @@ classdef CutFillView < handle
             catch
                 % stacking is cosmetic; never fail a redraw over it
             end
+        end
+
+        % ------------------------------------------------------------------ relief and soil layers (V22-T12)
+        function tf = isCutFill(obj)
+            tf = obj.Layer == "Cut/fill";
+        end
+
+        function computeRelief(obj)
+            if ~isempty(obj.Relief), return; end
+            try
+                A = mgv22.relief.reliefAnomaly(obj.Surface, obj.ReliefRadius);
+                F = mgv22.relief.findFeatures(A, obj.Surface);
+            catch err
+                obj.showStatus("Relief layer failed: " + string(err.message), true);
+                rethrow(err);
+            end
+            obj.Relief = A; obj.ReliefFeatures = F;
+            obj.updateFeatureSummary();
+        end
+
+        function computeSoil(obj)
+            if ~isempty(obj.SoilChange), return; end
+            try
+                [before, after] = mgv22.relief.simulateSoilMovement(obj.Surface);
+                C = mgv22.relief.surfaceChange(before, after);
+            catch err
+                obj.showStatus("Soil movement layer failed: " + string(err.message), true);
+                rethrow(err);
+            end
+            obj.SoilChange = C;
+            obj.updateSoilSummary();
+        end
+
+        function updateFeatureSummary(obj)
+            if ~obj.isOpen() || ~isgraphics(obj.FeatureSummaryLabel), return; end
+            F = obj.ReliefFeatures;
+            if isempty(F) || height(F) == 0
+                obj.FeatureSummaryLabel.Text = 'Relief features: none flagged (INDIRECT EVIDENCE, SIMULATION)';
+                return
+            end
+            types = string(F.type);
+            u = unique(types, 'stable');
+            parts = strings(1, numel(u));
+            for k = 1:numel(u), parts(k) = sprintf('%d %s', nnz(types == u(k)), u(k)); end
+            obj.FeatureSummaryLabel.Text = char("Relief features: " + strjoin(parts, " · ") + " (INDIRECT EVIDENCE, SIMULATION)");
+        end
+
+        function updateSoilSummary(obj)
+            if ~obj.isOpen() || ~isgraphics(obj.SoilSummaryLabel) || isempty(obj.SoilChange), return; end
+            C = obj.SoilChange;
+            obj.SoilSummaryLabel.Text = sprintf('Soil moved: eroded %.0f m², deposited %.0f m² (INDIRECT EVIDENCE, SIMULATION)', ...
+                C.eroded_area_m2, C.deposited_area_m2);
+        end
+
+        function drawRelief(obj)
+            if ~obj.isOpen() || isempty(obj.Relief), return; end
+            obj.clearReliefGraphics();
+            gx = obj.Axes; D = obj.Relief.D;
+            idx = find(isfinite(D));
+            if ~isempty(idx)
+                d = D(idx);
+                m = max(abs(d)); if ~(m > 0), m = 0.01; end
+                obj.ReliefLayer = geoscatter(gx, obj.LatGrid(idx), obj.LonGrid(idx), obj.markerSize(), ...
+                    mgv22.cutfill.CutFillView.reliefRgb(d, m), 's', 'filled', 'MarkerEdgeColor', 'none', ...
+                    'MarkerFaceAlpha', obj.Alpha, 'DisplayName', 'Relief deviation from local trend (INDIRECT EVIDENCE, SIMULATION)', ...
+                    'Tag', 'SIMULATION relief deviation', 'PickableParts', 'none');
+            end
+            F = obj.ReliefFeatures;
+            if ~isempty(F) && height(F) > 0
+                ll = obj.toLatLon([double(F.x_east_m(:)) double(F.y_north_m(:))]);
+                obj.FeatureMarks = geoscatter(gx, ll(:, 1), ll(:, 2), 110, 'd', 'MarkerEdgeColor', [1 0.35 1], ...
+                    'MarkerFaceColor', 'none', 'LineWidth', 1.6, 'DisplayName', 'Relief feature (INDIRECT EVIDENCE, SIMULATION)', ...
+                    'Tag', 'SIMULATION relief feature', 'PickableParts', 'none');
+                types = string(F.type);
+                obj.FeatureLabels = gobjects(height(F), 1);
+                for k = 1:height(F)
+                    obj.FeatureLabels(k) = text(gx, ll(k, 1), ll(k, 2), "  " + types(k), 'Color', [1 0.80 1], ...
+                        'FontSize', 9, 'BackgroundColor', [0 0 0], 'Margin', 1, 'Tag', 'SIMULATION relief feature', ...
+                        'PickableParts', 'none', 'Interpreter', 'none');
+                end
+            end
+        end
+
+        function drawSoil(obj)
+            if ~obj.isOpen() || isempty(obj.SoilChange), return; end
+            h = obj.SoilLayer(isgraphics(obj.SoilLayer)); if ~isempty(h), delete(h); end
+            obj.SoilLayer = gobjects(0);
+            C = obj.SoilChange;
+            er = logical(C.eroded); de = logical(C.deposited) & ~er;
+            idx = find(er | de);
+            if isempty(idx), return; end
+            rgb = repmat([0.25 0.55 0.95], numel(idx), 1);          % deposited: blue-ish
+            rgb(er(idx), :) = repmat([0.92 0.35 0.25], nnz(er(idx)), 1);   % eroded: red-ish
+            obj.SoilLayer = geoscatter(obj.Axes, obj.LatGrid(idx), obj.LonGrid(idx), obj.markerSize(), rgb, 's', 'filled', ...
+                'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', obj.Alpha, ...
+                'DisplayName', 'Soil moved – buried objects could have moved with it (INDIRECT EVIDENCE, SIMULATION)', ...
+                'Tag', 'SIMULATION soil movement', 'PickableParts', 'none');
+        end
+
+        function clearReliefGraphics(obj)
+            h = [obj.ReliefLayer(:); obj.FeatureMarks(:); obj.FeatureLabels(:)]; h = h(isgraphics(h));
+            if ~isempty(h), delete(h); end
+            obj.ReliefLayer = gobjects(0); obj.FeatureMarks = gobjects(0); obj.FeatureLabels = gobjects(0);
+        end
+
+        function applyLayerVisibility(obj)
+            % the outline, profile, draft and survey area stay in every layer
+            if ~obj.isOpen(), return; end
+            cf = obj.isCutFill();
+            if any(isgraphics(obj.Overlay)), obj.Overlay.Visible = matlab.lang.OnOffSwitchState(cf && obj.OverlayVisible); end
+            h = obj.ExistingContours(isgraphics(obj.ExistingContours));
+            if ~isempty(h), set(h, 'Visible', matlab.lang.OnOffSwitchState(cf && obj.ShowExisting)); end
+            h = obj.DesignContours(isgraphics(obj.DesignContours));
+            if ~isempty(h), set(h, 'Visible', matlab.lang.OnOffSwitchState(cf && obj.ShowDesign)); end
+            rel = obj.Layer == "Relief vs local trend";
+            h = [obj.ReliefLayer(:); obj.FeatureMarks(:); obj.FeatureLabels(:)]; h = h(isgraphics(h));
+            if ~isempty(h), set(h, 'Visible', matlab.lang.OnOffSwitchState(rel)); end
+            h = obj.SoilLayer(isgraphics(obj.SoilLayer));
+            if ~isempty(h), set(h, 'Visible', matlab.lang.OnOffSwitchState(obj.Layer == "Soil movement")); end
         end
 
         function s = markerSize(obj)
@@ -774,6 +981,9 @@ classdef CutFillView < handle
             if obj.isOpen() && any(isgraphics(obj.Overlay))
                 obj.Overlay.SizeData = obj.markerSize();
             end
+            if ~obj.isOpen(), return; end
+            h = [obj.ReliefLayer(:); obj.SoilLayer(:)]; h = h(isgraphics(h));
+            if ~isempty(h), set(h, 'SizeData', obj.markerSize()); end
         end
 
         function showStatus(obj, msg, isError)
@@ -788,7 +998,8 @@ classdef CutFillView < handle
                 fn();
             catch err
                 if obj.isOpen() && ~startsWith(string(obj.StatusText.Text), ["Outline rejected", "Best fit failed", ...
-                        "Design plane rejected", "Profile failed"])
+                        "Design plane rejected", "Profile failed", "Relief layer failed", "Soil movement layer failed", ...
+                        "Relief radius"])
                     obj.showStatus(string(err.message), true);
                 end
             end
@@ -818,6 +1029,8 @@ classdef CutFillView < handle
             [obj.UndoButton, obj.CancelButton, obj.FinishButton, obj.StatusText, obj.ProfileAxes] = deal(e);
             [obj.OutlineLine, obj.VertexLabels, obj.Overlay, obj.ExistingContours, obj.DesignContours] = deal(e);
             [obj.LegendText, obj.ProfileLine, obj.DraftLine, obj.DraftLabels, obj.SurveyAreaLine] = deal(e);
+            [obj.LayerDropdown, obj.FeatureSummaryLabel, obj.SoilSummaryLabel] = deal(e);
+            [obj.ReliefLayer, obj.FeatureMarks, obj.FeatureLabels, obj.SoilLayer] = deal(e);
         end
     end
 
@@ -864,6 +1077,15 @@ classdef CutFillView < handle
             blue = [0.13 0.40 0.80]; red = [0.80 0.13 0.13];
             t1 = linspace(0, 1, h)'; t2 = linspace(0, 1, n - h)';
             cmap = [blue + t1 .* (1 - blue); 1 - t2 .* (1 - red)];
+        end
+
+        function rgb = reliefRgb(d, m)
+            % diverging relief scale centred on 0: lower than trend (pits) purple-blue, higher (raised) brown
+            pit = [0.35 0.20 0.80]; raised = [0.55 0.32 0.10];
+            t = min(abs(d(:)) / m, 1);
+            rgb = ones(numel(d), 3) - t .* (1 - raised);
+            neg = d(:) < 0;
+            rgb(neg, :) = 1 - t(neg) .* (1 - pit);
         end
 
         function rgb = rgbFor(d, m)

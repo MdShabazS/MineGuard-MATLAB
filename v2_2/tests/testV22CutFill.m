@@ -96,7 +96,7 @@ kids = findall(v.Axes, '-property', 'DisplayName');
 for k = 1:numel(kids)
     name = string(kids(k).DisplayName);
     if strlength(name) == 0, continue; end
-    verifyTrue(tc, contains(name, "VIRTUAL") || contains(name, "SIMULATED"), name);
+    verifyTrue(tc, contains(name, "VIRTUAL") || contains(name, "SIMULATED") || contains(name, "SIMULATION"), name);
     verifyFalse(tc, any(arrayfun(@(w) contains(lower(name), w), forbidden)), name);
 end
 verifyTrue(tc, startsWith(string(v.Credits.Text), "Basemap: satellite | Powered by Esri"));
@@ -185,3 +185,32 @@ v.startDraw("area"); v.addVertex([-10 -10]); v.addVertex([10 -10]); v.addVertex(
 verifyEmpty(tc, v.Axes.ButtonDownFcn, 'finishing a drawing gives panning back');
 end
 
+
+function testReliefAndSoilLayers(tc)
+% V22-T12: both layers draw, carry INDIRECT EVIDENCE / SIMULATION names, use no forbidden word, and switch back
+[S2, ~] = mgv22.relief.injectFeatures(tc.TestData.S, struct('type', "crater", 'center_enu_m', [25 -20], ...
+    'diameter_m', 5.9, 'depth_m', 0.65, 'p1', NaN(1, 2), 'p2', NaN(1, 2), 'width_m', NaN));
+v = mgv22.cutfill.CutFillView(S2, Visible="off", MetadataReader=@(~) struct('copyrightText', "Source: Test"));
+tc.addTeardown(@() delete(v));
+verifyEqual(tc, v.Layer, "Cut/fill");
+v.setLayer("Relief vs local trend");
+verifyTrue(tc, isgraphics(v.ReliefLayer));
+verifyEqual(tc, v.ReliefFeatures.type(hypot(v.ReliefFeatures.x_east_m - 25, v.ReliefFeatures.y_north_m + 20) <= 1), "crater");
+verifyEqual(tc, string(v.FeatureMarks.MarkerFaceColor), "none", 'feature marks are hollow');
+verifySubstring(tc, string(v.FeatureSummaryLabel.Text), "INDIRECT EVIDENCE");
+v.setLayer("Soil movement");
+verifyTrue(tc, isgraphics(v.SoilLayer));
+verifySubstring(tc, string(v.SoilSummaryLabel.Text), "SIMULATION");
+forbidden = lower(v.Site.forbidden_on_imagery);
+h = findall(v.Figure, '-property', 'DisplayName'); names = string(get(h, 'DisplayName'));
+t = findall(v.Figure, '-property', 'Text'); txt = string(cellfun(@(x) strjoin(string(x), " "), get(t, 'Text'), 'UniformOutput', false));
+for s = [names(strlength(names) > 0); txt]'
+    verifyFalse(tc, any(arrayfun(@(w) ~isempty(regexp(lower(s), "\<" + w + "\>", 'once')), forbidden)), s);
+end
+for n = names(strlength(names) > 0)'
+    verifyTrue(tc, contains(n, "VIRTUAL") || contains(n, "SIMULATED") || contains(n, "SIMULATION"), n);
+end
+v.setLayer("Cut/fill");
+verifyEqual(tc, v.Layer, "Cut/fill");
+verifyError(tc, @() v.setLayer("Hazard"), 'mgv22:InvalidLayer');
+end
