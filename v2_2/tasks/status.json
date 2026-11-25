@@ -81,10 +81,12 @@
     },
     "V22-T11": {
       "owner": "Shabaz",
-      "state": "IN_PROGRESS",
-      "evidence": null,
+      "state": "DONE",
+      "evidence": "v2_2/evidence/V22-T11.md",
       "startedBy": "Shabaz",
-      "startedOn": "2026-11-21"
+      "startedOn": "2026-11-21",
+      "completedBy": "Shabaz",
+      "completedOn": "2026-11-25"
     },
     "V22-T12": {
       "owner": "Shabaz",
