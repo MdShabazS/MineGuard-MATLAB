@@ -59,3 +59,9 @@ Review/merge PR #1 after docs QA. Then record approved MG-000 completion and ena
   - coordinates never exported as findings.
   All other views keep the V22-T3 rule of no hazard markers on real imagery.
 
+## 2026-11-25 — V22-T11 survey parameters (deliberate deviations, recorded)
+
+- **Altitude 6.8 m, not the research's 10–12 m.** The simulated RGB camera is 320×240 px with a 70° field of view, far coarser than the research cameras (0.2–0.4 cm/px). The planner picks the highest altitude that keeps at least 5 pixels on the smallest detector target (0.15 m): 6.8 m, 2.98 cm/px. This follows the research's pixels-on-target rule.
+- **Side overlap 75 %,** as in the research. Line spacing is clamped to V2.1's 2 m minimum.
+- **False alarms are counted inside the drawn field only.** The four corner-marker poles that the simulated world places at the field corners are flagged by the detector and counted as clutter. The panel says so.
+

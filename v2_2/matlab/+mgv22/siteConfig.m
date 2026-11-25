@@ -33,4 +33,11 @@ site = struct('anchor_lla', a, 'view_window', struct('lat', lat, 'lon', lon), 'b
     'service_url', string(s.service_url), 'credit_text', string(s.credit_text), 'banner', string(s.banner), ...
     'virtual_label', string(s.virtual_label), 'offline_fallback', string(s.offline_fallback), ...
     'offline_label', string(s.offline_label), 'forbidden_on_imagery', string(s.forbidden_on_imagery(:)'), 'file', string(file));
+if isfield(s, 'allowed_marker_labels')         % V22-T11 field survey view only; other views keep forbidden_on_imagery
+    m = s.allowed_marker_labels;
+    if ~isfield(m, 'coordinate_export_allowed') || m.coordinate_export_allowed
+        error(id, 'allowed_marker_labels.coordinate_export_allowed must be false.');
+    end
+    site.allowed_marker_labels = m;
+end
 end
