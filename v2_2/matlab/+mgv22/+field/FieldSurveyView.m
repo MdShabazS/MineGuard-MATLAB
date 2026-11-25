@@ -150,6 +150,8 @@ classdef FieldSurveyView < handle
                 else
                     obj.showStatus("Field rejected: " + string(err.message), true);
                 end
+                obj.Plan = []; obj.Survey = []; obj.Evaluation = [];   % never keep a plan for a different field
+                if obj.isOpen(), obj.RunButton.Enable = 'off'; end
                 rethrow(err);
             end
             obj.Plan = P; obj.Survey = []; obj.Evaluation = [];
@@ -396,10 +398,14 @@ classdef FieldSurveyView < handle
             obj.CoverageLabel.Text = sprintf('%.0f %% of field seen at least once', 100 * S.coverage.frac_covered);
             E = obj.Evaluation;
             if obj.EvaluationVisible && ~isempty(E)
-                ci = 100 * double(E.detection_ci);
-                obj.DetectionLabel.Text = sprintf('%d of %d visible SYNTHETIC (95 %% interval %.0f–%.0f %%)', ...
-                    E.tp_visible, E.n_visible, ci(1), ci(2));
-                obj.FalseAlarmLabel.Text = sprintf('%.1f per ha (95 %% interval %.1f–%.1f)', ...
+                if E.n_visible > 0
+                    ci = 100 * double(E.detection_ci);
+                    obj.DetectionLabel.Text = sprintf('%d of %d visible SYNTHETIC (95 %% interval %.0f–%.0f %%)', ...
+                        E.tp_visible, E.n_visible, ci(1), ci(2));
+                else
+                    obj.DetectionLabel.Text = 'no visible SYNTHETIC targets in this run';
+                end
+                obj.FalseAlarmLabel.Text = sprintf('%.1f per ha in field (95 %% interval %.1f–%.1f); includes the 4 corner poles', ...
                     E.fa.per_ha, E.fa.lo_per_ha, E.fa.hi_per_ha);
             else
                 obj.DetectionLabel.Text = 'shown with Evaluation on';
@@ -444,14 +450,16 @@ classdef FieldSurveyView < handle
                 low = C.count < 2;
             end
             if numel(C.x) > 1, obj.CellM = abs(median(diff(double(C.x)))); end
+            % grey = seen once, dark red = not seen at all (unsurveyed)
             if any(low(:))
                 ll = mgv22.geo.enuToWgs84([X(low) Y(low) zeros(nnz(low), 1)], P.field_anchor_lla);
                 lat = ll(:, 1); lon = ll(:, 2);
+                cnt = C.count(low); rgb = repmat([0.55 0.55 0.55], numel(cnt), 1); rgb(cnt(:) == 0, :) = repmat([0.70 0.12 0.12], nnz(cnt == 0), 1);
             else
-                lat = zeros(0, 1); lon = zeros(0, 1);
+                lat = zeros(0, 1); lon = zeros(0, 1); rgb = [0.55 0.55 0.55];
             end
-            obj.CoverageLayer = geoscatter(gx, lat, lon, obj.markerSize(), [0.55 0.55 0.55], 's', 'filled', ...
-                'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.45, 'DisplayName', 'Low coverage (SIMULATION)', ...
+            obj.CoverageLayer = geoscatter(gx, lat, lon, obj.markerSize(), rgb, 's', 'filled', ...
+                'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.45, 'DisplayName', 'Low coverage: grey once, red unseen (SIMULATION)', ...
                 'Tag', 'SIMULATION coverage', 'PickableParts', 'none');
             % hollow SUSPECTED marks sized by model score
             ev = S.events;
@@ -555,7 +563,12 @@ classdef FieldSurveyView < handle
         function onHullChanged(obj)
             % re-plan the last drawn field when the operator confirms (or withdraws) the convex hull
             if size(obj.FieldLL, 1) >= 3 && ~obj.Running
-                obj.plan(obj.FieldLL);
+                try
+                    obj.plan(obj.FieldLL);
+                    if obj.Drawing, obj.endDraw(); end        % the confirmed hull ends drawing, so pan/zoom work again
+                catch
+                    % plan() already showed why in the status line
+                end
             end
         end
 

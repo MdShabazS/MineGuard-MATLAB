@@ -24,7 +24,7 @@ arguments
     opts.AllowHull (1,1) logical = false
     opts.MinPixelsOnTarget (1,1) double {mustBePositive} = 5
     opts.TargetDiameterM (1,1) double {mustBePositive} = mgv2.detect.defaultDetectorConfig().size.min_diameter_m
-    opts.SideOverlap (1,1) double {mustBeNonnegative} = 0.3
+    opts.SideOverlap (1,1) double {mustBeNonnegative} = 0.75
     opts.SpeedMps (1,1) double {mustBePositive} = 3
     opts.HeadingDeg double = []
 end
@@ -32,6 +32,11 @@ if ~(isnumeric(fieldLL) && ismatrix(fieldLL) && size(fieldLL, 2) == 2 && size(fi
     error('mgv22:InvalidOutline', 'The field must be an N-by-2 [lat lon] array of at least 3 finite points.');
 end
 fieldLL = double(fieldLL);
+w = opts.Site.view_window;                    % the field must lie in the BITM view, not somewhere panned to
+if any(fieldLL(:, 1) < w.lat(1) | fieldLL(:, 1) > w.lat(2) | fieldLL(:, 2) < w.lon(1) | fieldLL(:, 2) > w.lon(2))
+    error('mgv22:FieldOutsideView', 'The field must lie inside the BITM view window (lat %.4f–%.4f, lon %.4f–%.4f); draw it on the campus.', ...
+        w.lat(1), w.lat(2), w.lon(1), w.lon(2));
+end
 if opts.SideOverlap >= 1, error('mgv22:InvalidOutline', 'SideOverlap must be in [0, 1).'); end
 c21 = mgv21.contract(); L = c21.limits;
 pre = mgv21.scenario.environmentPreset(opts.Preset);

@@ -98,3 +98,20 @@ for k = 1:numel(h)
 end
 end
 
+function testReviewFixes(tc)
+% hull confirmed through the checkbox callback ends drawing; outside-view field rejected; rejected re-plan clears the plan
+v = openView(tc); toLL = tc.TestData.toLL;
+L = toLL([0 -120; 40 -120; 40 -100; 20 -100; 20 -80; 0 -80]);
+try drawField(v, L); catch, end
+verifyNotEmpty(tc, v.Axes.ButtonDownFcn, 'still drawing after the non-convex rejection');
+v.AllowHullCheck.Value = true;
+cb = v.AllowHullCheck.ValueChangedFcn; cb(v.AllowHullCheck, []);       % what a real tick does
+verifyTrue(tc, v.results().plan.hull_used);
+verifyEmpty(tc, v.Axes.ButtonDownFcn, 'the hull plan ends drawing, so pan/zoom work');
+verifyEqual(tc, string(v.RunButton.Enable), "on");
+w = tc.TestData.site.view_window;
+far = [w.lat(2) + 0.001 w.lon(1); w.lat(2) + 0.001 w.lon(1) + 0.0003; w.lat(2) + 0.0012 w.lon(1) + 0.0003; w.lat(2) + 0.0012 w.lon(1)];
+verifyError(tc, @() v.plan(far), 'mgv22:FieldOutsideView');
+verifyEqual(tc, string(v.RunButton.Enable), "off", 'a rejected field leaves no stale plan to run');
+end
+

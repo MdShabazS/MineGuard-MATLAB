@@ -107,15 +107,23 @@ else
 end
 truth_ll = table(tl(:, 1), tl(:, 2), double(T.x_east_m), double(T.y_north_m), string(T.surface_signature), matched, ...
     'VariableNames', ["lat", "lon", "x_east_m", "y_north_m", "surface_signature", "matched"]);
-fa = mgv22.evaluation.falseAlarmRate(R.FP, P.area_m2);
+% false alarms are counted inside the surveyed field only (events outside it are reported separately);
+% the field's corner-marker poles stand on the boundary and are counted as the clutter they are
+isTP = false(n, 1); isTP(R.matched_event_index) = true;
 if n > 0
-    isTP = false(n, 1); isTP(R.matched_event_index) = true;
+    inField = inpolygon([ev.x_est_m]', [ev.y_est_m]', P.poly_enu(:, 1), P.poly_enu(:, 2));
+else
+    inField = false(0, 1);
+end
+fpInField = nnz(inField & ~isTP);
+fa = mgv22.evaluation.falseAlarmRate(fpInField, P.area_m2);
+if n > 0
     curve = mgv22.evaluation.detectionCurve([ev.model_score], isTP, nT, P.area_m2);
 else
     curve = [];
 end
 evaluation = struct('R', R, 'truth_ll', truth_ll, 'detection_ci', [lo hi], 'tp_visible', tpVisible, ...
-    'n_visible', nVisible, 'fa', fa, 'curve', curve);
+    'n_visible', nVisible, 'fa', fa, 'fp_in_field', fpInField, 'n_events_outside', nnz(~inField), 'curve', curve);
 
 % 5. output; the public parts carry no truth
 mgv21.scenario.assertPublic(ev, "events");

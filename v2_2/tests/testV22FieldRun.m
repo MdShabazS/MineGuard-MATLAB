@@ -82,3 +82,11 @@ end
 function bump(m)
 m('n') = m('n') + 1; %#ok<NASGU> containers.Map is a handle: the update is kept
 end
+
+function testFalseAlarmsCountedInsideTheFieldOnly(tc)
+S = tc.TestData.S; E = S.evaluation;
+verifyLessThanOrEqual(tc, E.fp_in_field, E.R.FP, 'in-field false alarms are a subset of all unmatched events');
+verifyLessThanOrEqual(tc, E.fp_in_field + E.n_events_outside, numel(S.events));
+verifyEqual(tc, E.fa.fp, E.fp_in_field);
+end
+
