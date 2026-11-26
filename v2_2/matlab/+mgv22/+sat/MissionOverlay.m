@@ -4,6 +4,7 @@ classdef MissionOverlay < handle
     %   ov.update(pose)              pose with tick_id and position_enu_m (e.g. engine snapshot) moves the drone and trail
     %   ov.syncFromPoseLog(T, tick)  replay/tests: show the pose log as it was at a tick
     %   ov.bindEngine(eng)           follow a MissionEngine tick by tick (safe after delete)
+    %   ov.restart()                 clear the trail and put the drone back home (a new engine: reset, new run, replay)
     %   Uses ONLY public mission geometry (checked with mgv21.scenario.assertPublic) and poses. Never draws targets,
     %   truth, suspected events or any other marker on real imagery; every layer is labelled VIRTUAL.
     %   ENU (0,0) of the simulation is placed at the site anchor; altitude is not drawn.
@@ -70,6 +71,11 @@ classdef MissionOverlay < handle
             obj.TrailLLA = lla(:, 1:2);
             obj.LastTick = double(T.tick_id(rows(end)));
             obj.draw(obj.TrailLLA(end, :));
+        end
+
+        function restart(obj)
+            obj.TrailLLA = zeros(0, 2); obj.LastTick = NaN;
+            if ~isempty(obj.HomeLLA), obj.draw(obj.HomeLLA(1, 1:2)); end
         end
 
         function bindEngine(obj, eng)
