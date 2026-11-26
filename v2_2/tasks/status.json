@@ -48,8 +48,10 @@
     },
     "V22-T6": {
       "owner": "Shabaz",
-      "state": "TODO",
-      "evidence": null
+      "state": "IN_PROGRESS",
+      "evidence": null,
+      "startedBy": "Shabaz",
+      "startedOn": "2026-11-26"
     },
     "V22-T7": {
       "owner": "Shabaz",
