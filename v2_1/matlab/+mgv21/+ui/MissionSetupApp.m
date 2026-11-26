@@ -40,6 +40,7 @@ classdef MissionSetupApp < handle
         PlacementMessage (1,1) string = ""
         PlacementRefused (1,1) logical = false
         LaunchCount (1,1) double = 0
+        SiteViewsSlot = []                % V22-T6: empty grid where the Launcher puts the optional V2.2 BITM view buttons
     end
     properties
         OnLaunch = []                     % fcn(pub, world, priv) after a successful lock; [] closes the window
@@ -320,7 +321,7 @@ classdef MissionSetupApp < handle
             body = uigridlayout(outer, [1 2], 'ColumnWidth', {380, '1x'}, 'RowHeight', {'1x'}, 'Padding', 0, 'ColumnSpacing', 6, 'BackgroundColor', t.bg);
             body.Layout.Row = 2;
 
-            rows = {22, 22, 64, 22, 22, 22, 22, 22, 22, 120, 22, 22, 22, 22, 22, 22, 22, 26, 22, 34, 22, 22, 22, 22, 22, 22, 22, 22, 48, 34};
+            rows = {22, 22, 64, 22, 22, 22, 22, 22, 22, 120, 22, 22, 22, 22, 22, 22, 22, 26, 22, 34, 22, 22, 22, 22, 22, 22, 22, 22, 48, 34, 22, 56};
             g = uigridlayout(body, [numel(rows) 2], 'RowHeight', rows, 'ColumnWidth', {150, '1x'}, 'Padding', [6 6 6 6], ...
                 'RowSpacing', 3, 'ColumnSpacing', 6, 'Scrollable', 'on', 'BackgroundColor', t.panel);
             g.Layout.Column = 1;
@@ -385,6 +386,9 @@ classdef MissionSetupApp < handle
             next(); C.placementMsg = place(uilabel(g, 'Text', '', 'WordWrap', 'on', 'FontColor', t.muted, 'FontSize', 11, 'Tag', 'setup_placement_msg'), true);
             next(); C.lock = place(uibutton(g, 'Text', 'LOCK & START', 'FontWeight', 'bold', 'Tag', 'setup_lock', ...
                 'ButtonPushedFcn', @(~, ~) obj.guard(@() obj.lockAndStart())), true);
+            section('BITM VIEWS (V2.2, OPTIONAL)');
+            next(); obj.SiteViewsSlot = place(uigridlayout(g, [1 1], 'Padding', 0, 'BackgroundColor', t.panel, ...
+                'Tag', 'setup_site_views_slot'), true);   % filled by mgv21.ui.Launcher when v2_2/matlab is on the path
 
             right = uigridlayout(body, [2 1], 'RowHeight', {'fit', '1x'}, 'ColumnWidth', {'1x'}, 'Padding', [6 6 6 6], 'RowSpacing', 4, 'BackgroundColor', t.panel);
             right.Layout.Column = 2;

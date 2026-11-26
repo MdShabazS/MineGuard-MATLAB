@@ -1,0 +1,28 @@
+V22-T6 regression on Mac (Shabaz), 26.2.0.3433840 (R2026b) Update 1, commit e8ff7c3
+V2 suites: NOT RUN on the Mac (overheating rule); full regression on Windows in V22-T8
+
+testV21Evaluation            passed  15 failed 0 incomplete 0
+testV21EvaluationView        passed   7 failed 0 incomplete 0
+testV21Placement             passed  15 failed 0 incomplete 0
+testV21RunController         passed   9 failed 0 incomplete 0
+testV21RuntimeSeam           passed  10 failed 0 incomplete 0
+testV21Scenario              passed  20 failed 0 incomplete 0
+testV21SetupUI               passed  12 failed 0 incomplete 0
+v2_1/tests TOTAL 88 PASSED 88 FAILED 0 INCOMPLETE 0 (173 s)
+testV22CutFill               passed  17 failed 0 incomplete 0
+testV22CutFillMath           passed  10 failed 0 incomplete 0
+testV22EvaluationStats       passed  11 failed 0 incomplete 0
+testV22FieldPlan             passed   6 failed 0 incomplete 0
+testV22FieldRun              passed   7 failed 0 incomplete 0
+testV22FieldSurvey           passed   6 failed 0 incomplete 0
+testV22Geo                   passed  15 failed 0 incomplete 0
+testV22MissionOverlay        passed   9 failed 0 incomplete 0
+testV22Relief                passed  10 failed 0 incomplete 0
+testV22ReliefFeatures        passed   8 failed 0 incomplete 0
+testV22ReliefRecovery        passed   3 failed 0 incomplete 0
+testV22SatellitePreview      passed  15 failed 0 incomplete 0
+testV22SatelliteTab          passed   7 failed 0 incomplete 0
+testV22Wording               passed   2 failed 0 incomplete 0
+v2_2/tests TOTAL 126 PASSED 126 FAILED 0 INCOMPLETE 0 (199 s)
+
+ALL TOTAL 214 PASSED 214 FAILED 0 INCOMPLETE 0
