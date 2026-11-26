@@ -8,6 +8,8 @@ classdef SiteViews < handle
     %   sv.openRelief()         T9 view on the "Relief vs local trend" layer (T12), 0.5 m grid, SYNTHETIC demo features
     %   sv.closeAll(), delete(sv)   close every view and stop the follow timer; nothing is left behind
     %   sv.poll()               one follow step (the timer calls it every 0.25 s while the satellite view is open)
+    %   Limit: the offline check asks the imagery service for its metadata; tiles can still fail after it answers
+    %   (the view then says "tile loading unverified").
     %   Nothing opens at construction. Before each view the imagery service is checked once (basemapSource); if it
     %   is unreachable, or Offline=true, the ENH-009 schematic opens instead, labelled ILLUSTRATIVE / NOT SURVEYED /
     %   SIMULATION CONTEXT, with a notice: never a blank map presented as imagery.
@@ -63,21 +65,29 @@ classdef SiteViews < handle
         end
 
         function openSatellite(obj)
-            if ~isempty(obj.Satellite) && obj.Satellite.isOpen(), figure(obj.Satellite.Figure); return; end
+            if ~isempty(obj.Satellite) && obj.Satellite.isOpen()
+                if isempty(obj.Timer), obj.startTimer(); end      % following stopped after an error: press again to resume
+                figure(obj.Satellite.Figure); return
+            end
+            obj.closeSatellite();                                 % a window deleted from outside leaves no timer or overlay
             if obj.goOffline("Satellite view"), return; end
             obj.Satellite = mgv22.sat.SatellitePreview(MetadataReader=obj.MetadataReader);
             obj.Satellite.open(Visible=obj.Visible);
             obj.Satellite.Figure.CloseRequestFcn = @(~, ~) obj.closeSatellite();
             obj.FollowedEngine = []; obj.FollowedKey = "";
-            obj.poll();
-            obj.Timer = timer('ExecutionMode', 'fixedSpacing', 'Period', 0.25, 'BusyMode', 'drop', ...
-                'Tag', 'mgv22_site_views_follow', 'TimerFcn', @(~, ~) obj.timerStep());
-            start(obj.Timer);
+            try
+                obj.poll();
+            catch err
+                obj.closeSatellite(); rethrow(err);               % never a window that cannot follow
+            end
+            obj.startTimer();
             obj.LastStatus = "Satellite view open (VIRTUAL route on real imagery)";
         end
 
         function openFieldSurvey(obj)
             if ~isempty(obj.FieldSurvey) && isvalid(obj.FieldSurvey) && obj.FieldSurvey.isOpen(), return; end
+            if ~isempty(obj.FieldSurvey) && isvalid(obj.FieldSurvey), delete(obj.FieldSurvey); end   % closed with its window X
+            obj.FieldSurvey = [];
             if obj.goOffline("Field survey"), return; end
             obj.FieldSurvey = mgv22.field.FieldSurveyView(Visible=obj.Visible, MetadataReader=obj.MetadataReader);
             obj.LastStatus = "Field survey open";
@@ -85,6 +95,8 @@ classdef SiteViews < handle
 
         function openCutFill(obj)
             if ~isempty(obj.CutFill) && isvalid(obj.CutFill) && obj.CutFill.isOpen(), return; end
+            if ~isempty(obj.CutFill) && isvalid(obj.CutFill), delete(obj.CutFill); end
+            obj.CutFill = [];
             if obj.goOffline("Cut/fill map"), return; end
             S = mgv22.cutfill.surveySurface(Preset=obj.presetId());
             obj.CutFill = mgv22.cutfill.CutFillView(S, Visible=obj.Visible, MetadataReader=obj.MetadataReader);
@@ -93,6 +105,8 @@ classdef SiteViews < handle
 
         function openRelief(obj)
             if ~isempty(obj.Relief) && isvalid(obj.Relief) && obj.Relief.isOpen(), return; end
+            if ~isempty(obj.Relief) && isvalid(obj.Relief), delete(obj.Relief); end
+            obj.Relief = [];
             if obj.goOffline("Relief map"), return; end
             S = mgv22.cutfill.surveySurface(Preset=obj.presetId(), CellM=0.5);
             [S, ~] = mgv22.relief.injectFeatures(S, mgv22.relief.defaultFeatureSpec());   % answer key discarded
@@ -103,8 +117,10 @@ classdef SiteViews < handle
 
         function poll(obj)
             %POLL Follow the session: rebuild the overlay for a new mission, restart the trail on reset/new run.
-            if isempty(obj.Satellite) || ~obj.Satellite.isOpen(), return; end
+            if isempty(obj.Satellite) || ~obj.Satellite.isOpen(), obj.stopTimer(); return; end
             pub = obj.currentPub();
+            ses = obj.currentSession();
+            if ~isempty(ses) && ~isempty(pub), pub.mission = ses.MissionConfig; end   % a replay may fly another survey's mission
             if isempty(pub)
                 if ~isempty(obj.Overlay), delete(obj.Overlay); obj.Overlay = []; end
                 obj.FollowedKey = ""; return
@@ -115,7 +131,6 @@ classdef SiteViews < handle
                 obj.Overlay = mgv22.sat.MissionOverlay(obj.Satellite, pub);
                 obj.FollowedKey = key; obj.FollowedEngine = [];
             end
-            ses = obj.currentSession();
             if isempty(ses), return; end
             eng = ses.Engine;
             if isempty(obj.FollowedEngine) || ~isvalid(obj.FollowedEngine) || eng ~= obj.FollowedEngine
@@ -126,6 +141,13 @@ classdef SiteViews < handle
             p = ses.pose();
             pose = struct('tick_id', double(p.tick_id), 'position_enu_m', double(p.position_enu_m(:)'));
             if pose.tick_id ~= obj.Overlay.LastTick, obj.Overlay.update(pose); end
+        end
+
+        function startTimer(obj)
+            obj.stopTimer();
+            obj.Timer = timer('ExecutionMode', 'fixedSpacing', 'Period', 0.25, 'BusyMode', 'drop', ...
+                'Tag', 'mgv22_site_views_follow', 'TimerFcn', @(~, ~) obj.timerStep());
+            start(obj.Timer);
         end
 
         function closeSatellite(obj)
@@ -201,7 +223,7 @@ classdef SiteViews < handle
             try
                 obj.poll();
             catch err
-                obj.LastStatus = "Satellite follow stopped: " + string(err.message);
+                obj.LastStatus = "Satellite follow stopped: " + string(err.message) + " Press Satellite view (BITM) to resume.";
                 obj.stopTimer();
             end
         end

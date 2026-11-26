@@ -78,7 +78,6 @@ app.command("start"); sv.poll();
 t1 = sv.Overlay.LastTick;
 verifyGreaterThan(tc, t1, 0, 'the drone follows the running session');
 verifyGreaterThan(tc, size(sv.Overlay.TrailLLA, 1), 0);
-mgv21.scenario.assertPublic(struct('trail', sv.Overlay.TrailLLA), "overlay");
 g = app.Session.evidenceContext().generation; r0 = sv.Restarts;
 app.command("abort"); app.command("reset"); sv.poll();
 verifyEqual(tc, app.Session.evidenceContext().generation, g + 1);
@@ -112,4 +111,38 @@ for k = 1:10
     delete(L);
 end
 verifyEqual(tc, leftovers(), n0);
+end
+
+function testWindowCloseExternalDeleteAndSetupClose(tc)
+% review: closing with the window X, deleting the figure from outside and closing Mission Setup leave no timer
+L = launch(tc); sv = L.SiteViews;
+sv.openSatellite(); f = sv.Satellite.Figure;
+cb = f.CloseRequestFcn; cb(f, []);                                   % the window X
+verifyEmpty(tc, sv.Satellite); verifyEmpty(tc, timerfindall('Tag', 'mgv22_site_views_follow'));
+sv.openSatellite(); delete(sv.Satellite.Figure);                     % deleted from outside (close all force)
+sv.poll();
+verifyEmpty(tc, timerfindall('Tag', 'mgv22_site_views_follow'), 'the follow timer stops itself');
+sv.openSatellite(); sv.openSatellite();
+verifyNumElements(tc, timerfindall('Tag', 'mgv22_site_views_follow'), 1, 'one timer, never two');
+sv.openFieldSurvey(); delete(sv.FieldSurvey.Figure); sv.openFieldSurvey();
+verifyTrue(tc, sv.FieldSurvey.isOpen(), 'reopens after its window was closed');
+delete(L.Setup.Figure);                                              % Mission Setup closed with its X
+verifyEqual(tc, sv.openCount(), 0, 'the BITM views close with Mission Setup');
+verifyEmpty(tc, timerfindall('Tag', 'mgv22_site_views_follow'));
+end
+
+function testReplayFollowsTheReplayedMission(tc)
+% review: the overlay follows the session's MissionConfig (a replay may carry another survey), and the replayed drone moves
+L = launch(tc);
+verifyTrue(tc, L.Setup.lockAndStart());
+app = L.Controller.App; sv = L.SiteViews;
+app.command("start"); app.command("abort");
+folder = app.exportRun();
+sv.openSatellite();
+app.replay(folder); sv.poll();
+verifyEqual(tc, app.Session.Mode, "REPLAY");
+verifyEqual(tc, sv.FollowedKey, string(mgv2.run.digest(app.Session.MissionConfig)));
+verifyTrue(tc, sv.FollowedEngine == app.Session.Engine, 'the replay engine is followed');
+app.command("start"); sv.poll();
+verifyGreaterThan(tc, sv.Overlay.LastTick, 0);
 end

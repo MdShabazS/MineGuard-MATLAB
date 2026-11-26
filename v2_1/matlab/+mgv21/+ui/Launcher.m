@@ -35,6 +35,12 @@ classdef Launcher < handle
         end
     end
 
+    methods (Static, Access = private)
+        function closeViews(sv)
+            if isvalid(sv), sv.closeAll(); end
+        end
+    end
+
     methods (Access = private)
         function addSiteViews(L)
             slot = L.Setup.SiteViewsSlot;
@@ -45,6 +51,8 @@ classdef Launcher < handle
             L.SiteViews = mgv22.ui.SiteViews('SessionFcn', @() L.session(), 'PubFcn', @() L.currentPub(), ...
                 'Visible', L.Options.Visible, L.Options.SiteViewsOptions{:});
             L.SiteViews.addButtons(slot);
+            sv = L.SiteViews;                     % closing Mission Setup with its X also closes the BITM views
+            addlistener(L.Setup.Figure, 'ObjectBeingDestroyed', @(~, ~) mgv21.ui.Launcher.closeViews(sv));
         end
 
         function s = session(L)
