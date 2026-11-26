@@ -1,12 +1,14 @@
 function F = findFeatures(A, S, opts)
 %FINDFEATURES Connected relief anomalies with size, depth and a type guess (V22-T12).
 %   F = mgv22.relief.findFeatures(A, S)
-%   F = mgv22.relief.findFeatures(A, S, DepthM=0.3, MinAreaM2=0.5, CraterMinWidthM=3, CraterMaxWidthM=15, LinearAspect=4)
+%   F = mgv22.relief.findFeatures(A, S, DepthM=0.3, MinAreaM2=0.25, CraterMinWidthM=3, CraterMaxWidthM=15, LinearAspect=4)
 %   Regions are 4-neighbour connected components (graph + conncomp) of D <= -DepthM (pits) and, separately,
-%   D >= DepthM (raised). Defaults from published sizes (HALO Angola: foxholes 0.6-0.8 m deep, ~2.5 m wide;
+%   D >= DepthM (raised). Defaults from published sizes (HALO Angola: foxholes 0.6-0.8 m deep, about 1-1.5 m across;
 %   craters ~5.9 m wide, 0.65 m deep; trenches long and linear): DepthM = half the shallowest foxhole depth.
-%   Per region: area_m2 (cells*cell_m^2, regions below MinAreaM2 dropped), centroid, depth_m = max |D|, and
-%   PCA axes length_m = 4*sqrt(largest eigenvalue) + cell_m, width_m = 4*sqrt(smallest) + cell_m.
+%   MinAreaM2 = 0.25 keeps a single 0.5 m cell: a 1.2 m foxhole centred on a cell centre leaves only one cell
+%   deeper than DepthM (V22-T12 review). Per region: area_m2 (cells*cell_m^2, regions below MinAreaM2 dropped), centroid, depth_m = max |D|, and
+%   PCA axes length_m = 4*sqrt(largest eigenvalue) + cell_m, width_m = 4*sqrt(smallest) + cell_m (exact
+%   for a disc; about 15 % long for a straight line or rectangle).
 %   type: raised -> "berm"; length/width >= LinearAspect -> "trench"; width > CraterMaxWidthM -> "large depression"
 %   (wider than any crater in the sources; usually natural relief); width >= CraterMinWidthM -> "crater";
 %   else "pit (foxhole-size)". Note a DSM also shows bushes and rocks, which appear as berms. F: id ("RF-01".. ), type, x_east_m, y_north_m, area_m2, depth_m, length_m,
@@ -15,7 +17,7 @@ arguments
     A (1,1) struct
     S (1,1) struct
     opts.DepthM (1,1) double {mustBePositive} = 0.3
-    opts.MinAreaM2 (1,1) double {mustBeNonnegative} = 0.5
+    opts.MinAreaM2 (1,1) double {mustBeNonnegative} = 0.25
     opts.CraterMinWidthM (1,1) double {mustBePositive} = 3
     opts.CraterMaxWidthM (1,1) double {mustBePositive} = 15
     opts.LinearAspect (1,1) double {mustBePositive} = 4

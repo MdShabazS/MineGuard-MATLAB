@@ -77,3 +77,25 @@ function testSurfaceChangeSizeMismatch(tc)
 S = makeS(); T = S; T.Z = T.Z(1:end-1, :); T.y = T.y(1:end-1);
 tc.verifyError(@() mgv22.relief.surfaceChange(S, T), 'mgv22:InvalidRelief');
 end
+
+function testSoilMovementAreasMatchTheSimulatedChannelAndFan(tc)
+% Uniform slope down to the west: the channel runs straight west from the highest interior cell (x = 38, four cells
+% inside the edge) to the west edge cell (x = -40), where the path stops. The expected change is rebuilt here from the
+% documented model (cut 0.4*max(0,1-(d/1.5)^2), fan 0.3*exp(-r^2/32) within 12 m of the path end) and the eroded and
+% deposited masks must match it cell for cell (allowing 1 % for the 5 mm routing noise).
+x = -40:0.5:40; y = -30:0.5:30; [X, Y] = meshgrid(x, y);
+S = struct('x', x, 'y', y, 'Z', 0.05*X, 'cell_m', 0.5, 'source', "synthetic", 'label', "slope");
+[before, after] = mgv22.relief.simulateSoilMovement(S);
+C = mgv22.relief.surfaceChange(before, after);
+[ye, ~] = find(C.eroded); y0 = median(y(ye));
+tc.verifyEqual(mod(y0, 0.5), 0, 'the path runs along one grid row');
+xs = min(max(X, -40), 38);                                   % nearest point on the straight path
+d = hypot(X - xs, Y - y0); rEnd = hypot(X + 40, Y - y0);
+dZ = -0.4*max(0, 1 - (d/1.5).^2) + 0.3*exp(-rEnd.^2/32).*(rEnd <= 12);
+n = numel(X);
+tc.verifyLessThanOrEqual(nnz(xor(C.eroded, dZ <= -0.15)), 0.01*nnz(dZ <= -0.15), 'eroded cells = simulated channel');
+tc.verifyLessThanOrEqual(nnz(xor(C.deposited, dZ >= 0.15)), max(2, 0.01*nnz(dZ >= 0.15)), 'deposited cells = simulated fan');
+tc.verifyEqual(C.eroded_area_m2, nnz(dZ <= -0.15)*0.25, 'RelTol', 0.01);
+tc.verifyGreaterThan(C.deposited_area_m2, 0);
+tc.verifyLessThan(nnz(C.moved), n);
+end

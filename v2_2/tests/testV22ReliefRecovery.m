@@ -60,6 +60,7 @@ function spec = heldOutSpec()
 c = @(x, y, dia, dep, t) struct('type', t, 'center_enu_m', [x y], 'diameter_m', dia, 'depth_m', dep, 'p1', [], 'p2', [], 'width_m', []);
 spec = [c(30, -25, 5.9, 0.65, "crater"), c(-35, 15, 5.9, 0.65, "crater"), ...
     c(20, 25, 1.2, 0.7, "foxhole"), c(23, 26.5, 1.2, 0.7, "foxhole"), ...
+    c(-25.25, -30.25, 1.2, 0.7, "foxhole"), c(35.75, 5.25, 1.2, 0.7, "foxhole"), ...   % centred on cell centres (review)
     struct('type', "trench", 'center_enu_m', [], 'diameter_m', [], 'depth_m', 0.8, 'p1', [10 32], 'p2', [42 30], 'width_m', 1)];
 end
 

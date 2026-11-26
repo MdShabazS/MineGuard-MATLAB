@@ -205,7 +205,7 @@ forbidden = lower(v.Site.forbidden_on_imagery);
 h = findall(v.Figure, '-property', 'DisplayName'); names = string(get(h, 'DisplayName'));
 t = findall(v.Figure, '-property', 'Text'); txt = string(cellfun(@(x) strjoin(string(x), " "), get(t, 'Text'), 'UniformOutput', false));
 for s = [names(strlength(names) > 0); txt]'
-    verifyFalse(tc, any(arrayfun(@(w) ~isempty(regexp(lower(s), "\<" + w + "\>", 'once')), forbidden)), s);
+    verifyFalse(tc, any(arrayfun(@(w) contains(lower(s), w), forbidden)), s);   % substring: "mines", "anomalous" fail too
 end
 for n = names(strlength(names) > 0)'
     verifyTrue(tc, contains(n, "VIRTUAL") || contains(n, "SIMULATED") || contains(n, "SIMULATION"), n);
@@ -213,4 +213,16 @@ end
 v.setLayer("Cut/fill");
 verifyEqual(tc, v.Layer, "Cut/fill");
 verifyError(tc, @() v.setLayer("Hazard"), 'mgv22:InvalidLayer');
+end
+
+function testReliefRadiusRejectedBeforeAnyChange(tc)
+% a radius below two cells is refused without clearing the relief layer, and the layer still works (review)
+v = openView(tc); v.setLayer("Relief vs local trend");
+A = v.Relief;
+verifyError(tc, @() v.setReliefRadius(1.5), 'mgv22:InvalidReliefRadius');
+verifyEqual(tc, v.ReliefRadius, 5);
+verifyEqual(tc, v.Relief, A, 'nothing cleared');
+verifyEqual(tc, v.Layer, "Relief vs local trend");
+v.setReliefRadius(4);
+verifyEqual(tc, v.Relief.radius_m, 4);
 end

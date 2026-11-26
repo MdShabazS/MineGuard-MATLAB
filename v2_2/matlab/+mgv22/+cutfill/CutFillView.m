@@ -241,10 +241,15 @@ classdef CutFillView < handle
                 obj.showStatus("Layer must be ""Cut/fill"", ""Relief vs local trend"" or ""Soil movement"".", true);
                 error('mgv22:InvalidLayer', 'Layer must be "Cut/fill", "Relief vs local trend" or "Soil movement".');
             end
-            if name == "Relief vs local trend"
-                obj.computeRelief();
-            elseif name == "Soil movement"
-                obj.computeSoil();
+            try
+                if name == "Relief vs local trend"
+                    obj.computeRelief();
+                elseif name == "Soil movement"
+                    obj.computeSoil();
+                end
+            catch err
+                if obj.isOpen(), obj.LayerDropdown.Value = char(obj.Layer); end   % the dropdown shows the layer still in use
+                rethrow(err);
             end
             obj.Layer = name;
             if ~obj.isOpen(), return; end
@@ -266,9 +271,11 @@ classdef CutFillView < handle
         end
 
         function setReliefRadius(obj, r)
-            if ~(isnumeric(r) && isscalar(r) && isfinite(r) && r > 0)
-                obj.showStatus("Relief radius must be a positive number of metres.", true);
-                error('mgv22:InvalidReliefRadius', 'Relief radius must be a positive number of metres.');
+            minR = 2 * obj.Surface.cell_m;                       % localTrend needs at least two cells
+            if ~(isnumeric(r) && isscalar(r) && isfinite(r) && r >= minR)
+                msg = sprintf('Relief radius must be at least %g m (two survey cells).', minR);
+                obj.showStatus(msg, true);
+                error('mgv22:InvalidReliefRadius', '%s', msg);
             end
             obj.ReliefRadius = double(r);
             obj.Relief = []; obj.ReliefFeatures = [];

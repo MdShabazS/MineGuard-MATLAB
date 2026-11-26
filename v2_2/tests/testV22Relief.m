@@ -98,3 +98,14 @@ for t = [A.label; F.label]'
 end
 verifyEqual(tc, F.id(1), "RF-01");
 end
+
+function testFoxholeBowlFoundWhereverItSitsOnTheGrid(tc)
+% a 1.2 m, 0.7 m bowl centred on a cell centre leaves one cell deeper than 0.3 m; centred on a corner, four (review)
+for c = [-20 -10; -19.75 -9.75; -19.75 -10]'
+    S = makeS(@(X, Y) 0.01*Y - 0.7*max(0, 1 - ((X - c(1)).^2 + (Y - c(2)).^2)/0.36));
+    F = mgv22.relief.findFeatures(mgv22.relief.reliefAnomaly(S), S);
+    verifyEqual(tc, height(F), 1, sprintf('bowl at (%g, %g)', c));
+    verifyEqual(tc, F.type(1), "pit (foxhole-size)");
+    verifyEqual(tc, [F.x_east_m(1) F.y_north_m(1)], c', 'AbsTol', S.cell_m);
+end
+end
