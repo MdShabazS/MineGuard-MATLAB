@@ -874,10 +874,12 @@ classdef CutFillView < handle
             if ~obj.isOpen() || isempty(obj.Relief), return; end
             obj.clearReliefGraphics();
             gx = obj.Axes; D = obj.Relief.D;
-            idx = find(isfinite(D));
+            % only cells at least 0.1 m off the trend are tinted (the imagery shows elsewhere); the scale saturates at
+            % 0.6 m, about a crater's depth, so tall bushes and rocks do not wash the pits out
+            idx = find(isfinite(D) & abs(D) >= 0.1);
             if ~isempty(idx)
                 d = D(idx);
-                m = max(abs(d)); if ~(m > 0), m = 0.01; end
+                m = 0.6;
                 obj.ReliefLayer = geoscatter(gx, obj.LatGrid(idx), obj.LonGrid(idx), obj.markerSize(), ...
                     mgv22.cutfill.CutFillView.reliefRgb(d, m), 's', 'filled', 'MarkerEdgeColor', 'none', ...
                     'MarkerFaceAlpha', obj.Alpha, 'DisplayName', 'Relief deviation from local trend (INDIRECT EVIDENCE, SIMULATION)', ...
@@ -890,11 +892,27 @@ classdef CutFillView < handle
                     'MarkerFaceColor', 'none', 'LineWidth', 1.6, 'DisplayName', 'Relief feature (INDIRECT EVIDENCE, SIMULATION)', ...
                     'Tag', 'SIMULATION relief feature', 'PickableParts', 'none');
                 types = string(F.type);
-                obj.FeatureLabels = gobjects(height(F), 1);
+                obj.FeatureLabels = gobjects(0, 1);
+                % raised spots (berms, but in a DSM also bushes and rocks) are marked, not labelled; features of one
+                % type chained within 5 m of each other share one label ("3× pit (foxhole-size)"), placed at the first of them
+                xy = [double(F.x_east_m(:)) double(F.y_north_m(:))];
+                done = types == "berm";
                 for k = 1:height(F)
-                    obj.FeatureLabels(k) = text(gx, ll(k, 1), ll(k, 2), "  " + types(k), 'Color', [1 0.80 1], ...
+                    if done(k), continue; end
+                    grp = false(height(F), 1); grp(k) = true;
+                    while true                                  % chain: a feature joins if within 5 m of any member
+                        near = ~done & ~grp & types == types(k) & ...
+                            any(hypot(xy(:, 1) - xy(grp, 1)', xy(:, 2) - xy(grp, 2)') <= 5, 2);
+                        if ~any(near), break; end
+                        grp = grp | near;
+                    end
+                    done(grp) = true;
+                    txt = types(k); if nnz(grp) > 1, txt = nnz(grp) + "× " + txt; end
+                    align = 'left'; pad = "  " + txt;
+                    if types(k) == "pit (foxhole-size)", align = 'right'; pad = txt + "  "; end   % keeps clear of a crater label to the east
+                    obj.FeatureLabels(end+1, 1) = text(gx, ll(k, 1), ll(k, 2), pad, 'Color', [1 0.80 1], ...
                         'FontSize', 9, 'BackgroundColor', [0 0 0], 'Margin', 1, 'Tag', 'SIMULATION relief feature', ...
-                        'PickableParts', 'none', 'Interpreter', 'none');
+                        'PickableParts', 'none', 'Interpreter', 'none', 'HorizontalAlignment', align);
                 end
             end
         end
