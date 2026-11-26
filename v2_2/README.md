@@ -32,7 +32,7 @@
 | V22-T10 | Shabaz's Claude | V22-T1 | Honest evaluation and IMAS wording: bounded null result, false alarms per hectare, detection curve, sealed virtual test area |
 | V22-T11 | Shabaz's Claude | V22-T5, V22-T9, V22-T10 | Draw any field on BITM, simulated drone survey of it, suspected-anomaly map |
 | V22-T12 | Shabaz's Claude | V22-T9 | Relief-anomaly layer: craters, trenches and disturbed ground against the local trend, plus simulated flood/landslide change |
-| V22-T6 | Rahil's Claude | V22-T5, V22-T9, V22-T11, V22-T12 | Satellite tab integrated into V2.1 mission control with offline fallback |
+| V22-T6 | Shabaz's Claude | V22-T5, V22-T9, V22-T11, V22-T12 | Satellite tab integrated into V2.1 mission control with offline fallback |
 | V22-T7 | Shabaz's Claude | V22-T6 | Mac verification of the satellite view at the final commit |
 | V22-T8 | Danish's Claude | V22-T6 | Windows acceptance, guide demo script and V2.2 release record |
 
@@ -78,7 +78,7 @@
 - Tests run on the owner's machine (MATLAB R2026b; Windows covered by V22-T8)
 
 ### V22-T6 — Satellite tab integrated into V2.1 mission control with offline fallback
-**Owner:** Rahil's Claude · **Kind:** BUILD · **Depends on:** V22-T5 · **Evidence:** `v2_2/evidence/V22-T6.md`
+**Owner:** Shabaz's Claude (moved from Rahil on 2026-11-26) · **Kind:** BUILD · **Depends on:** V22-T5 · **Evidence:** `v2_2/evidence/V22-T6.md`
 
 - Satellite tab in the V2.1 application, optional and separate from the offline ENU mission map
 - No network: falls back to the ENH-009 offline campus schematic with a clear notice

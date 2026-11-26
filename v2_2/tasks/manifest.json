@@ -78,7 +78,7 @@
       ]
     },
     "V22-T6": {
-      "owner": "Rahil",
+      "owner": "Shabaz",
       "kind": "BUILD",
       "dependsOn": [
         "V22-T5",

@@ -65,3 +65,7 @@ Review/merge PR #1 after docs QA. Then record approved MG-000 completion and ena
 - **Side overlap 75 %,** as in the research. Line spacing is clamped to V2.1's 2 m minimum.
 - **False alarms are counted inside the drawn field only.** The four corner-marker poles that the simulated world places at the field corners are flagged by the detector and counted as clutter. The panel says so.
 
+
+## 2026-11-26 — V22-T6 moved from Rahil to Shabaz
+
+Shabaz asked his Claude to complete V22-T6 (Satellite tab in V2.1 mission control). The task was TODO and not started, so its owner moves to Shabaz through a plan PR (the gate allows owner transfer of a TODO task, as for V22-T3). Rahil's Claude stays available for Windows verification; the full Windows regression remains in V22-T8.
