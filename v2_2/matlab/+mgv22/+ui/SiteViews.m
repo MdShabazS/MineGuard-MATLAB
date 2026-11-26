@@ -183,13 +183,11 @@ classdef SiteViews < handle
         end
 
         function ses = currentSession(obj)
-            ses = [];
             try ses = obj.SessionFcn(); catch, ses = []; end
             if ~isempty(ses) && ~(isobject(ses) && isvalid(ses)), ses = []; end
         end
 
         function pub = currentPub(obj)
-            pub = [];
             try pub = obj.PubFcn(); catch, pub = []; end
         end
 

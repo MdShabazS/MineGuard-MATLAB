@@ -15,7 +15,7 @@ tc.TestData.okReader = @(~) struct('copyrightText', "Source: Test");
 end
 
 function L = launch(tc, varargin)
-opts = {'MetadataReader', tc.TestData.okReader, varargin{:}};
+opts = [{'MetadataReader', tc.TestData.okReader}, varargin];
 L = mgv21.ui.Launcher('Visible', "off", 'RealTime', 0, 'MaxTicksPerRun', 120, 'ExportRoot', tc.TestData.export, ...
     'SiteViewsOptions', opts);
 tc.addTeardown(@() delete(L));
